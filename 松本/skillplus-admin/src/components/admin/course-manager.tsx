@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Training, Category, Course } from "@/types";
 
+import { QuizManager } from "./quiz-manager";
+
 // BlockNoteはCSRのみなのでdynamic import
 const CourseEditor = dynamic(
   () => import("./course-editor").then((m) => m.CourseEditor),
@@ -31,6 +33,9 @@ export function CourseManager() {
   // エディタ状態
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Partial<Course> | null>(null);
+
+  // テスト管理
+  const [quizCourse, setQuizCourse] = useState<Course | null>(null);
 
   // 追加フォーム
   const [showForm, setShowForm] = useState<"training" | "category" | null>(null);
@@ -67,6 +72,17 @@ export function CourseManager() {
     setEditingCourse(null);
     if (selectedCategory) loadCourses(selectedCategory);
   };
+
+  // テスト管理が開いている場合
+  if (quizCourse) {
+    return (
+      <QuizManager
+        courseId={quizCourse.id}
+        courseName={quizCourse.name}
+        onClose={() => setQuizCourse(null)}
+      />
+    );
+  }
 
   // エディタが開いている場合
   if (editorOpen) {
@@ -140,6 +156,12 @@ export function CourseManager() {
                   </p>
                 </div>
                 <div className="flex gap-3">
+                  <button
+                    onClick={() => setQuizCourse(course)}
+                    className="text-xs text-blue-700 hover:text-blue-900 cursor-pointer"
+                  >
+                    テスト
+                  </button>
                   <button
                     onClick={() => { setEditingCourse(course); setEditorOpen(true); }}
                     className="text-xs text-gray-700 hover:text-black cursor-pointer"

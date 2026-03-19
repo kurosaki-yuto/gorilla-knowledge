@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import { Navbar } from "@/components/navbar";
 import { VideoPlayer } from "@/components/video-player";
+import { QuizForm } from "@/components/quiz-form";
+import { CompletionStatus } from "@/components/completion-status";
 import type { Course } from "@/types";
 
 interface CategoryNode {
@@ -43,6 +45,8 @@ export function CourseBrowser({ tree, userName, companyName }: CourseBrowserProp
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set());
   const [completedCourses, setCompletedCourses] = useState<Set<string>>(new Set());
+  const [videoCompletedCourses, setVideoCompletedCourses] = useState<Set<string>>(new Set());
+  const [quizPassedCourses, setQuizPassedCourses] = useState<Set<string>>(new Set());
 
   const toggleCategory = (catId: string) => {
     setCollapsedCats((prev) => {
@@ -53,8 +57,14 @@ export function CourseBrowser({ tree, userName, companyName }: CourseBrowserProp
     });
   };
 
-  // 完了コールバック
+  // 動画視聴完了コールバック
   const handleCourseComplete = useCallback((courseId: string) => {
+    setVideoCompletedCourses((prev) => new Set(prev).add(courseId));
+  }, []);
+
+  // テスト合格コールバック
+  const handleQuizPass = useCallback((courseId: string) => {
+    setQuizPassedCourses((prev) => new Set(prev).add(courseId));
     setCompletedCourses((prev) => new Set(prev).add(courseId));
   }, []);
 
@@ -156,6 +166,26 @@ export function CourseBrowser({ tree, userName, companyName }: CourseBrowserProp
                 course={selectedCourse}
                 onComplete={handleCourseComplete}
               />
+
+              {/* 修了ステータス */}
+              <div className="mt-6">
+                <CompletionStatus
+                  key={`status-${selectedCourse.id}-${videoCompletedCourses.has(selectedCourse.id)}-${quizPassedCourses.has(selectedCourse.id)}`}
+                  courseId={selectedCourse.id}
+                  videoCompleted={videoCompletedCourses.has(selectedCourse.id)}
+                  quizPassed={quizPassedCourses.has(selectedCourse.id)}
+                />
+              </div>
+
+              {/* 確認テスト */}
+              <div className="mt-6">
+                <QuizForm
+                  key={`quiz-${selectedCourse.id}`}
+                  courseId={selectedCourse.id}
+                  videoCompleted={videoCompletedCourses.has(selectedCourse.id)}
+                  onPass={() => handleQuizPass(selectedCourse.id)}
+                />
+              </div>
 
               {/* 前へ / 次へ */}
               <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-200">

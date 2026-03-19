@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
-import { VideoPlayer } from "@/components/video-player";
+import { CourseContent } from "@/components/course-content";
 
 export default async function CoursePage({
   params,
@@ -15,11 +15,10 @@ export default async function CoursePage({
 
   const { trainingId, categoryId, courseId } = await params;
 
-  const [trainings, categories, course, allCourses] = await Promise.all([
+  const [trainings, categories, course] = await Promise.all([
     db.getTrainings(),
     db.getCategoriesByTraining(trainingId),
     db.getCourseById(courseId),
-    db.getCoursesByCategory(categoryId),
   ]);
 
   const training = trainings.find((t) => t.id === trainingId);
@@ -43,7 +42,7 @@ export default async function CoursePage({
       <Navbar userName={session.name} companyName={session.companyName} />
 
       <div className="flex min-h-[calc(100vh-56px)]">
-        {/* 左サイドバー — Anthropicアカデミー風 */}
+        {/* 左サイドバー */}
         <aside className="w-[280px] shrink-0 border-r border-gray-200 bg-white overflow-y-auto hidden lg:block">
           <div className="p-5 border-b border-gray-200">
             <h2 className="font-bold text-base">{training.name}</h2>
@@ -58,12 +57,9 @@ export default async function CoursePage({
           <nav className="py-2">
             {allCategories.map((cat) => (
               <div key={cat.id} className="mb-1">
-                {/* カテゴリー名 */}
                 <div className="px-5 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {cat.name}
                 </div>
-
-                {/* 講座リスト */}
                 {cat.courses.map((c) => {
                   const isCurrent = c.id === courseId;
                   return (
@@ -98,7 +94,7 @@ export default async function CoursePage({
             <h1 className="text-2xl font-bold mb-4">{course.name}</h1>
 
             <p className="text-gray-500 text-sm mb-6">
-              所要時間目安：{formatDuration(course.durationSeconds)}
+              標準学習時間：{formatDuration(course.durationSeconds)}
             </p>
 
             {/* 学習目標 */}
@@ -111,10 +107,8 @@ export default async function CoursePage({
               </div>
             )}
 
-            {/* 動画プレーヤー */}
-            <div className="mb-8">
-              <VideoPlayer course={course} />
-            </div>
+            {/* 動画 + テスト + 修了ステータス */}
+            <CourseContent course={course} />
           </div>
         </main>
       </div>

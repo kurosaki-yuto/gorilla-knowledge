@@ -13,6 +13,7 @@ export interface SessionUser {
   id: string;
   name: string;
   companyName: string;
+  role: "admin" | "student";
 }
 
 /** JWTトークンを生成 */
@@ -32,6 +33,7 @@ async function verifyToken(token: string): Promise<SessionUser | null> {
       id: payload.id as string,
       name: payload.name as string,
       companyName: payload.companyName as string,
+      role: (payload.role as "admin" | "student") || "student",
     };
   } catch {
     return null;
@@ -54,6 +56,7 @@ export async function login(
     id: user.id,
     name: user.name,
     companyName: user.companyName,
+    role: user.role,
   });
 
   const cookieStore = await cookies();

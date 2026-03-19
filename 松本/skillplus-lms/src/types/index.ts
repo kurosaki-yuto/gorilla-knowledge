@@ -103,3 +103,54 @@ export interface CompletionResult {
   actualSeconds: number;
   message: string;
 }
+
+/** テスト問題 */
+export interface Quiz {
+  id: string;
+  courseId: string;
+  question: string;
+  choices: string[];
+  correctAnswer: number; // choices のインデックス
+  order: number;
+}
+
+/** テスト結果 */
+export interface QuizResult {
+  id: string;
+  userId: string;
+  courseId: string;
+  score: number; // 正答率（0〜100）
+  passed: boolean;
+  takenAt: string;
+  answers: number[]; // 選択したインデックス
+}
+
+/** 修了記録 */
+export interface Completion {
+  id: string;
+  userId: string;
+  courseId: string;
+  videoCompleted: boolean;
+  quizPassed: boolean;
+  completedAt: string;
+  certificateIssued: boolean;
+}
+
+/** ログイン記録 */
+export interface LoginLog {
+  id: string;
+  userId: string;
+  loginAt: string;
+  logoutAt: string;
+  ipAddress: string;
+  userAgent: string;
+}
+
+/** 修了ステータス（UI用） */
+export interface CompletionStatus {
+  videoCompleted: boolean;
+  quizPassed: boolean;
+  isCompleted: boolean; // 両方true
+  quizScore?: number;
+  completedAt?: string;
+}

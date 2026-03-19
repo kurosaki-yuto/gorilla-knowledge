@@ -9,6 +9,10 @@ import type {
   Course,
   User,
   ViewingHistory,
+  Quiz,
+  QuizResult,
+  Completion,
+  LoginLog,
 } from "@/types";
 
 /**
@@ -49,6 +53,23 @@ export interface DatabaseAdapter {
 
   // 視聴履歴（全体）
   getAllViewingHistory(): Promise<ViewingHistory[]>;
+
+  // === テスト ===
+  getQuizzesByCourse(courseId: string): Promise<Quiz[]>;
+  getQuizResultsByCourse(userId: string, courseId: string): Promise<QuizResult[]>;
+  saveQuizResult(result: Omit<QuizResult, "id">): Promise<string>;
+
+  // === 修了管理 ===
+  getCompletion(userId: string, courseId: string): Promise<Completion | null>;
+  getCompletionsByUser(userId: string): Promise<Completion[]>;
+  saveCompletion(completion: Omit<Completion, "id">): Promise<string>;
+  updateCompletion(id: string, data: Partial<Completion>): Promise<void>;
+
+  // === ログイン記録 ===
+  saveLoginLog(log: Omit<LoginLog, "id">): Promise<string>;
+  updateLoginLog(id: string, data: Partial<LoginLog>): Promise<void>;
+  getLoginLogsByUser(userId: string): Promise<LoginLog[]>;
+  getAllLoginLogs(): Promise<LoginLog[]>;
 }
 
-export { MockAdapter as db } from "./mock";
+export { SupabaseAdapter as db } from "./supabase";

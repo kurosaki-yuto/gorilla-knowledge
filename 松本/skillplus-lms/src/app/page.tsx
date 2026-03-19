@@ -7,6 +7,7 @@ import type { Course } from "@/types";
 export default async function HomePage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.role === "admin") redirect("/admin");
 
   const trainings = await db.getTrainings();
 

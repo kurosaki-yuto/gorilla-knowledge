@@ -34,6 +34,32 @@ export async function GET(request: NextRequest) {
       );
     case "progress":
       return NextResponse.json(await db.getAllViewingHistory());
+    case "quizzes": {
+      const courseId = request.nextUrl.searchParams.get("courseId") || "";
+      return NextResponse.json(await db.getQuizzesByCourse(courseId));
+    }
+    case "completions": {
+      const { data } = await (await import("@supabase/supabase-js")).createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      ).from("completions").select(`
+        user_id, course_id, video_completed, quiz_passed, completed_at, certificate_issued,
+        users!inner(name, company_name),
+        courses!inner(name, duration_seconds)
+      `);
+      return NextResponse.json((data || []).map((c: Record<string, unknown>) => ({
+        userId: c.user_id,
+        courseId: c.course_id,
+        videoCompleted: c.video_completed,
+        quizPassed: c.quiz_passed,
+        completedAt: c.completed_at,
+        certificateIssued: c.certificate_issued,
+        userName: (c.users as Record<string, unknown>)?.name || "",
+        companyName: (c.users as Record<string, unknown>)?.company_name || "",
+        courseName: (c.courses as Record<string, unknown>)?.name || "",
+        standardDurationMin: Math.round(((c.courses as Record<string, unknown>)?.duration_seconds as number || 0) / 60),
+      })));
+    }
     default:
       return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   }
@@ -101,6 +127,42 @@ export async function POST(request: NextRequest) {
       }
       case "deleteUser": {
         await db.deleteUser(data.id);
+        return NextResponse.json({ success: true });
+      }
+      // テスト問題CRUD
+      case "createQuiz": {
+        const supabaseClient = (await import("@supabase/supabase-js")).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { data: quiz } = await supabaseClient.from("quizzes").insert({
+          course_id: data.courseId,
+          question: data.question,
+          choices: data.choices,
+          correct_answer: data.correctAnswer,
+          sort_order: data.sortOrder || 0,
+        }).select("id").single();
+        return NextResponse.json({ success: true, id: quiz?.id });
+      }
+      case "updateQuiz": {
+        const supabaseClient2 = (await import("@supabase/supabase-js")).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        await supabaseClient2.from("quizzes").update({
+          question: data.question,
+          choices: data.choices,
+          correct_answer: data.correctAnswer,
+          sort_order: data.sortOrder,
+        }).eq("id", data.id);
+        return NextResponse.json({ success: true });
+      }
+      case "deleteQuiz": {
+        const supabaseClient3 = (await import("@supabase/supabase-js")).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        await supabaseClient3.from("quizzes").delete().eq("id", data.id);
         return NextResponse.json({ success: true });
       }
       default:

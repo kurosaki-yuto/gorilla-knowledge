@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { login, logout, getSession } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 // ログイン
 export async function POST(request: NextRequest) {
@@ -21,6 +22,17 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // ログイン記録を保存
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+    const ua = request.headers.get("user-agent") || "unknown";
+    await db.saveLoginLog({
+      userId,
+      loginAt: new Date().toISOString(),
+      logoutAt: "",
+      ipAddress: ip,
+      userAgent: ua,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

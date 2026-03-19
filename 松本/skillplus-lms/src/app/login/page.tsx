@@ -23,7 +23,14 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        router.push("/");
+        // ログイン後にセッション情報を取得してロールに応じてリダイレクト
+        const sessionRes = await fetch("/api/auth");
+        const sessionData = await sessionRes.json();
+        if (sessionData.authenticated && sessionData.user?.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
         router.refresh();
       } else {
         setError(data.message || "ログインに失敗しました");
@@ -86,7 +93,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-xs text-gray-400">
-          テスト用: user001 / test1234
+          ログインIDとパスワードは管理者にお問い合わせください
         </p>
       </div>
     </div>

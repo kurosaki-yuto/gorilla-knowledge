@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CourseManager } from "./course-manager";
 import { UserManager } from "./user-manager";
 import { ProgressViewer } from "./progress-viewer";
+import { ReportExporter } from "./report-exporter";
 
 interface AdminDashboardProps {
   userName: string;
@@ -14,6 +15,7 @@ const TABS = [
   { id: "courses", label: "講座管理" },
   { id: "users", label: "ユーザー管理" },
   { id: "progress", label: "進捗確認" },
+  { id: "reports", label: "レポート" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -63,6 +65,7 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
         {activeTab === "courses" && <CourseManager />}
         {activeTab === "users" && <UserManager />}
         {activeTab === "progress" && <ProgressViewer />}
+        {activeTab === "reports" && <ReportExporter />}
       </main>
     </div>
   );
