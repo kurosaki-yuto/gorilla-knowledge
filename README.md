@@ -15,56 +15,40 @@ gorilla-knowledge/
 
 各メンバーは **自分のディレクトリ** にナレッジを追加していってください。
 
-## Git ワークフロー（重要）
+## Git ワークフロー
 
-**main ブランチに直接プッシュしないでください。** 必ずブランチを切ってプルリクエスト（PR）経由でマージします。
+main ブランチに直接プッシュしてOKです。シンプルに以下の手順で進めてください。
 
 ### 手順
 
 ```bash
-# 1. 最新の main を取得
-git checkout main
+# 1. 作業前に最新を取得（これだけは必ずやる！）
 git pull origin main
 
-# 2. 自分の作業ブランチを作成（名前は自由、例: 黒崎/aws-tips）
-git checkout -b 黒崎/aws-tips
-
-# 3. 自分のディレクトリ内でファイルを作成・編集
+# 2. 自分のディレクトリ内でファイルを作成・編集
 #    ※ 他のメンバーのディレクトリは編集しない
 
-# 4. コミット
+# 3. コミット（自分のディレクトリだけ add する）
 git add 黒崎/
 git commit -m "AWSのTipsを追加"
 
-# 5. リモートにプッシュ
-git push origin 黒崎/aws-tips
-
-# 6. GitHub 上でプルリクエストを作成 → main にマージ
+# 4. プッシュ
+git push origin main
 ```
 
 ### ルール
 
-- **ブランチ名**: `名前/トピック` の形式にする（例: `前田/react-hooks`, `野田/docker-tips`）
-- **自分のディレクトリだけ編集する**: 他のメンバーのディレクトリを触るとコンフリクトの原因になります
-- **作業前に必ず `git pull origin main`**: 最新の状態から始めることでコンフリクトを防ぎます
+- **自分のディレクトリだけ編集する**: 他のメンバーのディレクトリを触らなければコンフリクトは起きません
+- **作業前に必ず `git pull origin main`**: 最新の状態から始める
 - **困ったら `git status` で確認**: 今どの状態にいるか分からなくなったらまず確認
 
-### よくあるトラブルと対処
+### プッシュが拒否された場合
+
+他の人が先にプッシュしていた場合、以下で解決できます。
 
 ```bash
-# プッシュが拒否された場合（他の人のマージが先に入った）
-git checkout main
 git pull origin main
-git checkout 自分のブランチ名
-git rebase main
-git push origin 自分のブランチ名 --force-with-lease
-
-# どうしても分からなくなったら
-git stash          # 今の変更を一時退避
-git checkout main  # main に戻る
-git pull origin main
-git checkout -b 新しいブランチ名
-git stash pop      # 退避した変更を戻す
+git push origin main
 ```
 
 ## Claude Code での作業の始め方
