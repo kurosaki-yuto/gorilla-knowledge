@@ -64,6 +64,12 @@ const ICON_MAP = {
   users: FA.FaUsers, chart: FA.FaChartLine, code: FA.FaCode,
   globe: FA.FaGlobe, shield: FA.FaShieldAlt, star: FA.FaStar,
   book: FA.FaBook, laptop: FA.FaLaptop, tools: FA.FaTools,
+  link: FA.FaLink, plug: FA.FaPlug, sync: FA.FaSyncAlt,
+  network: FA.FaNetworkWired, sitemap: FA.FaSitemap, tasks: FA.FaTasks,
+  clipboard: FA.FaClipboardList, key: FA.FaKey, bolt: FA.FaBolt,
+  handshake: FA.FaHandshake, project: FA.FaProjectDiagram,
+  play: FA.FaPlay, desktop: FA.FaDesktop, briefcase: FA.FaBriefcase,
+  headset: FA.FaHeadset, clock: FA.FaClock, layer: FA.FaLayerGroup,
 };
 
 const iconCache = {};
@@ -132,12 +138,12 @@ async function renderDefinition(s, pres, slide, chapter, course, num, total) {
   s.addText(slide.title, { x: L.mx, y: 0.35, w: 8.5, h: 0.55, fontSize: F.size.h1, fontFace: F.sans, bold: true, color: C.textDark, margin: 0 });
   addFooter(s, pres, chapter.id, num, total);
 
-  // Definition box
-  s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: 1.15, w: L.W - L.mx * 2, h: 0.85, fill: { color: C.accentLight } });
-  s.addText(slide.definition, { x: L.mx + 0.3, y: 1.15, w: L.W - L.mx * 2 - 0.6, h: 0.85, fontSize: F.size.h2, fontFace: F.sans, bold: true, color: C.accent, valign: "middle", margin: 0 });
+  // Definition box — taller to prevent Japanese text wrapping
+  s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: 1.15, w: L.W - L.mx * 2, h: 1.0, fill: { color: C.accentLight } });
+  s.addText(slide.definition, { x: L.mx + 0.3, y: 1.15, w: L.W - L.mx * 2 - 0.6, h: 1.0, fontSize: F.size.h3, fontFace: F.sans, bold: true, color: C.accent, valign: "middle", margin: 0 });
 
   if (slide.comparison) {
-    const colW = 3.5, colY = 2.35, colH = 2.5;
+    const colW = 3.5, colY = 2.45, colH = 2.3;
     const arrowIcon = await getIcon("arrow", C.accent);
 
     // Left
@@ -240,55 +246,57 @@ async function renderExamples(s, pres, slide, chapter, course, num, total) {
     });
   }
 
-  // Examples
-  const startY = slide.flow ? 2.65 : 1.75;
+  // Examples — wider labels, dynamic bottom bar positioning
+  const startY = slide.flow ? 2.55 : 1.75;
   const examples = slide.examples || [];
+  const exRowH = slide.flow ? 0.7 : 0.8;
   examples.forEach((e, i) => {
-    const y = startY + i * (slide.flow ? 0.75 : 0.85);
+    const y = startY + i * exRowH;
     if (slide.flow) {
       // Simple label + desc
       if (i > 0) s.addShape(pres.shapes.LINE, { x: L.mx, y, w: L.W - L.mx * 2, h: 0, line: { color: C.border, width: 0.5 } });
-      s.addText(e.label, { x: L.mx + 0.2, y, w: 1.5, h: 0.6, fontSize: F.size.body, fontFace: F.sans, bold: true, color, valign: "middle", margin: 0 });
-      s.addText(e.desc, { x: L.mx + 2.0, y, w: 6.5, h: 0.6, fontSize: F.size.body, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
+      s.addText(e.label, { x: L.mx + 0.2, y, w: 2.0, h: 0.55, fontSize: F.size.label, fontFace: F.sans, bold: true, color, valign: "middle", margin: 0 });
+      s.addText(e.desc, { x: L.mx + 2.3, y, w: 6.2, h: 0.55, fontSize: F.size.label, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
     } else if (e.input && e.output) {
       // Table-style: label | input → output
-      s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: 0.05, h: 0.7, fill: { color: C.amber } });
       s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: L.W - L.mx * 2, h: 0.7, fill: { color: C.offWhite } });
       s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: 0.05, h: 0.7, fill: { color } });
-      s.addText(e.label, { x: L.mx + 0.3, y, w: 1.5, h: 0.4, fontSize: F.size.body, fontFace: F.sans, bold: true, color: C.textDark, valign: "bottom", margin: 0 });
-      if (e.tools) s.addText(e.tools, { x: L.mx + 0.3, y: y + 0.38, w: 1.5, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, valign: "top", margin: 0 });
-      s.addText(e.desc || `${e.input} → ${e.output}`, { x: L.mx + 2.2, y, w: 6.0, h: 0.7, fontSize: F.size.body, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
+      s.addText(e.label, { x: L.mx + 0.3, y, w: 2.0, h: 0.4, fontSize: F.size.label, fontFace: F.sans, bold: true, color: C.textDark, valign: "bottom", margin: 0 });
+      if (e.tools) s.addText(e.tools, { x: L.mx + 0.3, y: y + 0.38, w: 2.0, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, valign: "top", margin: 0 });
+      s.addText(e.desc || `${e.input} → ${e.output}`, { x: L.mx + 2.5, y, w: 5.7, h: 0.7, fontSize: F.size.label, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
     } else {
       // Card-style with accent border
       s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: L.W - L.mx * 2, h: 0.7, fill: { color: C.offWhite } });
       s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: 0.05, h: 0.7, fill: { color } });
-      s.addText(e.label, { x: L.mx + 0.3, y, w: 1.5, h: 0.4, fontSize: F.size.body, fontFace: F.sans, bold: true, color: C.textDark, valign: "bottom", margin: 0 });
-      if (e.tools) s.addText(e.tools, { x: L.mx + 0.3, y: y + 0.38, w: 1.5, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, valign: "top", margin: 0 });
-      s.addText(e.desc, { x: L.mx + 2.2, y, w: 6.0, h: 0.7, fontSize: F.size.body, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
+      s.addText(e.label, { x: L.mx + 0.3, y, w: 2.0, h: 0.4, fontSize: F.size.label, fontFace: F.sans, bold: true, color: C.textDark, valign: "bottom", margin: 0 });
+      if (e.tools) s.addText(e.tools, { x: L.mx + 0.3, y: y + 0.38, w: 2.0, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, valign: "top", margin: 0 });
+      s.addText(e.desc, { x: L.mx + 2.5, y, w: 5.7, h: 0.7, fontSize: F.size.label, fontFace: F.sans, color: C.textBody, valign: "middle", margin: 0 });
     }
   });
 
-  // Pros/Cons or Insight
+  // Pros/Cons or Insight — positioned dynamically below examples
+  const bottomY = startY + examples.length * exRowH + 0.15;
   if (slide.pros || slide.cons) {
-    const by = slide.flow ? 4.55 : 4.35;
+    const by = Math.max(bottomY, 4.2);
     if (slide.pros) {
       const checkIcon = await getIcon("check", C.green);
-      s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: by, w: 4.0, h: 0.55, fill: { color: C.greenBg } });
-      if (checkIcon) s.addImage({ data: checkIcon, x: L.mx + 0.15, y: by + 0.1, w: 0.3, h: 0.3 });
-      s.addText(slide.pros, { x: L.mx + 0.6, y: by, w: 3.2, h: 0.55, fontSize: F.size.label, fontFace: F.sans, color: C.green, valign: "middle", margin: 0 });
+      s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: by, w: 4.0, h: 0.5, fill: { color: C.greenBg } });
+      if (checkIcon) s.addImage({ data: checkIcon, x: L.mx + 0.15, y: by + 0.1, w: 0.25, h: 0.25 });
+      s.addText(slide.pros, { x: L.mx + 0.55, y: by, w: 3.3, h: 0.5, fontSize: F.size.label, fontFace: F.sans, color: C.green, valign: "middle", margin: 0 });
     }
     if (slide.cons) {
       const warnIcon = await getIcon("warning", C.amber);
-      s.addShape(pres.shapes.RECTANGLE, { x: L.mx + 4.5, y: by, w: 4.0, h: 0.55, fill: { color: C.amberBg } });
-      if (warnIcon) s.addImage({ data: warnIcon, x: L.mx + 4.65, y: by + 0.1, w: 0.3, h: 0.3 });
-      s.addText(slide.cons, { x: L.mx + 5.1, y: by, w: 3.2, h: 0.55, fontSize: F.size.label, fontFace: F.sans, color: C.amber, valign: "middle", margin: 0 });
+      s.addShape(pres.shapes.RECTANGLE, { x: L.mx + 4.5, y: by, w: 4.0, h: 0.5, fill: { color: C.amberBg } });
+      if (warnIcon) s.addImage({ data: warnIcon, x: L.mx + 4.65, y: by + 0.1, w: 0.25, h: 0.25 });
+      s.addText(slide.cons, { x: L.mx + 5.05, y: by, w: 3.3, h: 0.5, fontSize: F.size.label, fontFace: F.sans, color: C.amber, valign: "middle", margin: 0 });
     }
   }
   if (slide.insight) {
+    const iy = Math.max(bottomY, 4.4);
     const bulbIcon = await getIcon("bulb", C.amber);
-    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: 4.55, w: L.W - L.mx * 2, h: 0.5, fill: { color: C.accentLight } });
-    if (bulbIcon) s.addImage({ data: bulbIcon, x: L.mx + 0.2, y: 4.63, w: 0.3, h: 0.3 });
-    s.addText(slide.insight, { x: L.mx + 0.7, y: 4.55, w: 7.5, h: 0.5, fontSize: F.size.label, fontFace: F.sans, bold: true, color: C.accent, valign: "middle", margin: 0 });
+    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: iy, w: L.W - L.mx * 2, h: 0.5, fill: { color: C.accentLight } });
+    if (bulbIcon) s.addImage({ data: bulbIcon, x: L.mx + 0.2, y: iy + 0.1, w: 0.25, h: 0.25 });
+    s.addText(slide.insight, { x: L.mx + 0.65, y: iy, w: 7.5, h: 0.5, fontSize: F.size.label, fontFace: F.sans, bold: true, color: C.accent, valign: "middle", margin: 0 });
   }
 }
 
@@ -324,7 +332,7 @@ async function renderTable(s, pres, slide, chapter, course, num, total) {
     row.forEach((cell, ci) => {
       const bg = ri % 2 === 0 ? C.offWhite : C.white;
       s.addShape(pres.shapes.RECTANGLE, { x: cx, y: ry, w: colW[ci], h: rowH, fill: { color: ci === 0 ? C.offWhite : bg } });
-      s.addText(cell, { x: cx, y: ry, w: colW[ci], h: rowH, fontSize: ci === 0 ? F.size.label : F.size.body, fontFace: F.sans, bold: ci === 0, color: ci === 0 ? C.textMuted : C.textDark, align: "center", valign: "middle" });
+      s.addText(cell, { x: cx, y: ry, w: colW[ci], h: rowH, fontSize: ci === 0 ? F.size.label : F.size.label, fontFace: F.sans, bold: ci === 0, color: ci === 0 ? C.textMuted : C.textDark, align: "center", valign: "middle" });
       cx += colW[ci];
     });
   });
@@ -337,26 +345,27 @@ async function renderGrid(s, pres, slide, chapter, course, num, total) {
   addFooter(s, pres, chapter.id, num, total);
 
   const items = slide.items || [];
-  const cardW = 4.0, cardH = 1.2, gapX = 0.5, gapY = 0.4;
+  const cardW = 4.0, cardH = 1.35, gapX = 0.5, gapY = 0.3;
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const col = i % 2, row = Math.floor(i / 2);
     const x = L.mx + col * (cardW + gapX);
-    const y = 1.2 + row * (cardH + gapY);
+    const y = 1.15 + row * (cardH + gapY);
 
     s.addShape(pres.shapes.RECTANGLE, { x, y, w: cardW, h: cardH, fill: { color: C.offWhite }, line: { color: C.border, width: 0.5 } });
 
     const ic = await getIcon(item.icon, C.accent);
     if (ic) s.addImage({ data: ic, x: x + 0.3, y: y + (cardH - 0.4) / 2, w: 0.4, h: 0.4 });
 
-    s.addText(item.label, { x: x + 0.95, y: y + 0.15, w: 2.8, h: 0.4, fontSize: F.size.h3, fontFace: F.sans, bold: true, color: C.textDark, valign: "middle", margin: 0 });
-    s.addText(item.desc, { x: x + 0.95, y: y + 0.6, w: 2.8, h: 0.4, fontSize: F.size.label, fontFace: F.sans, color: C.textLight, valign: "top", margin: 0 });
+    s.addText(item.label, { x: x + 0.95, y: y + 0.12, w: 2.8, h: 0.4, fontSize: F.size.h3, fontFace: F.sans, bold: true, color: C.textDark, valign: "middle", margin: 0 });
+    s.addText(item.desc, { x: x + 0.95, y: y + 0.58, w: 2.8, h: 0.6, fontSize: F.size.label, fontFace: F.sans, color: C.textLight, valign: "top", margin: 0 });
   }
 
   if (slide.key_message) {
-    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: 4.0, w: L.W - L.mx * 2, h: 0.7, fill: { color: C.navy } });
-    s.addText(slide.key_message, { x: L.mx + 0.3, y: 4.0, w: L.W - L.mx * 2 - 0.6, h: 0.7, fontSize: F.size.body, fontFace: F.sans, bold: true, color: C.white, align: "center", valign: "middle" });
+    const kmY = 1.15 + Math.ceil(items.length / 2) * (cardH + gapY) + 0.1;
+    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y: kmY, w: L.W - L.mx * 2, h: 0.6, fill: { color: C.navy } });
+    s.addText(slide.key_message, { x: L.mx + 0.3, y: kmY, w: L.W - L.mx * 2 - 0.6, h: 0.6, fontSize: F.size.label, fontFace: F.sans, bold: true, color: C.white, align: "center", valign: "middle" });
   }
 }
 
@@ -367,20 +376,21 @@ async function renderCaution(s, pres, slide, chapter, course, num, total) {
   addFooter(s, pres, chapter.id, num, total);
 
   const items = slide.items || [];
+  const cautionItemH = items.length <= 3 ? 1.25 : 1.0;
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const y = 1.2 + i * 1.2;
+    const y = 1.15 + i * cautionItemH;
     const color = resolveColor(item.color);
     const bgColor = resolveBgColor(item.color);
 
-    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: 0.05, h: 0.95, fill: { color } });
+    s.addShape(pres.shapes.RECTANGLE, { x: L.mx, y, w: 0.05, h: cautionItemH - 0.15, fill: { color } });
 
     const ic = await getIcon(item.icon, color);
-    s.addShape(pres.shapes.OVAL, { x: L.mx + 0.3, y: y + 0.15, w: 0.6, h: 0.6, fill: { color: bgColor } });
-    if (ic) s.addImage({ data: ic, x: L.mx + 0.4, y: y + 0.25, w: 0.4, h: 0.4 });
+    s.addShape(pres.shapes.OVAL, { x: L.mx + 0.3, y: y + 0.1, w: 0.6, h: 0.6, fill: { color: bgColor } });
+    if (ic) s.addImage({ data: ic, x: L.mx + 0.4, y: y + 0.2, w: 0.4, h: 0.4 });
 
-    s.addText(item.title, { x: L.mx + 1.2, y: y + 0.05, w: 7, h: 0.4, fontSize: F.size.h3, fontFace: F.sans, bold: true, color: C.textDark, valign: "middle", margin: 0 });
-    s.addText(item.desc, { x: L.mx + 1.2, y: y + 0.5, w: 7, h: 0.4, fontSize: F.size.body, fontFace: F.sans, color: C.textLight, valign: "top", margin: 0 });
+    s.addText(item.title, { x: L.mx + 1.2, y: y + 0.05, w: 7, h: 0.35, fontSize: F.size.h3, fontFace: F.sans, bold: true, color: C.textDark, valign: "middle", margin: 0 });
+    s.addText(item.desc, { x: L.mx + 1.2, y: y + 0.42, w: 7, h: 0.6, fontSize: F.size.label, fontFace: F.sans, color: C.textLight, valign: "top", margin: 0 });
   }
 }
 
