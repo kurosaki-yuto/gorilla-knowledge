@@ -32,6 +32,7 @@ export interface Course {
   isPublished: boolean;
   durationSeconds: number; // 動画時間（秒）- 完了判定に使用
   thumbnailUrl: string;
+  contentJson?: unknown;
   createdAt: string;
   updatedAt: string;
 }

@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Training, Category, Course } from "@/types";
 
-import { QuizManager } from "./quiz-manager";
 
 // BlockNoteはCSRのみなのでdynamic import
 const CourseEditor = dynamic(
@@ -34,9 +33,6 @@ export function CourseManager() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Partial<Course> | null>(null);
 
-  // テスト管理
-  const [quizCourse, setQuizCourse] = useState<Course | null>(null);
-
   // 追加フォーム
   const [showForm, setShowForm] = useState<"training" | "category" | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -62,7 +58,7 @@ export function CourseManager() {
   };
 
   // 講座エディタで保存
-  const handleSaveCourse = async (data: { name: string; description: string; videoUrl: string; durationSeconds: number }) => {
+  const handleSaveCourse = async (data: { name: string; description: string; videoUrl: string; durationSeconds: number; contentJson: unknown }) => {
     if (editingCourse?.id) {
       await post({ action: "updateCourse", id: editingCourse.id, ...data });
     } else if (selectedCategory) {
@@ -72,17 +68,6 @@ export function CourseManager() {
     setEditingCourse(null);
     if (selectedCategory) loadCourses(selectedCategory);
   };
-
-  // テスト管理が開いている場合
-  if (quizCourse) {
-    return (
-      <QuizManager
-        courseId={quizCourse.id}
-        courseName={quizCourse.name}
-        onClose={() => setQuizCourse(null)}
-      />
-    );
-  }
 
   // エディタが開いている場合
   if (editorOpen) {
@@ -96,90 +81,157 @@ export function CourseManager() {
     );
   }
 
+  const selectedTrainingName = trainings.find((t) => t.id === selectedTraining)?.name;
+  const selectedCategoryName = categories.find((c) => c.id === selectedCategory)?.name;
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-black mb-8">講座管理</h1>
+      <h1 className="text-2xl font-bold text-black mb-6">講座管理</h1>
 
-      {/* 研修 */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-black">研修</h2>
-          <button onClick={() => { setShowForm("training"); setFormData({}); }} className="text-sm text-gray-700 hover:text-black cursor-pointer">＋ 追加</button>
-        </div>
-        <div className="space-y-1">
-          {trainings.map((t) => (
-            <div key={t.id} className={`flex items-center justify-between py-2.5 px-3 rounded cursor-pointer transition-colors ${selectedTraining === t.id ? "bg-gray-100 font-medium" : "hover:bg-gray-50"}`}>
-              <button onClick={() => { setSelectedTraining(t.id); setSelectedCategory(null); }} className="flex-1 text-left text-sm text-black cursor-pointer">{t.name}</button>
-              <button onClick={async () => { if (confirm("削除しますか？")) { await post({ action: "deleteTraining", id: t.id }); setSelectedTraining(null); loadTrainings(); } }} className="text-xs text-gray-600 hover:text-red-600 cursor-pointer ml-2">削除</button>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Finderスタイル カラムビュー */}
+      <div className="flex gap-0">
 
-      {/* カテゴリー */}
-      {selectedTraining && (
-        <div className="mb-8 pl-6 border-l-2 border-gray-300">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-black text-sm">カテゴリー</h2>
-            <button onClick={() => { setShowForm("category"); setFormData({}); }} className="text-sm text-gray-700 hover:text-black cursor-pointer">＋ 追加</button>
-          </div>
-          <div className="space-y-1">
-            {categories.map((c) => (
-              <div key={c.id} className={`flex items-center justify-between py-2.5 px-3 rounded cursor-pointer transition-colors ${selectedCategory === c.id ? "bg-gray-100 font-medium" : "hover:bg-gray-50"}`}>
-                <button onClick={() => setSelectedCategory(c.id)} className="flex-1 text-left text-sm text-black cursor-pointer">{c.name}</button>
-                <button onClick={async () => { if (confirm("削除しますか？")) { await post({ action: "deleteCategory", id: c.id }); setSelectedCategory(null); if (selectedTraining) loadCategories(selectedTraining); } }} className="text-xs text-gray-600 hover:text-red-600 cursor-pointer ml-2">削除</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 講座 */}
-      {selectedCategory && (
-        <div className="mb-8 pl-12 border-l-2 border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-black text-sm">講座</h2>
+        {/* 第1カラム: 研修 */}
+        <div className="min-w-0" style={{ width: selectedTraining ? "200px" : "100%" }}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-500">研修</h2>
             <button
-              onClick={() => { setEditingCourse(null); setEditorOpen(true); }}
-              className="text-sm text-gray-700 hover:text-black cursor-pointer"
+              onClick={() => { setShowForm("training"); setFormData({}); }}
+              className="text-sm text-gray-400 hover:text-black cursor-pointer"
             >
-              ＋ 新しい講座
+              ＋
             </button>
           </div>
-          <div className="space-y-2">
-            {courses.map((course) => (
-              <div key={course.id} className="flex items-center justify-between py-3 px-4 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-black">{course.name}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">
-                    {course.videoUrl ? "YouTube設定済み" : "動画未設定"} ・ {Math.floor(course.durationSeconds / 60)}分
-                  </p>
-                </div>
-                <div className="flex gap-3">
+          <div>
+            {trainings.map((t) => (
+              <div
+                key={t.id}
+                onClick={() => { setSelectedTraining(t.id); setSelectedCategory(null); setCourses([]); }}
+                className={`group flex items-center justify-between py-2 px-2 -mx-2 rounded cursor-pointer transition-colors ${
+                  selectedTraining === t.id ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                }`}
+              >
+                <span className="text-sm text-black truncate flex-1">{t.name}</span>
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setQuizCourse(course)}
-                    className="text-xs text-blue-700 hover:text-blue-900 cursor-pointer"
-                  >
-                    テスト
-                  </button>
-                  <button
-                    onClick={() => { setEditingCourse(course); setEditorOpen(true); }}
-                    className="text-xs text-gray-700 hover:text-black cursor-pointer"
-                  >
-                    編集
-                  </button>
-                  <button
-                    onClick={async () => { if (confirm("削除しますか？")) { await post({ action: "deleteCourse", id: course.id }); if (selectedCategory) loadCourses(selectedCategory); } }}
-                    className="text-xs text-gray-600 hover:text-red-600 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm("この研修を削除しますか？")) {
+                        post({ action: "deleteTraining", id: t.id }).then(() => {
+                          if (selectedTraining === t.id) { setSelectedTraining(null); setCategories([]); setCourses([]); }
+                          loadTrainings();
+                        });
+                      }
+                    }}
+                    className="text-xs text-gray-300 opacity-0 group-hover:opacity-100 hover:text-red-500 cursor-pointer"
                   >
                     削除
                   </button>
+                  {selectedTraining === t.id && <span className="text-gray-300 text-xs">›</span>}
                 </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+
+        {/* 第2カラム: カテゴリー */}
+        {selectedTraining && (
+          <>
+            <div className="w-px bg-gray-200 mx-6 self-stretch shrink-0" />
+            <div className="min-w-0" style={{ width: selectedCategory ? "200px" : "300px" }}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-gray-500 truncate">{selectedTrainingName}</h2>
+                <button
+                  onClick={() => { setShowForm("category"); setFormData({}); }}
+                  className="text-sm text-gray-400 hover:text-black cursor-pointer shrink-0"
+                >
+                  ＋
+                </button>
+              </div>
+              <div>
+                {categories.length === 0 ? (
+                  <p className="text-xs text-gray-400 py-2">カテゴリーなし</p>
+                ) : (
+                  categories.map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => setSelectedCategory(c.id)}
+                      className={`group flex items-center justify-between py-2 px-2 -mx-2 rounded cursor-pointer transition-colors ${
+                        selectedCategory === c.id ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <span className="text-sm text-black truncate flex-1">{c.name}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm("このカテゴリーを削除しますか？")) {
+                              post({ action: "deleteCategory", id: c.id }).then(() => {
+                                if (selectedCategory === c.id) { setSelectedCategory(null); setCourses([]); }
+                                if (selectedTraining) loadCategories(selectedTraining);
+                              });
+                            }
+                          }}
+                          className="text-xs text-gray-300 opacity-0 group-hover:opacity-100 hover:text-red-500 cursor-pointer"
+                        >
+                          削除
+                        </button>
+                        {selectedCategory === c.id && <span className="text-gray-300 text-xs">›</span>}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* 第3カラム: 講座 */}
+        {selectedCategory && (
+          <>
+            <div className="w-px bg-gray-200 mx-6 self-stretch shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-gray-500 truncate">{selectedCategoryName}</h2>
+                <button
+                  onClick={() => { setEditingCourse(null); setEditorOpen(true); }}
+                  className="text-sm text-gray-400 hover:text-black cursor-pointer shrink-0"
+                >
+                  ＋ 新しい講座
+                </button>
+              </div>
+              <div>
+                {courses.length === 0 ? (
+                  <p className="text-xs text-gray-400 py-2">講座なし</p>
+                ) : (
+                  courses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="group flex items-center justify-between py-2 px-2 -mx-2 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-black">{course.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {course.videoUrl ? "YouTube設定済み" : "動画未設定"} ・ {Math.floor(course.durationSeconds / 60)}分
+                        </p>
+                      </div>
+                      <div className="flex gap-3 ml-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        <button onClick={() => { setEditingCourse(course); setEditorOpen(true); }} className="text-xs text-gray-500 hover:text-black cursor-pointer">編集</button>
+                        <button
+                          onClick={() => { if (confirm("この講座を削除しますか？")) { post({ action: "deleteCourse", id: course.id }).then(() => { if (selectedCategory) loadCourses(selectedCategory); }); } }}
+                          className="text-xs text-gray-300 hover:text-red-500 cursor-pointer"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* 研修/カテゴリー追加モーダル */}
       {showForm && (

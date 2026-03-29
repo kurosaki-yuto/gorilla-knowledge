@@ -50,6 +50,7 @@ function toCourse(r: Record<string, unknown>): Course {
     isPublished: r.is_published as boolean,
     durationSeconds: (r.duration_seconds as number) || 0,
     thumbnailUrl: (r.thumbnail_url as string) || "",
+    contentJson: r.content_json || null,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
   };
@@ -178,6 +179,7 @@ export const SupabaseAdapter: DatabaseAdapter = {
       category_id: c.categoryId, name: c.name, description: c.description,
       video_url: c.videoUrl, is_published: c.isPublished,
       duration_seconds: c.durationSeconds, thumbnail_url: c.thumbnailUrl,
+      content_json: c.contentJson || null,
     }).select("id").single();
     return data?.id || "";
   },
@@ -190,6 +192,7 @@ export const SupabaseAdapter: DatabaseAdapter = {
     if (d.isPublished !== undefined) update.is_published = d.isPublished;
     if (d.durationSeconds !== undefined) update.duration_seconds = d.durationSeconds;
     if (d.thumbnailUrl !== undefined) update.thumbnail_url = d.thumbnailUrl;
+    if (d.contentJson !== undefined) update.content_json = d.contentJson;
     await supabase.from("courses").update(update).eq("id", id);
   },
 
@@ -342,5 +345,35 @@ export const SupabaseAdapter: DatabaseAdapter = {
       ipAddress: (r.ip_address as string) || "",
       userAgent: (r.user_agent as string) || "",
     }));
+  },
+
+  // === アクセス制御 ===
+  async getUserAccess(userId: string) {
+    const { data: trainingRows } = await supabase
+      .from("user_training_access").select("training_id").eq("user_id", userId);
+    const { data: categoryRows } = await supabase
+      .from("user_category_access").select("category_id").eq("user_id", userId);
+    return {
+      trainingIds: (trainingRows || []).map((r: Record<string, unknown>) => r.training_id as string),
+      categoryIds: (categoryRows || []).map((r: Record<string, unknown>) => r.category_id as string),
+    };
+  },
+
+  async setUserAccess(userId: string, trainingIds: string[], categoryIds: string[]) {
+    // 既存のアクセス設定を削除
+    await supabase.from("user_training_access").delete().eq("user_id", userId);
+    await supabase.from("user_category_access").delete().eq("user_id", userId);
+
+    // 新しいアクセス設定を挿入
+    if (trainingIds.length > 0) {
+      await supabase.from("user_training_access").insert(
+        trainingIds.map((tid) => ({ user_id: userId, training_id: tid }))
+      );
+    }
+    if (categoryIds.length > 0) {
+      await supabase.from("user_category_access").insert(
+        categoryIds.map((cid) => ({ user_id: userId, category_id: cid }))
+      );
+    }
   },
 };

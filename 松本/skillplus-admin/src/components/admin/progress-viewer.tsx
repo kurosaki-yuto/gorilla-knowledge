@@ -20,8 +20,8 @@ export function ProgressViewer() {
       fetch("/api/admin?type=users").then((r) => r.json()),
       fetch("/api/admin?type=progress").then((r) => r.json()),
     ]);
-    setUsers(usersData);
-    setHistory(historyData);
+    setUsers(Array.isArray(usersData) ? usersData : []);
+    setHistory(Array.isArray(historyData) ? historyData : []);
     setLoading(false);
   }, []);
 

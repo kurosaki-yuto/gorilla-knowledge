@@ -38,8 +38,8 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-full max-w-sm px-6">
-        <h1 className="text-2xl font-bold text-center mb-2">AI寺子屋 管理</h1>
-        <p className="text-center text-gray-500 text-sm mb-8">管理者ログイン</p>
+        <h1 className="text-2xl font-bold text-center mb-2 text-black">AI寺子屋 管理</h1>
+        <p className="text-center text-black text-sm mb-8">管理者ログイン</p>
 
         {error && (
           <div className="mb-4 p-3 text-sm text-red-700 bg-red-50 rounded">{error}</div>
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
             {loading ? "ログイン中..." : "ログイン"}
           </button>
         </form>
-        <p className="mt-6 text-center text-xs text-gray-400">テスト用: admin / admin1234</p>
+        <p className="mt-6 text-center text-xs text-black">テスト用: admin / admin1234</p>
       </div>
     </div>
   );

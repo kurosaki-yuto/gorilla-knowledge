@@ -70,6 +70,10 @@ export interface DatabaseAdapter {
   updateLoginLog(id: string, data: Partial<LoginLog>): Promise<void>;
   getLoginLogsByUser(userId: string): Promise<LoginLog[]>;
   getAllLoginLogs(): Promise<LoginLog[]>;
+
+  // === アクセス制御 ===
+  getUserAccess(userId: string): Promise<{ trainingIds: string[]; categoryIds: string[] }>;
+  setUserAccess(userId: string, trainingIds: string[], categoryIds: string[]): Promise<void>;
 }
 
 export { SupabaseAdapter as db } from "./supabase";

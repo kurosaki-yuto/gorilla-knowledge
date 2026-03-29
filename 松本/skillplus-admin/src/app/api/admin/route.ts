@@ -60,6 +60,10 @@ export async function GET(request: NextRequest) {
         standardDurationMin: Math.round(((c.courses as Record<string, unknown>)?.duration_seconds as number || 0) / 60),
       })));
     }
+    case "userAccess": {
+      const userId = request.nextUrl.searchParams.get("userId") || "";
+      return NextResponse.json(await (db as unknown as { getUserAccess: (id: string) => Promise<{ trainingIds: string[]; categoryIds: string[] }> }).getUserAccess(userId));
+    }
     default:
       return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   }
@@ -103,6 +107,7 @@ export async function POST(request: NextRequest) {
           id: "", categoryId: data.categoryId, name: data.name, description: data.description || "",
           videoUrl: data.videoUrl || "", isPublished: data.isPublished ?? true,
           durationSeconds: data.durationSeconds || 0, thumbnailUrl: data.thumbnailUrl || "",
+          contentJson: data.contentJson || null,
         });
         return NextResponse.json({ success: true, id });
       }
@@ -127,6 +132,10 @@ export async function POST(request: NextRequest) {
       }
       case "deleteUser": {
         await db.deleteUser(data.id);
+        return NextResponse.json({ success: true });
+      }
+      case "setUserAccess": {
+        await (db as unknown as { setUserAccess: (userId: string, trainingIds: string[], categoryIds: string[]) => Promise<void> }).setUserAccess(data.userId, data.trainingIds || [], data.categoryIds || []);
         return NextResponse.json({ success: true });
       }
       // テスト問題CRUD
