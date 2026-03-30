@@ -113,8 +113,8 @@ function addSectionTitle(slide, title, tag) {
   }
   slide.addText(title, {
     x: L.mx, y: tag ? 0.85 : 0.35, w: 8.5, h: 0.55,
-    fontSize: F.size.h1, fontFace: F.sans, bold: true,
-    color: C.textDark, margin: 0
+    fontSize: F.size.h2, fontFace: F.sans, bold: true,
+    color: C.textDark, margin: 0, shrinkText: true
   });
 }
 
@@ -288,19 +288,19 @@ async function main() {
 
     // Definition
     s.addShape(pres.shapes.RECTANGLE, {
-      x: L.mx, y: 1.15, w: L.W - L.mx * 2, h: 0.55,
+      x: L.mx, y: 1.5, w: L.W - L.mx * 2, h: 0.45,
       fill: { color: C.accentLight }
     });
     s.addText("期待する入出力の「例」を2〜3個示してからタスクを依頼する", {
-      x: L.mx + 0.2, y: 1.15, w: L.W - L.mx * 2 - 0.4, h: 0.55,
-      fontSize: F.size.body, fontFace: F.sans, bold: true,
+      x: L.mx + 0.2, y: 1.5, w: L.W - L.mx * 2 - 0.4, h: 0.45,
+      fontSize: F.size.label, fontFace: F.sans, bold: true,
       color: C.accent, valign: "middle", margin: 0
     });
 
     // Two columns
     const colW = 3.9;
-    const colY = 1.95;
-    const colH = 2.7;
+    const colY = 2.15;
+    const colH = 2.5;
 
     // Zero-shot (bad)
     s.addShape(pres.shapes.RECTANGLE, {
@@ -445,16 +445,11 @@ async function main() {
     s.background = { color: C.white };
     addTopBar(s);
     addSectionTitle(s, "テクニック2 — Chain-of-Thought", "Technique 02");
-    s.addText("段階的思考", {
-      x: L.mx, y: 1.05, w: 8.5, h: 0.3,
-      fontSize: F.size.body, fontFace: F.sans,
-      color: C.textLight, margin: 0
-    });
     addFooter(s, 6, T);
 
     const colW = 3.9;
-    const colY = 1.35;
-    const colH = 2.8;
+    const colY = 1.5;
+    const colH = 2.7;
 
     // Normal prompt
     s.addShape(pres.shapes.RECTANGLE, {
@@ -633,12 +628,12 @@ async function main() {
 
     // Difference note
     s.addShape(pres.shapes.RECTANGLE, {
-      x: L.mx, y: 1.15, w: L.W - L.mx * 2, h: 0.5,
+      x: L.mx, y: 1.5, w: L.W - L.mx * 2, h: 0.45,
       fill: { color: C.accentLight }
     });
     s.addText("CoT = 考え方を指定  /  ステップバイステップ = 作業手順を分解", {
-      x: L.mx + 0.2, y: 1.15, w: L.W - L.mx * 2 - 0.4, h: 0.5,
-      fontSize: F.size.body, fontFace: F.sans, bold: true,
+      x: L.mx + 0.2, y: 1.5, w: L.W - L.mx * 2 - 0.4, h: 0.45,
+      fontSize: F.size.label, fontFace: F.sans, bold: true,
       color: C.accent, valign: "middle", margin: 0
     });
 
@@ -651,7 +646,7 @@ async function main() {
     ];
 
     stepData.forEach((st, i) => {
-      const y = 1.9 + i * 0.6;
+      const y = 2.2 + i * 0.55;
       // Step number badge
       s.addShape(pres.shapes.RECTANGLE, {
         x: L.mx, y, w: 0.85, h: 0.45,
@@ -702,11 +697,11 @@ async function main() {
     formats.forEach((f, i) => {
       const x = L.mx + i * 1.35;
       s.addShape(pres.shapes.RECTANGLE, {
-        x, y: 1.15, w: 1.2, h: 0.35,
+        x, y: 1.5, w: 1.2, h: 0.35,
         fill: { color: C.accentLight }, rectRadius: 0.15
       });
       s.addText(f, {
-        x, y: 1.15, w: 1.2, h: 0.35,
+        x, y: 1.5, w: 1.2, h: 0.35,
         fontSize: F.size.tag, fontFace: F.sans, bold: true,
         color: C.accent, align: "center", valign: "middle"
       });
@@ -714,8 +709,8 @@ async function main() {
 
     // Two columns
     const colW = 3.9;
-    const colY = 1.8;
-    const colH = 2.5;
+    const colY = 2.05;
+    const colH = 2.3;
 
     // Same question, different format
     s.addShape(pres.shapes.RECTANGLE, {
@@ -783,7 +778,7 @@ async function main() {
 
     types.forEach((t, i) => {
       const x = startX + i * (cardW + cardGap);
-      const y = 1.15;
+      const y = 1.5;
 
       s.addShape(pres.shapes.RECTANGLE, {
         x, y, w: cardW, h: 1.6,
@@ -806,8 +801,8 @@ async function main() {
 
     // Before/After
     const colW = 3.9;
-    const baY = 3.05;
-    const baH = 1.6;
+    const baY = 3.3;
+    const baH = 1.4;
 
     s.addShape(pres.shapes.RECTANGLE, {
       x: L.mx, y: baY, w: colW, h: baH,

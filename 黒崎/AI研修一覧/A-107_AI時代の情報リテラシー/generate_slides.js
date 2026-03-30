@@ -109,8 +109,8 @@ function addSectionTitle(slide, title, pres, tag) {
   }
   slide.addText(title, {
     x: L.mx, y: tag ? 0.85 : 0.35, w: 8.5, h: 0.55,
-    fontSize: F.size.h1, fontFace: F.sans, bold: true,
-    color: C.textDark, margin: 0
+    fontSize: F.size.h2, fontFace: F.sans, bold: true,
+    color: C.textDark, margin: 0, shrinkText: true
   });
 }
 
@@ -242,8 +242,8 @@ async function main() {
 
     examples.forEach((t, i) => {
       const x = startX + i * (cardW + cardGap);
-      const y = 1.3;
-      const h = 2.6;
+      const y = 1.5;
+      const h = 2.4;
 
       s.addShape(pres.shapes.RECTANGLE, {
         x, y, w: cardW, h,
@@ -619,7 +619,7 @@ async function main() {
     const tableX = L.mx;
     const tableW = L.W - L.mx * 2;
     const rowH = 0.65;
-    const headerY = 1.2;
+    const headerY = 1.5;
 
     // Header
     s.addShape(pres.shapes.RECTANGLE, {
@@ -697,7 +697,7 @@ async function main() {
     ];
 
     tips.forEach((tip, i) => {
-      const y = 1.2 + i * 0.72;
+      const y = 1.5 + i * 0.65;
       const colors = [C.accent, C.amber, C.red, C.green, C.accent];
 
       s.addText(tip.num, {

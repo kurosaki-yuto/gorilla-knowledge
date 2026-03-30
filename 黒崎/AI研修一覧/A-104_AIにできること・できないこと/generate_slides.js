@@ -129,10 +129,10 @@ async function main() {
     const s = pres.addSlide();
     s.background = { color: C.navy };
     s.addImage({ data: ic.brain, x: (L.W - 0.65) / 2, y: 0.9, w: 0.65, h: 0.65 });
-    s.addText("AIにできること\n・できないこと", {
-      x: 0.5, y: 1.7, w: 9, h: 1.0,
+    s.addText("AIにできること・できないこと", {
+      x: 0.5, y: 1.7, w: 9, h: 0.7,
       fontSize: F.size.hero, fontFace: F.sans, bold: true,
-      color: C.white, align: "center", lineSpacingMultiple: 1.2, shrinkText: true
+      color: C.white, align: "center", shrinkText: true
     });
     s.addShape(pres.shapes.LINE, {
       x: 3.5, y: 2.85, w: 3, h: 0,

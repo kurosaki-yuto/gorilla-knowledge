@@ -864,11 +864,11 @@ async function main() {
 
     headers.forEach((h, i) => {
       s.addShape(pres.shapes.RECTANGLE, {
-        x: colX[i], y: 1.1, w: colW[i], h: 0.4,
+        x: colX[i], y: 1.1, w: colW[i], h: 0.35,
         fill: { color: C.navy }
       });
       s.addText(h, {
-        x: colX[i] + 0.1, y: 1.1, w: colW[i] - 0.2, h: 0.4,
+        x: colX[i] + 0.1, y: 1.1, w: colW[i] - 0.2, h: 0.35,
         fontSize: F.size.label, fontFace: F.sans, bold: true,
         color: C.white, valign: "middle", shrinkText: true
       });
@@ -884,15 +884,15 @@ async function main() {
     ];
 
     models.forEach((row, ri) => {
-      const y = 1.55 + ri * 0.5;
+      const y = 1.5 + ri * 0.42;
       const bgColor = ri % 2 === 0 ? C.offWhite : C.white;
       row.forEach((cell, ci) => {
         s.addShape(pres.shapes.RECTANGLE, {
-          x: colX[ci], y, w: colW[ci], h: 0.45,
+          x: colX[ci], y, w: colW[ci], h: 0.38,
           fill: { color: bgColor }, line: { color: C.border, width: 0.5 }
         });
         s.addText(cell, {
-          x: colX[ci] + 0.1, y, w: colW[ci] - 0.2, h: 0.45,
+          x: colX[ci] + 0.1, y, w: colW[ci] - 0.2, h: 0.38,
           fontSize: ci === 0 ? F.size.body : F.size.label, fontFace: F.sans,
           bold: ci === 0, color: ci === 0 ? C.accent : C.textBody,
           valign: "middle", shrinkText: true
@@ -902,11 +902,11 @@ async function main() {
 
     // Bottom message
     s.addShape(pres.shapes.RECTANGLE, {
-      x: L.mx, y: 3.8, w: L.W - L.mx * 2, h: 0.4,
+      x: L.mx, y: 3.7, w: L.W - L.mx * 2, h: 0.4,
       fill: { color: C.accentLight }
     });
     s.addText("根本は同じTransformerベース。学習データとRLHFの方針で「味付け」が異なる", {
-      x: L.mx + 0.2, y: 3.8, w: L.W - L.mx * 2 - 0.4, h: 0.4,
+      x: L.mx + 0.2, y: 3.7, w: L.W - L.mx * 2 - 0.4, h: 0.4,
       fontSize: F.size.label, fontFace: F.sans, bold: true,
       color: C.accent, valign: "middle", shrinkText: true
     });

@@ -95,8 +95,8 @@ function addSectionTitle(slide, pres, title, tag) {
   }
   slide.addText(title, {
     x: L.mx, y: tag ? 0.85 : 0.35, w: 8.5, h: 0.55,
-    fontSize: F.size.h1, fontFace: F.sans, bold: true,
-    color: C.textDark, margin: 0
+    fontSize: F.size.h2, fontFace: F.sans, bold: true,
+    color: C.textDark, margin: 0, shrinkText: true
   });
 }
 
