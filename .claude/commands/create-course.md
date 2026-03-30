@@ -2,7 +2,8 @@
 
 ## やること
 
-ユーザーの要望に基づき、AI研修の講座コンテンツを一括生成する。
+ユーザーの要望に基づき、AI研修の講座コンテンツを**企画→台本→スライド→動画まで一気通貫で**生成する。
+途中で止めない。最終成果物（HTMLスライド + PPTX + 動画.mp4）まで完走する。
 
 ## 手順
 
@@ -19,9 +20,14 @@
 
 ### Step 2: 生成（並列実行）
 
-スキルファイルを読む:
+スキルファイルを **必ず全て読む**:
 - `@黒崎/AI研修一覧/_templates/design-system.js` — デザインシステム
 - `@.claude/skills/ai-training-course/SKILL.md` — 生成ルール
+- `@黒崎/AI研修一覧/_templates/frontend-slides/SKILL.md` — HTMLスライドのデザイン原則
+- `@黒崎/AI研修一覧/_templates/frontend-slides/STYLE_PRESETS.md` — テーマ定義（Notebook Tabs使用）
+- `@黒崎/AI研修一覧/_templates/frontend-slides/viewport-base.css` — レスポンシブCSS基盤
+- `@黒崎/AI研修一覧/_templates/frontend-slides/html-template.md` — HTML構造テンプレート
+- `@黒崎/AI研修一覧/_templates/frontend-slides/animation-patterns.md` — アニメーションパターン
 
 承認後、各チャプターを **並列で** Agent を使って生成する:
 
@@ -33,19 +39,22 @@
 3. 台本.md を生成（12スライド分のナレーション台本）
 4. テスト.md を生成（5問・4択・解説付き）
 5. narrations.json を生成（スライド番号→ナレーションテキスト）
-6. generate_slides.js を書いて実行（design-system.js のルールに従う）
-7. video-generator.py を実行して動画生成
+6. プレゼン.html を生成（★ frontend-slides方式、Notebook Tabsテーマ）
+7. generate_slides.js を書いて実行（PPTX版、design-system.js のルールに従う）
+8. video-generator.py を実行して動画生成
 ```
 
-**重要**: 各 Agent には以下を明示的に伝える:
+**重要**: 各 Agent には以下を **全て** 明示的に伝える:
 - design-system.js の全内容（カラー・フォント・レイアウト定義）
 - SKILL.md のデザインルール
+- frontend-slides の SKILL.md + STYLE_PRESETS.md + viewport-base.css + html-template.md + animation-patterns.md の全内容
 - 既存のAI-101のgenerate_slides_v3.jsをリファレンスとして参照させる
 
 ### Step 3: 確認
 
 全チャプターの生成完了後:
-- スライド画像をユーザーに見せる
+- プレゼン.html をブラウザで開いてユーザーに見せる
+- スライド画像もユーザーに見せる
 - 問題なければコミット&プッシュ
 
 ## 出力先
@@ -54,6 +63,9 @@
 黒崎/AI研修一覧/
 ├── _templates/          ← テンプレート（変更しない）
 ├── AI-101_AIの基本/     ← チャプター1
+│   ├── プレゼン.html    ← ★ HTMLスライド（メイン）
+│   ├── スライド.pptx    ← PPTX版
+│   └── ...
 ├── AI-102_生成AI/       ← チャプター2
 ├── AI-103_プロンプト/   ← チャプター3
 └── ...

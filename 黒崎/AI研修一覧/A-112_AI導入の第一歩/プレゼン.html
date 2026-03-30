@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-112: AI導入の第一歩〜明日からできること</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #888888;
+            --accent: #2563EB;
+            --accent-light: #DBEAFE;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           VIEWPORT BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===========================================
+           NOTEBOOK PAGE CONTAINER
+           =========================================== */
+        .page {
+            position: relative;
+            width: min(90vw, 900px);
+            height: min(85vh, 680px);
+            background: var(--bg-page);
+            border-radius: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Binder holes */
+        .page::before {
+            content: '';
+            position: absolute;
+            left: clamp(12px, 2vw, 24px);
+            top: 15%;
+            width: clamp(8px, 1vw, 14px);
+            height: clamp(8px, 1vw, 14px);
+            background: var(--bg-outer);
+            border-radius: 50%;
+            box-shadow:
+                0 calc(min(85vh, 680px) * 0.25) 0 var(--bg-outer),
+                0 calc(min(85vh, 680px) * 0.50) 0 var(--bg-outer);
+            z-index: 2;
+        }
+
+        /* Page content area */
+        .page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            padding-left: clamp(2.5rem, 6vw, 4.5rem);
+            overflow: hidden;
+            max-height: 100%;
+        }
+
+        /* ===========================================
+           TABS ON RIGHT EDGE
+           =========================================== */
+        .tab {
+            position: absolute;
+            right: -2px;
+            width: clamp(24px, 3vw, 36px);
+            height: clamp(48px, 8vh, 80px);
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            font-family: var(--font-body);
+            font-size: clamp(0.5rem, 1vh, 0.7rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            opacity: 0.5;
+            transition: opacity 0.3s ease, width 0.3s ease;
+            z-index: 3;
+        }
+        .tab.active {
+            opacity: 1;
+            width: clamp(28px, 3.5vw, 42px);
+        }
+        .tab-1 { top: 8%; background: var(--tab-1); }
+        .tab-2 { top: 22%; background: var(--tab-2); }
+        .tab-3 { top: 36%; background: var(--tab-3); }
+        .tab-4 { top: 50%; background: var(--tab-4); }
+        .tab-5 { top: 64%; background: var(--tab-5); }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: var(--content-gap);
+            color: var(--text-primary);
+        }
+        .slide-subtitle {
+            font-family: var(--font-body);
+            font-size: var(--h3-size);
+            color: var(--text-secondary);
+            margin-bottom: var(--content-gap);
+            line-height: 1.4;
+        }
+        .section-heading {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--content-gap);
+            line-height: 1.2;
+        }
+        .tag {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            font-weight: 700;
+            padding: 0.2em 0.8em;
+            border-radius: 4px;
+            margin-bottom: var(--element-gap);
+            letter-spacing: 0.05em;
+        }
+
+        /* ===========================================
+           CONTENT COMPONENTS
+           =========================================== */
+        .goal-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+        .goal-list li {
+            font-size: var(--body-size);
+            line-height: 1.5;
+            padding: clamp(0.4rem, 1vh, 0.8rem) clamp(0.6rem, 1.5vw, 1rem);
+            background: #fff;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5em;
+        }
+        .goal-num {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--accent);
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            min-width: 1.5em;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.5vh, 1.2rem) clamp(0.6rem, 1.5vw, 1rem);
+            border-top: 3px solid var(--accent);
+        }
+        .card-accent-1 { border-top-color: var(--tab-1); }
+        .card-accent-2 { border-top-color: var(--tab-2); }
+        .card-accent-3 { border-top-color: var(--tab-3); }
+        .card-accent-4 { border-top-color: var(--tab-4); }
+        .card-accent-5 { border-top-color: var(--tab-5); }
+        .card h3 {
+            font-family: var(--font-display);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            margin-bottom: 0.3em;
+            color: var(--text-primary);
+        }
+        .card p, .card li {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .card ul li::before {
+            content: "\2022 ";
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Before/After */
+        .before-after {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.5vw, 1.5rem);
+            margin-bottom: var(--element-gap);
+            flex-wrap: wrap;
+        }
+        .ba-box {
+            padding: clamp(0.3rem, 0.8vh, 0.6rem) clamp(0.6rem, 1.5vw, 1rem);
+            border-radius: 6px;
+            font-size: var(--body-size);
+            font-weight: 600;
+        }
+        .ba-before {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .ba-after {
+            background: #d1fae5;
+            color: #059669;
+        }
+        .ba-arrow {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--text-muted);
+        }
+
+        /* Steps flow */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+            font-size: var(--body-size);
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+        .step-num {
+            min-width: clamp(1.4rem, 2.5vw, 2rem);
+            height: clamp(1.4rem, 2.5vw, 2rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--small-size);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Horizontal flow */
+        .h-flow {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.3rem, 1vw, 0.8rem);
+            flex-wrap: wrap;
+            margin-bottom: var(--element-gap);
+        }
+        .h-flow-item {
+            background: #fff;
+            padding: clamp(0.4rem, 1vh, 0.8rem) clamp(0.5rem, 1.2vw, 1rem);
+            border-radius: 6px;
+            font-size: var(--body-size);
+            font-weight: 600;
+            color: var(--text-primary);
+            border: 1px solid #e5e7eb;
+        }
+        .h-flow-arrow {
+            color: var(--accent);
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            font-weight: 700;
+        }
+
+        /* Failure pattern */
+        .failure-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.6rem, 1.5vw, 1rem);
+            margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2em;
+        }
+        .failure-label {
+            font-size: var(--small-size);
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .failure-fix {
+            font-size: var(--small-size);
+            color: #059669;
+            font-weight: 600;
+        }
+        .failure-desc {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.6rem);
+            position: relative;
+            padding-left: clamp(1rem, 2vw, 1.5rem);
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: clamp(0.3rem, 0.7vw, 0.5rem);
+            top: 0.5em;
+            bottom: 0.5em;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--tab-1), var(--tab-2), var(--tab-3), var(--tab-4), var(--tab-5));
+        }
+        .tl-item {
+            position: relative;
+            font-size: var(--body-size);
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: calc(-1 * clamp(1rem, 2vw, 1.5rem) + clamp(0.1rem, 0.3vw, 0.2rem));
+            top: 0.4em;
+            width: clamp(6px, 0.8vw, 10px);
+            height: clamp(6px, 0.8vw, 10px);
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .tl-label {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Course review grid */
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+            gap: clamp(0.3rem, 0.8vw, 0.6rem);
+        }
+        .review-item {
+            background: #fff;
+            border-radius: 6px;
+            padding: clamp(0.4rem, 1vh, 0.7rem) clamp(0.5rem, 1vw, 0.8rem);
+            font-size: var(--small-size);
+            line-height: 1.4;
+        }
+        .review-id {
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.2em;
+        }
+        .review-desc {
+            color: var(--text-secondary);
+        }
+
+        /* Slide number */
+        .slide-num {
+            position: absolute;
+            bottom: clamp(8px, 1.5vh, 16px);
+            right: clamp(12px, 2vw, 24px);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+
+        /* Course ID */
+        .course-id {
+            position: absolute;
+            bottom: clamp(8px, 1.5vh, 16px);
+            left: clamp(2.5rem, 6vw, 4.5rem);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+
+        /* ===========================================
+           TITLE SLIDE (sandwich: dark background)
+           =========================================== */
+        .title-slide .page {
+            background: linear-gradient(135deg, #1B2A4A 0%, #2d4a7a 100%);
+        }
+        .title-slide .slide-title {
+            color: #fff;
+            text-align: center;
+        }
+        .title-slide .slide-subtitle {
+            color: #93C5FD;
+            text-align: center;
+        }
+        .title-slide .meta {
+            text-align: center;
+            color: #9CA3AF;
+            font-size: var(--small-size);
+            margin-top: var(--content-gap);
+        }
+        .title-slide .page::before {
+            display: none;
+        }
+        .title-slide .course-id,
+        .title-slide .slide-num {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* END SLIDE (sandwich: dark background) */
+        .end-slide .page {
+            background: linear-gradient(135deg, #1B2A4A 0%, #2d4a7a 100%);
+        }
+        .end-slide .page::before {
+            display: none;
+        }
+        .end-slide .slide-title {
+            color: #fff;
+            text-align: center;
+            font-size: var(--h2-size);
+        }
+        .end-slide .slide-subtitle {
+            color: #93C5FD;
+            text-align: center;
+        }
+        .end-slide .end-items {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: var(--body-size);
+            line-height: 1.8;
+        }
+        .end-slide .course-id,
+        .end-slide .slide-num {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Divider line */
+        .divider {
+            width: clamp(40px, 8vw, 80px);
+            height: 2px;
+            background: var(--accent);
+            margin: 0 auto var(--content-gap);
+        }
+        .title-slide .divider,
+        .end-slide .divider {
+            background: #93C5FD;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(8px, 1.5vw, 16px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root {
+                --title-size: clamp(1.25rem, 7vw, 2.5rem);
+            }
+            .card-grid { grid-template-columns: 1fr; }
+            .review-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Nav dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ============================================================
+         SLIDE 1: TITLE
+         ============================================================ -->
+    <section class="slide title-slide" data-section="1">
+        <div class="page">
+            <div class="tab tab-1 active">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content" style="align-items:center; text-align:center;">
+                <h1 class="slide-title reveal">AI導入の第一歩</h1>
+                <div class="divider reveal"></div>
+                <p class="slide-subtitle reveal">明日からできること</p>
+                <p class="meta reveal">A-112 &nbsp;|&nbsp; 入門〜実践 &nbsp;|&nbsp; 20分</p>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">1 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 2: GOALS
+         ============================================================ -->
+    <section class="slide" data-section="1">
+        <div class="page">
+            <div class="tab tab-1 active">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <h2 class="section-heading reveal">今日のゴール</h2>
+                <ol class="goal-list reveal">
+                    <li><span class="goal-num">1</span>個人レベルで今日から始められるAI活用を3つ実行できる</li>
+                    <li><span class="goal-num">2</span>チームにAIを広める具体的なステップを理解する</li>
+                    <li><span class="goal-num">3</span>パッケージA全体の学びを振り返り、AI活用ロードマップを作成できる</li>
+                </ol>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">2 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 3: ACTION 01 — メール下書き
+         ============================================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2 active">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">ACTION 01</span>
+                <h2 class="section-heading reveal">メール・チャットの下書きをAIに任せる</h2>
+                <div class="before-after reveal">
+                    <span class="ba-box ba-before">Before: 1通15分</span>
+                    <span class="ba-arrow">&rarr;</span>
+                    <span class="ba-box ba-after">After: 1通3分</span>
+                </div>
+                <div class="steps reveal">
+                    <div class="step"><span class="step-num">1</span>用件と相手を伝える</div>
+                    <div class="step"><span class="step-num">2</span>トーンを指定する（丁寧 / カジュアル）</div>
+                    <div class="step"><span class="step-num">3</span>生成された文面を確認・修正して送信</div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">3 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 4: ACTION 02 — 議事録自動化
+         ============================================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2 active">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">ACTION 02</span>
+                <h2 class="section-heading reveal">議事録・要約をAIで自動化する</h2>
+                <div class="before-after reveal">
+                    <span class="ba-box ba-before">Before: 会議後30分</span>
+                    <span class="ba-arrow">&rarr;</span>
+                    <span class="ba-box ba-after">After: リアルタイム完成</span>
+                </div>
+                <div class="steps reveal">
+                    <div class="step"><span class="step-num">1</span>会議の録音テキストをAIに渡す</div>
+                    <div class="step"><span class="step-num">2</span>「決定事項・To-Do・次のアクション」の形式を指定</div>
+                    <div class="step"><span class="step-num">3</span>生成された議事録を確認し、共有する</div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">4 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 5: ACTION 03 — リサーチ効率化
+         ============================================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2 active">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">ACTION 03</span>
+                <h2 class="section-heading reveal">情報収集・リサーチをAIで加速する</h2>
+                <div class="before-after reveal">
+                    <span class="ba-box ba-before">Before: 半日かけて検索</span>
+                    <span class="ba-arrow">&rarr;</span>
+                    <span class="ba-box ba-after">After: 30分で概要把握</span>
+                </div>
+                <div class="steps reveal">
+                    <div class="step"><span class="step-num">1</span>調べたいテーマをAIに伝える</div>
+                    <div class="step"><span class="step-num">2</span>「概要 &rarr; 詳細 &rarr; 比較」の段階的な質問をする</div>
+                    <div class="step"><span class="step-num">3</span>AIの回答を出発点に、一次情報を確認する</div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">5 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 6: STEP 1 — 小さく始める
+         ============================================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3 active">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">STEP 1</span>
+                <h2 class="section-heading reveal">小さく始める</h2>
+                <div class="h-flow reveal">
+                    <span class="h-flow-item">1人で試す</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">効果を記録</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">テンプレート化</span>
+                </div>
+                <div class="card-grid reveal">
+                    <div class="card card-accent-1">
+                        <h3>自分がヘビーユーザーに</h3>
+                        <p>1つの業務 x 1つのツールに絞る</p>
+                    </div>
+                    <div class="card card-accent-2">
+                        <h3>数字で記録</h3>
+                        <p>時間短縮・品質向上を数値化</p>
+                    </div>
+                    <div class="card card-accent-3">
+                        <h3>プロンプトを蓄積</h3>
+                        <p>コピペで使い回せる状態にする</p>
+                    </div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">6 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 7: STEP 2 — 成功体験を作る
+         ============================================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3 active">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">STEP 2</span>
+                <h2 class="section-heading reveal">成功体験を作る</h2>
+                <div class="h-flow reveal">
+                    <span class="h-flow-item">デモを見せる</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">一緒にやる</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">「できた！」を体験</span>
+                </div>
+                <div class="card-grid reveal">
+                    <div class="card card-accent-4">
+                        <h3>15分ミニ勉強会</h3>
+                        <p>短時間で気軽に開催</p>
+                    </div>
+                    <div class="card card-accent-5">
+                        <h3>ライブデモ</h3>
+                        <p>目の前で実演して驚きを共有</p>
+                    </div>
+                    <div class="card card-accent-1">
+                        <h3>ハンズオン</h3>
+                        <p>参加者自身に操作してもらう</p>
+                    </div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">7 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 8: STEP 3 — 横展開する
+         ============================================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3 active">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <span class="tag reveal">STEP 3</span>
+                <h2 class="section-heading reveal">横展開する</h2>
+                <div class="h-flow reveal">
+                    <span class="h-flow-item">成功事例を共有</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">他チームに紹介</span>
+                    <span class="h-flow-arrow">&rarr;</span>
+                    <span class="h-flow-item">ナレッジ蓄積</span>
+                </div>
+                <div class="card-grid reveal">
+                    <div class="card card-accent-2">
+                        <h3>AI活用チャンネル</h3>
+                        <p>Slack/Teamsで気軽に情報共有</p>
+                    </div>
+                    <div class="card card-accent-3">
+                        <h3>月1事例共有会</h3>
+                        <p>各チームの成功事例を5分発表</p>
+                    </div>
+                    <div class="card card-accent-4">
+                        <h3>プロンプト集</h3>
+                        <p>社内Wikiで誰でも使える状態に</p>
+                    </div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">8 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 9: よくある失敗パターン
+         ============================================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3 active">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <h2 class="section-heading reveal">AI導入 よくある失敗と対策</h2>
+                <div class="reveal">
+                    <div class="failure-item">
+                        <span class="failure-label">失敗1: いきなり全社展開</span>
+                        <span class="failure-desc">ツールだけ導入して放置してしまう</span>
+                        <span class="failure-fix">対策: まず1チーム、1業務から</span>
+                    </div>
+                    <div class="failure-item">
+                        <span class="failure-label">失敗2: 完璧を求めすぎる</span>
+                        <span class="failure-desc">AIの出力が100点でないから使わない</span>
+                        <span class="failure-fix">対策: 70点でOK、人間が仕上げる</span>
+                    </div>
+                    <div class="failure-item">
+                        <span class="failure-label">失敗3: 一部の人だけが使う</span>
+                        <span class="failure-desc">詳しい人だけで止まり、広がらない</span>
+                        <span class="failure-fix">対策: 勉強会 + ナレッジ共有の仕組み化</span>
+                    </div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">9 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 10: パッケージA 振り返り
+         ============================================================ -->
+    <section class="slide" data-section="4">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4 active">Review</div>
+            <div class="tab tab-5">Road</div>
+            <div class="page-content">
+                <h2 class="section-heading reveal">パッケージA 学びの全体像</h2>
+                <div class="review-grid reveal">
+                    <div class="review-item">
+                        <span class="review-id">A-101</span>
+                        <span class="review-desc">AIとは何か<br>基本概念の理解</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-id">A-102</span>
+                        <span class="review-desc">生成AIの仕組み<br>技術の理解</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-id">A-103</span>
+                        <span class="review-desc">主要AIツール比較<br>ツール選定力</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-id">A-104</span>
+                        <span class="review-desc">AIにできること<br>判断力の基礎</span>
+                    </div>
+                    <div class="review-item">
+                        <span class="review-id">関連コース</span>
+                        <span class="review-desc">プロンプト力<br>情報リテラシー</span>
+                    </div>
+                    <div class="review-item" style="background:var(--accent-light); border:1px solid var(--accent);">
+                        <span class="review-id">A-112（本コース）</span>
+                        <span class="review-desc">AI導入の第一歩<br>実践力</span>
+                    </div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">10 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 11: AI活用ロードマップ
+         ============================================================ -->
+    <section class="slide" data-section="5">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5 active">Road</div>
+            <div class="page-content">
+                <h2 class="section-heading reveal">あなたのAI活用ロードマップ</h2>
+                <div class="timeline reveal">
+                    <div class="tl-item"><span class="tl-label">今日:</span> 3つのアクションから1つ実行</div>
+                    <div class="tl-item"><span class="tl-label">1週間後:</span> 毎日AIを使う習慣をつける</div>
+                    <div class="tl-item"><span class="tl-label">1ヶ月後:</span> チーム内ミニ勉強会を開催</div>
+                    <div class="tl-item"><span class="tl-label">3ヶ月後:</span> 成果を数字で振り返り、横展開開始</div>
+                    <div class="tl-item"><span class="tl-label">半年後:</span> 組織のAI活用リーダーへ</div>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">11 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SLIDE 12: END
+         ============================================================ -->
+    <section class="slide end-slide" data-section="5">
+        <div class="page">
+            <div class="tab tab-1">Intro</div>
+            <div class="tab tab-2">Action</div>
+            <div class="tab tab-3">Team</div>
+            <div class="tab tab-4">Review</div>
+            <div class="tab tab-5 active">Road</div>
+            <div class="page-content" style="align-items:center; text-align:center;">
+                <h1 class="slide-title reveal">パッケージA 全コース修了<br>おめでとうございます！</h1>
+                <div class="divider reveal"></div>
+                <div class="end-items reveal">
+                    <p>確認テスト（5問）に挑戦しましょう</p>
+                    <p>80%以上の正答で修了</p>
+                    <br>
+                    <p style="color:#93C5FD; font-weight:600;">学んだことを、今日から実践しましょう</p>
+                </div>
+            </div>
+            <span class="course-id">A-112</span>
+            <span class="slide-num">12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                this.isAnimating = false;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.setupWheelNav();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            // Update current slide index
+                            const idx = Array.from(this.slides).indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, {
+                    threshold: 0.5
+                });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.totalSlides - 1);
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                let lastWheelTime = 0;
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastWheelTime < 800) return;
+                    lastWheelTime = now;
+
+                    if (e.deltaY > 0) {
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.deltaY < 0) {
+                        this.goToSlide(this.currentSlide - 1);
+                    }
+                }, { passive: true });
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (this.progressBar) {
+                    const progress = ((this.currentSlide + 1) / this.totalSlides) * 100;
+                    this.progressBar.style.width = progress + '%';
+                }
+            }
+
+            setupNavDots() {
+                const dotsContainer = document.getElementById('navDots');
+                if (!dotsContainer) return;
+
+                for (let i = 0; i < this.totalSlides; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dotsContainer.appendChild(dot);
+                }
+            }
+
+            updateNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.totalSlides) return;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Initialize
+        new SlidePresentation();
+    </script>
+</body>
+</html>

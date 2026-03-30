@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A-105: プロンプトの基本〜AIへの指示の出し方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* === VIEWPORT BASE === */
+html, body { height: 100%; overflow-x: hidden; margin: 0; padding: 0; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+.slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); } }
+@media (max-height: 600px) { .nav-dots, .decorative { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
+
+/* === THEME: NOTEBOOK TABS === */
+:root {
+  --bg-outer: #2d2d2d; --bg-page: #f8f6f1; --text-primary: #1a1a1a; --text-secondary: #555;
+  --accent: #2563EB; --tab-1: #98d4bb; --tab-2: #c7b8ea; --tab-3: #f4b8c5; --tab-4: #a8d8ea; --tab-5: #ffe6a7;
+  --font-display: 'Bodoni Moda', serif; --font-body: 'DM Sans', sans-serif;
+  --title-size: clamp(2rem, 5vw, 3.5rem); --h2-size: clamp(1.25rem, 3vw, 2rem); --body-size: clamp(0.8rem, 1.3vw, 1rem); --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+  --navy: #1B2A4A; --navy-light: #2D4A7A;
+}
+
+body { background: var(--bg-outer); font-family: var(--font-body); color: var(--text-primary); }
+
+/* === SANDWICH: TITLE/END = NAVY === */
+.slide--navy { background: var(--navy); color: #fff; }
+.slide--navy .slide-content { justify-content: center; align-items: center; text-align: center; }
+.slide--page { background: var(--bg-page); }
+
+/* === TAB NAV === */
+.tab-nav { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 2px; }
+.tab-nav a { display: block; width: 32px; height: 32px; border-radius: 4px 0 0 4px; text-decoration: none; font-size: 11px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; justify-content: center; transition: width 0.2s, box-shadow 0.2s; opacity: 0.7; }
+.tab-nav a:hover, .tab-nav a.active { width: 44px; opacity: 1; box-shadow: -2px 0 8px rgba(0,0,0,0.15); }
+.tab-nav a:nth-child(1) { background: var(--navy); color: #fff; }
+.tab-nav a:nth-child(2) { background: var(--tab-1); }
+.tab-nav a:nth-child(3) { background: var(--tab-1); }
+.tab-nav a:nth-child(4) { background: var(--tab-2); }
+.tab-nav a:nth-child(5) { background: var(--tab-2); }
+.tab-nav a:nth-child(6) { background: var(--tab-3); }
+.tab-nav a:nth-child(7) { background: var(--tab-3); }
+.tab-nav a:nth-child(8) { background: var(--tab-4); }
+.tab-nav a:nth-child(9) { background: var(--tab-4); }
+.tab-nav a:nth-child(10) { background: var(--tab-5); }
+.tab-nav a:nth-child(11) { background: var(--tab-5); }
+.tab-nav a:nth-child(12) { background: var(--navy); color: #fff; }
+
+/* === FOOTER === */
+.slide-footer { position: absolute; bottom: 0; left: 0; right: 0; height: 2.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--slide-padding); font-size: 0.7rem; color: var(--text-secondary); border-top: 1px solid rgba(0,0,0,0.06); }
+.slide--navy .slide-footer { border-top-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+/* === REVEAL ANIMATION === */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* === TYPOGRAPHY === */
+.slide-title { font-family: var(--font-display); font-size: var(--title-size); font-weight: 700; line-height: 1.15; margin: 0 0 0.5rem; }
+.slide-subtitle { font-size: clamp(1rem, 2vw, 1.4rem); color: var(--text-secondary); margin: 0 0 1.5rem; font-weight: 300; }
+.slide--navy .slide-subtitle { color: rgba(255,255,255,0.7); }
+.section-tag { display: inline-block; padding: 0.2em 0.8em; border-radius: 999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.section-tag--green { background: #D1FAE5; color: #059669; }
+.section-tag--blue { background: #DBEAFE; color: #2563EB; }
+.section-tag--purple { background: #E9D5FF; color: #7C3AED; }
+.section-tag--amber { background: #FEF3C7; color: #D97706; }
+.section-tag--red { background: #FEE2E2; color: #DC2626; }
+.h2 { font-family: var(--font-display); font-size: var(--h2-size); font-weight: 700; margin: 0 0 0.75rem; }
+
+/* === CARD STYLES === */
+.element-card { background: #fff; border-radius: 12px; padding: clamp(1rem, 2vw, 1.5rem); box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); }
+.element-card--accent { border-left: 4px solid var(--accent); }
+.element-card h3 { font-family: var(--font-display); font-size: clamp(1rem, 1.6vw, 1.2rem); margin: 0 0 0.3rem; }
+.element-card p { font-size: var(--body-size); color: var(--text-secondary); margin: 0; line-height: 1.5; }
+
+/* === ICON CIRCLES === */
+.icon-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 0.75rem; flex-shrink: 0; }
+.icon-circle--blue { background: #DBEAFE; color: #2563EB; }
+.icon-circle--green { background: #D1FAE5; color: #059669; }
+.icon-circle--amber { background: #FEF3C7; color: #D97706; }
+.icon-circle--red { background: #FEE2E2; color: #DC2626; }
+.icon-circle--purple { background: #E9D5FF; color: #7C3AED; }
+.icon-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+
+/* === COMPARISON === */
+.comparison-box { border-radius: 12px; padding: clamp(0.75rem, 1.5vw, 1.25rem); }
+.comparison-box--bad { background: #FEE2E2; border: 2px solid #FCA5A5; }
+.comparison-box--good { background: #D1FAE5; border: 2px solid #6EE7B7; }
+.comparison-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+.comparison-label--bad { color: #DC2626; }
+.comparison-label--good { color: #059669; }
+
+/* === PROMPT CODE === */
+.prompt-code { background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: clamp(0.75rem, 1.5vw, 1.25rem); font-family: 'DM Sans', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); line-height: 1.6; white-space: pre-wrap; }
+.prompt-code .tag { font-weight: 700; }
+.prompt-code .tag--role { color: #7dd3fc; }
+.prompt-code .tag--context { color: #a78bfa; }
+.prompt-code .tag--instruction { color: #34d399; }
+.prompt-code .tag--format { color: #fbbf24; }
+.prompt-code .tag--constraint { color: #f87171; }
+
+/* === KEY MESSAGE === */
+.key-message { background: linear-gradient(135deg, var(--accent), var(--navy-light)); color: #fff; border-radius: 12px; padding: clamp(1rem, 2vw, 1.5rem); text-align: center; font-size: clamp(0.9rem, 1.5vw, 1.15rem); font-weight: 600; }
+
+/* === SLIDE SPECIFIC LAYOUTS === */
+.goals-list { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vw, 0.75rem); }
+.goal-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 1rem; background: #fff; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); }
+.goal-item .icon-num { background: var(--accent); }
+
+/* === FLOW DIAGRAM === */
+.flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+.flow-item { padding: 0.5em 1.2em; border-radius: 8px; font-weight: 600; font-size: var(--body-size); }
+.flow-arrow { font-size: 1.2rem; color: var(--text-secondary); }
+
+/* === BAD PATTERN CARDS === */
+.bad-card { background: #fff; border-radius: 8px; padding: clamp(0.6rem, 1.2vw, 1rem); border: 1px solid rgba(0,0,0,0.06); display: flex; gap: 0.75rem; align-items: flex-start; }
+.bad-card .quote { font-style: italic; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); margin: 0 0 0.25rem; }
+.bad-card .issue { font-size: clamp(0.7rem, 1vw, 0.85rem); color: #DC2626; margin: 0; font-weight: 500; }
+
+/* === TECHNIQUE LIST === */
+.tech-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.tech-row:last-child { border-bottom: none; }
+.tech-label { font-weight: 600; font-size: var(--body-size); min-width: 40%; }
+.tech-fix { font-size: var(--body-size); color: var(--accent); }
+
+/* === SUMMARY CARDS === */
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(0.5rem, 1.2vw, 0.75rem); }
+.summary-card { background: #fff; border-radius: 12px; padding: clamp(0.75rem, 1.5vw, 1.25rem); box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid var(--accent); }
+.summary-card h3 { font-size: clamp(0.85rem, 1.2vw, 1rem); margin: 0 0 0.25rem; }
+.summary-card p { font-size: clamp(0.7rem, 1vw, 0.85rem); color: var(--text-secondary); margin: 0; line-height: 1.5; }
+
+/* === META PILL === */
+.meta-pills { display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
+.meta-pill { padding: 0.3em 1em; border-radius: 999px; font-size: 0.8rem; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+
+/* === END SLIDE === */
+.end-cta { list-style: none; padding: 0; margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
+.end-cta li { font-size: clamp(0.9rem, 1.4vw, 1.1rem); color: rgba(255,255,255,0.85); }
+</style>
+</head>
+<body>
+
+<!-- TAB NAV -->
+<nav class="tab-nav" aria-label="Slide navigation">
+  <a href="#slide-1">1</a><a href="#slide-2">2</a><a href="#slide-3">3</a>
+  <a href="#slide-4">4</a><a href="#slide-5">5</a><a href="#slide-6">6</a>
+  <a href="#slide-7">7</a><a href="#slide-8">8</a><a href="#slide-9">9</a>
+  <a href="#slide-10">10</a><a href="#slide-11">11</a><a href="#slide-12">12</a>
+</nav>
+
+<!-- SLIDE 1: TITLE (NAVY) -->
+<section class="slide slide--navy" id="slide-1">
+  <div class="slide-content">
+    <div class="reveal" style="font-size:3rem; margin-bottom:1rem;">&#x1F4DD;</div>
+    <h1 class="slide-title reveal reveal-delay-1">プロンプトの基本</h1>
+    <p class="slide-subtitle reveal reveal-delay-2">AIへの指示の出し方</p>
+    <div class="meta-pills reveal reveal-delay-3">
+      <span class="meta-pill">A-105</span>
+      <span class="meta-pill">全社員向け</span>
+      <span class="meta-pill">20分</span>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>1 / 12</span></div>
+</section>
+
+<!-- SLIDE 2: GOALS -->
+<section class="slide slide--page" id="slide-2">
+  <div class="slide-content">
+    <span class="section-tag section-tag--blue reveal">GOALS</span>
+    <h2 class="h2 reveal reveal-delay-1">今日のゴール</h2>
+    <div class="goals-list">
+      <div class="goal-item reveal reveal-delay-2">
+        <div class="icon-num" style="background:#2563EB;">1</div>
+        <span>プロンプトとは何かを説明できる</span>
+      </div>
+      <div class="goal-item reveal reveal-delay-3">
+        <div class="icon-num" style="background:#2563EB;">2</div>
+        <span>良いプロンプトの5つの要素（役割・文脈・指示・形式・制約）を使える</span>
+      </div>
+      <div class="goal-item reveal reveal-delay-4">
+        <div class="icon-num" style="background:#2563EB;">3</div>
+        <span>悪いプロンプトと良いプロンプトの違いを具体例で比較できる</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>2 / 12</span></div>
+</section>
+
+<!-- SLIDE 3: WHAT IS PROMPT -->
+<section class="slide slide--page" id="slide-3">
+  <div class="slide-content">
+    <span class="section-tag section-tag--green reveal">BASICS</span>
+    <h2 class="h2 reveal reveal-delay-1">プロンプトとは何か？</h2>
+    <div class="flow reveal reveal-delay-2">
+      <div class="flow-item" style="background:#DBEAFE; color:#2563EB;">あなた</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-item" style="background:#2563EB; color:#fff;">プロンプト（指示）</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-item" style="background:#DBEAFE; color:#2563EB;">AI</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-item" style="background:#D1FAE5; color:#059669;">回答</div>
+    </div>
+    <div class="grid" style="margin-top:1rem;">
+      <div class="element-card reveal reveal-delay-3">
+        <div class="icon-circle icon-circle--blue">&#x1F4AC;</div>
+        <h3>AIとの会話の入り口</h3>
+        <p>質問、お願い、命令... AIに入力する文章はすべてプロンプト</p>
+      </div>
+      <div class="element-card reveal reveal-delay-4">
+        <div class="icon-circle icon-circle--green">&#x2696;</div>
+        <h3>指示の質 = 回答の質</h3>
+        <p>曖昧な指示 → 曖昧な回答<br>具体的な指示 → 的確な回答</p>
+      </div>
+      <div class="element-card reveal reveal-delay-5">
+        <div class="icon-circle icon-circle--amber">&#x1F373;</div>
+        <h3>プロンプトは「レシピ」</h3>
+        <p>同じAIでもプロンプト次第で結果が全く変わる</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>3 / 12</span></div>
+</section>
+
+<!-- SLIDE 4: BAD PROMPTS -->
+<section class="slide slide--page" id="slide-4">
+  <div class="slide-content">
+    <span class="section-tag section-tag--red reveal">ANTI-PATTERN</span>
+    <h2 class="h2 reveal reveal-delay-1">なぜAIの回答がイマイチなのか？</h2>
+    <div style="display:flex; flex-direction:column; gap:clamp(0.4rem,1vw,0.6rem); margin-top:0.5rem;">
+      <div class="bad-card reveal reveal-delay-2">
+        <div class="icon-circle icon-circle--red" style="width:40px;height:40px;font-size:1rem;">&#x2717;</div>
+        <div>
+          <p class="quote">「いい感じにして」</p>
+          <p class="issue">→ 何を、どう？ AIには「いい感じ」が分からない</p>
+        </div>
+      </div>
+      <div class="bad-card reveal reveal-delay-3">
+        <div class="icon-circle icon-circle--red" style="width:40px;height:40px;font-size:1rem;">&#x2717;</div>
+        <div>
+          <p class="quote">「マーケティングについて教えて」</p>
+          <p class="issue">→ 範囲が広すぎて一般論しか返せない</p>
+        </div>
+      </div>
+      <div class="bad-card reveal reveal-delay-4">
+        <div class="icon-circle icon-circle--red" style="width:40px;height:40px;font-size:1rem;">&#x2717;</div>
+        <div>
+          <p class="quote">「文章を書いて」</p>
+          <p class="issue">→ メール？ ブログ？ 誰向け？ 何文字？ 情報不足</p>
+        </div>
+      </div>
+    </div>
+    <div class="key-message reveal reveal-delay-5" style="margin-top:clamp(0.5rem,1.2vw,0.75rem);">
+      共通点: 具体性がない・前提がない・ゴールが不明確<br>AIが悪いのではなく「指示が悪い」
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>4 / 12</span></div>
+</section>
+
+<!-- SLIDE 5: 5 ELEMENTS -->
+<section class="slide slide--page" id="slide-5">
+  <div class="slide-content">
+    <span class="section-tag section-tag--blue reveal">FRAMEWORK</span>
+    <h2 class="h2 reveal reveal-delay-1">良いプロンプトの5つの要素</h2>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); margin-top:0.5rem;">
+      <div class="element-card element-card--accent reveal reveal-delay-1" style="border-left-color:#7dd3fc;">
+        <div class="icon-circle icon-circle--blue" style="width:36px;height:36px;font-size:0.9rem;">R</div>
+        <h3>役割 <small style="font-weight:400;color:var(--text-secondary);">Role</small></h3>
+        <p>どんな専門家として振る舞ってほしいか</p>
+      </div>
+      <div class="element-card element-card--accent reveal reveal-delay-2" style="border-left-color:#a78bfa;">
+        <div class="icon-circle icon-circle--purple" style="width:36px;height:36px;font-size:0.9rem;">C</div>
+        <h3>文脈 <small style="font-weight:400;color:var(--text-secondary);">Context</small></h3>
+        <p>背景情報・前提条件</p>
+      </div>
+      <div class="element-card element-card--accent reveal reveal-delay-3" style="border-left-color:#34d399;">
+        <div class="icon-circle icon-circle--green" style="width:36px;height:36px;font-size:0.9rem;">I</div>
+        <h3>指示 <small style="font-weight:400;color:var(--text-secondary);">Instruction</small></h3>
+        <p>具体的にやってほしいこと</p>
+      </div>
+      <div class="element-card element-card--accent reveal reveal-delay-4" style="border-left-color:#fbbf24;">
+        <div class="icon-circle icon-circle--amber" style="width:36px;height:36px;font-size:0.9rem;">F</div>
+        <h3>形式 <small style="font-weight:400;color:var(--text-secondary);">Format</small></h3>
+        <p>出力の形・長さ・構成</p>
+      </div>
+      <div class="element-card element-card--accent reveal reveal-delay-5" style="border-left-color:#f87171;">
+        <div class="icon-circle icon-circle--red" style="width:36px;height:36px;font-size:0.9rem;">C</div>
+        <h3>制約 <small style="font-weight:400;color:var(--text-secondary);">Constraint</small></h3>
+        <p>やってはいけないこと・条件</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>5 / 12</span></div>
+</section>
+
+<!-- SLIDE 6: ROLE & CONTEXT -->
+<section class="slide slide--page" id="slide-6">
+  <div class="slide-content">
+    <span class="section-tag section-tag--purple reveal">DEEP DIVE</span>
+    <h2 class="h2 reveal reveal-delay-1">役割と文脈 — AIに「前提」を伝える</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:0.5rem;">
+      <div class="element-card reveal reveal-delay-2">
+        <h3 style="color:#2563EB;">&#x1F3AD; 役割の例</h3>
+        <ul style="font-size:var(--body-size); color:var(--text-secondary); padding-left:1.2rem; margin:0.5rem 0 0; line-height:1.7;">
+          <li>10年経験のあるWebデザイナー</li>
+          <li>中学生に教える理科の先生</li>
+          <li>IT企業の採用担当者</li>
+        </ul>
+      </div>
+      <div class="element-card reveal reveal-delay-3">
+        <h3 style="color:#7C3AED;">&#x1F4CB; 文脈の例</h3>
+        <ul style="font-size:var(--body-size); color:var(--text-secondary); padding-left:1.2rem; margin:0.5rem 0 0; line-height:1.7;">
+          <li>飲食店を経営、新メニュー開発中</li>
+          <li>営業チーム5人のリーダー</li>
+          <li>来月の展示会に出展予定</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:clamp(0.4rem,1vw,0.6rem);">
+      <div class="comparison-box comparison-box--bad reveal reveal-delay-4">
+        <div class="comparison-label comparison-label--bad">&#x2717; Before</div>
+        <p style="font-size:var(--body-size); margin:0;">「集客方法を教えて」</p>
+      </div>
+      <div class="comparison-box comparison-box--good reveal reveal-delay-5">
+        <div class="comparison-label comparison-label--good">&#x2713; After</div>
+        <p style="font-size:var(--body-size); margin:0;">「あなたは飲食店コンサルタントです。駅前ラーメン店の平日ランチ集客を、低予算で3つ教えてください」</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>6 / 12</span></div>
+</section>
+
+<!-- SLIDE 7: INSTRUCTION -->
+<section class="slide slide--page" id="slide-7">
+  <div class="slide-content">
+    <span class="section-tag section-tag--green reveal">DEEP DIVE</span>
+    <h2 class="h2 reveal reveal-delay-1">指示 — 「何をしてほしいか」を明確に</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:0.5rem;">
+      <div class="element-card reveal reveal-delay-2">
+        <h3 style="font-size:clamp(0.8rem,1.2vw,1rem);">曖昧 → 明確に書き換える</h3>
+        <div class="tech-row"><span class="tech-label">「教えて」</span><span class="tech-fix">→「3ステップで説明して」</span></div>
+        <div class="tech-row"><span class="tech-label">「まとめて」</span><span class="tech-fix">→「5つの箇条書きで」</span></div>
+        <div class="tech-row"><span class="tech-label">「考えて」</span><span class="tech-fix">→「メリ/デメ3つずつ表で」</span></div>
+      </div>
+      <div class="element-card reveal reveal-delay-3">
+        <h3 style="font-size:clamp(0.8rem,1.2vw,1rem);">指示を明確にする3つのコツ</h3>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+          <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+            <div class="icon-num" style="background:#059669; width:28px; height:28px; font-size:0.75rem;">1</div>
+            <div><strong style="font-size:var(--body-size);">動詞を具体的に</strong><br><span style="font-size:clamp(0.7rem,1vw,0.8rem); color:var(--text-secondary);">比較して / 要約して / 翻訳して</span></div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+            <div class="icon-num" style="background:#059669; width:28px; height:28px; font-size:0.75rem;">2</div>
+            <div><strong style="font-size:var(--body-size);">数を指定する</strong><br><span style="font-size:clamp(0.7rem,1vw,0.8rem); color:var(--text-secondary);">「いくつか」→「5つ」</span></div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+            <div class="icon-num" style="background:#059669; width:28px; height:28px; font-size:0.75rem;">3</div>
+            <div><strong style="font-size:var(--body-size);">ステップに分解</strong><br><span style="font-size:clamp(0.7rem,1vw,0.8rem); color:var(--text-secondary);">複雑なタスクは小さく分ける</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>7 / 12</span></div>
+</section>
+
+<!-- SLIDE 8: FORMAT & CONSTRAINT -->
+<section class="slide slide--page" id="slide-8">
+  <div class="slide-content">
+    <span class="section-tag section-tag--amber reveal">DEEP DIVE</span>
+    <h2 class="h2 reveal reveal-delay-1">形式と制約 — アウトプットをコントロール</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:0.5rem;">
+      <div class="element-card reveal reveal-delay-2">
+        <h3 style="color:#D97706;">&#x1F4D0; 形式の指定例</h3>
+        <ul style="font-size:var(--body-size); color:var(--text-secondary); padding-left:1.2rem; margin:0.5rem 0 0; line-height:1.8;">
+          <li>「箇条書きで」「番号付きリストで」</li>
+          <li>「表形式（項目/メリット/デメリット）」</li>
+          <li>「300文字以内で」「見出し付きで」</li>
+          <li>「メール文面として」</li>
+        </ul>
+      </div>
+      <div class="element-card reveal reveal-delay-3">
+        <h3 style="color:#DC2626;">&#x1F6A7; 制約の指定例</h3>
+        <ul style="font-size:var(--body-size); color:var(--text-secondary); padding-left:1.2rem; margin:0.5rem 0 0; line-height:1.8;">
+          <li>「専門用語を使わず中学生にも分かる言葉で」</li>
+          <li>「日本市場に限定して」</li>
+          <li>「ネガティブな表現は避けて」</li>
+          <li>「競合ブランド名は使わないで」</li>
+        </ul>
+      </div>
+    </div>
+    <div class="key-message reveal reveal-delay-4" style="margin-top:clamp(0.5rem,1.2vw,0.75rem);">
+      形式 = 「どんな形で出すか」 / 制約 = 「何をやらないか」<br>この2つでAIの出力を自在にコントロール
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>8 / 12</span></div>
+</section>
+
+<!-- SLIDE 9: BEFORE/AFTER -->
+<section class="slide slide--page" id="slide-9">
+  <div class="slide-content">
+    <span class="section-tag section-tag--blue reveal">PRACTICE</span>
+    <h2 class="h2 reveal reveal-delay-1">実践！ Before → After</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:0.25rem;">
+      <div class="reveal reveal-delay-2">
+        <div class="comparison-box comparison-box--bad" style="height:100%;">
+          <div class="comparison-label comparison-label--bad">&#x2717; Before</div>
+          <div class="prompt-code" style="background:#4a1c1c; font-size:clamp(0.75rem,1.1vw,0.9rem);">新商品のキャッチコピーを考えて</div>
+          <p style="font-size:clamp(0.7rem,1vw,0.8rem); color:#DC2626; margin:0.5rem 0 0;">→ 「素敵な毎日を」... 抽象的で使えない</p>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-3">
+        <div class="comparison-box comparison-box--good" style="height:100%;">
+          <div class="comparison-label comparison-label--good">&#x2713; After（5要素を活用）</div>
+          <div class="prompt-code" style="font-size:clamp(0.65rem,1vw,0.8rem);"><span class="tag tag--role">[役割]</span> あなたはコピーライターです。
+<span class="tag tag--context">[文脈]</span> 20代女性向けオーガニック化粧品。新発売の美容液。
+<span class="tag tag--instruction">[指示]</span> キャッチコピーを5案考えてください。
+<span class="tag tag--format">[形式]</span> 各案20文字以内、理由も一言添えて。
+<span class="tag tag--constraint">[制約]</span> 競合ブランド名は使わないで。</div>
+          <p style="font-size:clamp(0.7rem,1vw,0.8rem); color:#059669; margin:0.5rem 0 0;">→ ターゲットに刺さる具体的な5案が出てくる</p>
+        </div>
+      </div>
+    </div>
+    <div class="key-message reveal reveal-delay-4" style="margin-top:clamp(0.4rem,1vw,0.6rem); font-size:clamp(0.8rem,1.2vw,1rem);">
+      同じAIでもプロンプトの書き方だけでこれだけ差が出る
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>9 / 12</span></div>
+</section>
+
+<!-- SLIDE 10: TIPS & TRICKS -->
+<section class="slide slide--page" id="slide-10">
+  <div class="slide-content">
+    <span class="section-tag section-tag--amber reveal">TIPS</span>
+    <h2 class="h2 reveal reveal-delay-1">よくある失敗と改善テクニック</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,0.75rem); margin-top:0.5rem;">
+      <div class="element-card reveal reveal-delay-2">
+        <h3 style="font-size:clamp(0.8rem,1.2vw,1rem);">&#x26A0; 失敗パターン → 対策</h3>
+        <div class="tech-row"><span class="tech-label" style="color:#DC2626;">回答が長すぎる</span><span class="tech-fix">→「3行で」「100字以内で」</span></div>
+        <div class="tech-row"><span class="tech-label" style="color:#DC2626;">的外れな回答</span><span class="tech-fix">→ 文脈と役割を追加</span></div>
+        <div class="tech-row"><span class="tech-label" style="color:#DC2626;">一般論しか出ない</span><span class="tech-fix">→ 具体的な条件を追加</span></div>
+        <div class="tech-row"><span class="tech-label" style="color:#DC2626;">話が脱線する</span><span class="tech-fix">→「この質問だけ答えて」</span></div>
+      </div>
+      <div class="element-card reveal reveal-delay-3">
+        <h3 style="font-size:clamp(0.8rem,1.2vw,1rem);">&#x1F680; 上級テクニック</h3>
+        <div style="display:flex; flex-direction:column; gap:clamp(0.4rem,0.8vw,0.6rem); margin-top:0.5rem;">
+          <div style="background:#DBEAFE; border-radius:8px; padding:0.6rem 0.8rem;">
+            <strong style="font-size:var(--body-size); color:#2563EB;">「ステップバイステップで考えて」</strong>
+            <p style="font-size:clamp(0.7rem,1vw,0.8rem); margin:0.2rem 0 0; color:var(--text-secondary);">AIの思考の質が上がる</p>
+          </div>
+          <div style="background:#D1FAE5; border-radius:8px; padding:0.6rem 0.8rem;">
+            <strong style="font-size:var(--body-size); color:#059669;">「回答前に前提条件を確認して」</strong>
+            <p style="font-size:clamp(0.7rem,1vw,0.8rem); margin:0.2rem 0 0; color:var(--text-secondary);">認識ズレを防げる</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>10 / 12</span></div>
+</section>
+
+<!-- SLIDE 11: SUMMARY -->
+<section class="slide slide--page" id="slide-11">
+  <div class="slide-content">
+    <span class="section-tag section-tag--blue reveal">SUMMARY</span>
+    <h2 class="h2 reveal reveal-delay-1">今日のまとめ</h2>
+    <div class="summary-grid" style="margin-top:0.5rem;">
+      <div class="summary-card reveal reveal-delay-2" style="border-top-color:#2563EB;">
+        <h3>&#x1F4DD; プロンプト = 指示文</h3>
+        <p>指示の質がそのまま回答の質に。曖昧な指示 → 曖昧な回答。具体的な指示 → 的確な回答。</p>
+      </div>
+      <div class="summary-card reveal reveal-delay-3" style="border-top-color:#059669;">
+        <h3>&#x1F3AF; 5つの要素: RCIFC</h3>
+        <p>役割・文脈・指示・形式・制約。状況に応じて組み合わせる。全部使わなくてもOK。</p>
+      </div>
+      <div class="summary-card reveal reveal-delay-4" style="border-top-color:#D97706;">
+        <h3>&#x1F4AA; まず「具体的に」</h3>
+        <p>「もう少し具体的に書けないかな？」と問いかけるだけでAIの回答は確実に良くなる。</p>
+      </div>
+    </div>
+    <div class="key-message reveal reveal-delay-5" style="margin-top:clamp(0.5rem,1.2vw,0.75rem);">
+      プロンプトは「練習」で上手くなる。今日からどんどん試してみよう！
+    </div>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>11 / 12</span></div>
+</section>
+
+<!-- SLIDE 12: END (NAVY) -->
+<section class="slide slide--navy" id="slide-12">
+  <div class="slide-content">
+    <div class="reveal" style="font-size:2.5rem; margin-bottom:1rem;">&#x1F389;</div>
+    <h2 class="slide-title reveal reveal-delay-1" style="font-size:clamp(1.5rem,4vw,2.5rem);">お疲れさまでした！</h2>
+    <ul class="end-cta reveal reveal-delay-2">
+      <li>このあと確認テスト（5問）があります</li>
+      <li>80%以上の正答で修了です</li>
+      <li>5つの要素を思い出しながらチャレンジ！</li>
+    </ul>
+  </div>
+  <div class="slide-footer"><span>A-105</span><span>12 / 12</span></div>
+</section>
+
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.navLinks = document.querySelectorAll('.tab-nav a');
+    this.init();
+  }
+
+  init() {
+    // Intersection Observer for reveal animations
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.reveal').forEach(el => {
+            el.classList.add('visible');
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+
+    this.slides.forEach(slide => revealObserver.observe(slide));
+
+    // Active tab tracking
+    const tabObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const idx = Array.from(this.slides).indexOf(entry.target);
+          this.navLinks.forEach((link, i) => {
+            link.classList.toggle('active', i === idx);
+          });
+        }
+      });
+    }, { threshold: 0.5 });
+
+    this.slides.forEach(slide => tabObserver.observe(slide));
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      const currentIdx = this.getCurrentSlideIndex();
+      if ((e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') && currentIdx < this.slides.length - 1) {
+        e.preventDefault();
+        this.slides[currentIdx + 1].scrollIntoView({ behavior: 'smooth' });
+      } else if ((e.key === 'ArrowUp' || e.key === 'PageUp') && currentIdx > 0) {
+        e.preventDefault();
+        this.slides[currentIdx - 1].scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  getCurrentSlideIndex() {
+    let closest = 0;
+    let minDist = Infinity;
+    this.slides.forEach((slide, i) => {
+      const rect = slide.getBoundingClientRect();
+      const dist = Math.abs(rect.top);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    return closest;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+</script>
+</body>
+</html>

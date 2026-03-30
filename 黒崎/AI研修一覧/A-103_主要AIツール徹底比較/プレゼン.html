@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-103: 主要AIツール徹底比較</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans (Notebook Tabs theme) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE — viewport-base.css
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --title-size: clamp(1.1rem, 4vw, 2rem); } .nav-tabs, .decorative { display: none; } }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
+
+        /* ===========================================
+           NOTEBOOK TABS THEME
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        .slide {
+            background: var(--bg-outer);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page {
+            background: var(--bg-page);
+            width: min(92vw, 1100px);
+            height: min(88vh, 750px);
+            border-radius: 4px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Binder holes */
+        .page::before {
+            content: '';
+            position: absolute;
+            left: clamp(12px, 2vw, 24px);
+            top: 15%;
+            width: clamp(10px, 1.2vw, 16px);
+            height: 70%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 30px,
+                #ccc 30px,
+                #ccc 32px,
+                transparent 32px,
+                transparent 50px,
+                var(--bg-outer) 50px,
+                var(--bg-outer) 62px,
+                transparent 62px,
+                transparent 80px
+            );
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            padding-left: clamp(2.5rem, 6vw, 5rem);
+            overflow: hidden;
+        }
+
+        /* Right-edge tabs */
+        .nav-tabs {
+            position: fixed;
+            right: clamp(4px, 1vw, 20px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 1000;
+        }
+
+        .nav-tab {
+            width: clamp(28px, 3.5vw, 44px);
+            height: clamp(40px, 6vh, 70px);
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s var(--ease-out-expo), opacity 0.3s;
+            opacity: 0.6;
+            border: none;
+            position: relative;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            opacity: 1;
+            transform: translateX(-4px);
+        }
+
+        .nav-tab span {
+            writing-mode: vertical-rl;
+            font-size: clamp(0.5rem, 1vh, 0.7rem);
+            font-family: var(--font-body);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+
+        /* Footer */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(0.4rem, 1vh, 0.8rem) clamp(1rem, 3vw, 2rem);
+            padding-left: clamp(2.5rem, 6vw, 5rem);
+            border-top: 1px solid #e0ddd8;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+        }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin-bottom: clamp(0.5rem, 1.5vw, 1.2rem);
+        }
+
+        h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        p, li {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           CARD LAYOUT
+           =========================================== */
+        .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.5vw, 1.2rem);
+            border: 1px solid #e8e5e0;
+            transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.15em 0.6em;
+            border-radius: 20px;
+            font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .accent-line {
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+            margin-bottom: clamp(0.3rem, 1vw, 0.8rem);
+        }
+
+        /* Comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+        }
+
+        .compare-table th {
+            background: var(--accent);
+            color: white;
+            padding: clamp(0.3rem, 0.8vw, 0.6rem);
+            text-align: center;
+            font-weight: 700;
+            font-size: clamp(0.6rem, 1vw, 0.8rem);
+        }
+
+        .compare-table td {
+            padding: clamp(0.25rem, 0.6vw, 0.5rem);
+            text-align: center;
+            border-bottom: 1px solid #e8e5e0;
+        }
+
+        .compare-table tr:nth-child(even) { background: rgba(37, 99, 235, 0.04); }
+        .compare-table td:first-child { text-align: left; font-weight: 600; }
+
+        .rating-great { color: #059669; font-weight: 700; }
+        .rating-good { color: var(--accent); }
+        .rating-ok { color: #D97706; }
+        .rating-no { color: #DC2626; }
+
+        /* Use-case row */
+        .use-case-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.3rem, 1vw, 0.8rem);
+            padding: clamp(0.3rem, 0.7vw, 0.6rem) 0;
+            border-bottom: 1px solid #f0ede8;
+        }
+
+        .use-case-label {
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+            min-width: clamp(100px, 18vw, 200px);
+        }
+
+        .use-case-tool {
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Pricing table */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1.2vw, 1rem);
+            border: 1px solid #e8e5e0;
+            text-align: center;
+        }
+
+        .pricing-card .tool-name {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            margin-bottom: 0.3em;
+        }
+
+        .pricing-card .price {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .pricing-card .price-note {
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            color: var(--text-secondary);
+        }
+
+        /* Warning cards */
+        .warning-card {
+            background: white;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.5vw, 1rem);
+            border-left: 4px solid;
+        }
+
+        .warning-card.security { border-color: #DC2626; }
+        .warning-card.rules { border-color: #D97706; }
+        .warning-card.verify { border-color: var(--accent); }
+
+        /* Tool detail card */
+        .tool-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem, 1.5vw, 1.2rem);
+        }
+
+        @media (max-width: 700px) {
+            .tool-detail { grid-template-columns: 1fr; }
+        }
+
+        .strength-list, .weakness-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .strength-list li::before { content: "\2714 "; color: #059669; font-weight: 700; }
+        .weakness-list li::before { content: "\26A0 "; color: #D97706; }
+
+        .strength-list li, .weakness-list li {
+            font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+            margin-bottom: 0.3em;
+        }
+
+        /* Goal number */
+        .goal-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(28px, 3vw, 40px);
+            height: clamp(28px, 3vw, 40px);
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            font-size: clamp(0.8rem, 1.3vw, 1rem);
+            flex-shrink: 0;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+            padding: clamp(0.4rem, 1vw, 0.8rem) 0;
+            border-bottom: 1px solid #e8e5e0;
+        }
+
+        .goal-item:last-child { border-bottom: none; }
+
+        .goal-text {
+            font-size: clamp(0.8rem, 1.3vw, 1rem);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Summary item */
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.3rem, 1vw, 0.8rem);
+            margin-bottom: clamp(0.3rem, 0.8vw, 0.6rem);
+        }
+
+        .summary-icon {
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           ANIMATIONS — .reveal
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .reveal:nth-child(2) { transition-delay: 0.16s; }
+        .reveal:nth-child(3) { transition-delay: 0.24s; }
+        .reveal:nth-child(4) { transition-delay: 0.32s; }
+        .reveal:nth-child(5) { transition-delay: 0.40s; }
+        .reveal:nth-child(6) { transition-delay: 0.48s; }
+        .reveal:nth-child(7) { transition-delay: 0.56s; }
+        .reveal:nth-child(8) { transition-delay: 0.64s; }
+
+        /* Title slide special */
+        .title-slide .page {
+            text-align: center;
+            justify-content: center;
+        }
+
+        .title-slide .page-content {
+            align-items: center;
+            padding-left: var(--slide-padding);
+        }
+
+        .subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.5em;
+        }
+
+        .title-meta {
+            font-family: var(--font-body);
+            font-size: clamp(0.65rem, 1vw, 0.8rem);
+            color: var(--text-secondary);
+            margin-top: 1.5em;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+        }
+
+        .title-accent {
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+            margin: 1em auto;
+        }
+
+        /* Tool color accents */
+        .chatgpt-accent { border-top: 3px solid #10a37f; }
+        .claude-accent { border-top: 3px solid #d4a27f; }
+        .gemini-accent { border-top: 3px solid #4285f4; }
+        .copilot-accent { border-top: 3px solid #0078d4; }
+
+        .chatgpt-color { color: #10a37f; }
+        .claude-color { color: #d4a27f; }
+        .gemini-color { color: #4285f4; }
+        .copilot-color { color: #0078d4; }
+
+        /* Section tag */
+        .section-tag {
+            display: inline-block;
+            padding: 0.2em 0.8em;
+            border-radius: 20px;
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: clamp(0.3rem, 0.8vw, 0.5rem);
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--accent);
+        }
+
+        /* 4-card overview grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.4rem, 1.2vw, 0.8rem);
+        }
+
+        @media (max-width: 600px) {
+            .overview-grid { grid-template-columns: 1fr; }
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1.2vw, 1rem);
+            border: 1px solid #e8e5e0;
+        }
+
+        .overview-card .tool-label {
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+            font-weight: 700;
+            margin-bottom: 0.2em;
+        }
+
+        .overview-card .tool-company {
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            color: var(--text-secondary);
+            margin-bottom: 0.4em;
+        }
+
+        .overview-card .tool-desc {
+            font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+            color: var(--text-secondary);
+        }
+
+        /* CTA */
+        .cta-box {
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+            text-align: center;
+            margin-top: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        .cta-box p {
+            color: white;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Right-edge tab navigation -->
+    <nav class="nav-tabs" aria-label="Slide navigation">
+        <button class="nav-tab" data-slide="0" style="background:var(--tab-1)"><span>Top</span></button>
+        <button class="nav-tab" data-slide="1" style="background:var(--tab-2)"><span>Goal</span></button>
+        <button class="nav-tab" data-slide="2" style="background:var(--tab-1)"><span>Map</span></button>
+        <button class="nav-tab" data-slide="3" style="background:var(--tab-3)"><span>GPT</span></button>
+        <button class="nav-tab" data-slide="4" style="background:var(--tab-4)"><span>Claude</span></button>
+        <button class="nav-tab" data-slide="5" style="background:var(--tab-5)"><span>Gemini</span></button>
+        <button class="nav-tab" data-slide="6" style="background:var(--tab-2)"><span>Copilot</span></button>
+        <button class="nav-tab" data-slide="7" style="background:var(--tab-3)"><span>Compare</span></button>
+        <button class="nav-tab" data-slide="8" style="background:var(--tab-1)"><span>Use</span></button>
+        <button class="nav-tab" data-slide="9" style="background:var(--tab-4)"><span>Price</span></button>
+        <button class="nav-tab" data-slide="10" style="background:var(--tab-5)"><span>Caution</span></button>
+        <button class="nav-tab" data-slide="11" style="background:var(--tab-2)"><span>End</span></button>
+    </nav>
+
+    <!-- =================== SLIDE 1: TITLE =================== -->
+    <section class="slide title-slide" id="slide-1">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">A-103</div>
+                <h1 class="reveal">主要AIツール<br>徹底比較</h1>
+                <div class="title-accent reveal"></div>
+                <p class="subtitle reveal">ChatGPT・Claude・Gemini・Copilotを使い分ける</p>
+                <p class="title-meta reveal">全社員向け &mdash; 20分</p>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>1 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 2: GOALS =================== -->
+    <section class="slide" id="slide-2">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">OBJECTIVES</div>
+                <h2 class="reveal">今日のゴール</h2>
+                <div class="reveal">
+                    <div class="goal-item">
+                        <span class="goal-num">1</span>
+                        <span class="goal-text">ChatGPT / Claude / Gemini / Copilotの特徴をそれぞれ説明できる</span>
+                    </div>
+                    <div class="goal-item">
+                        <span class="goal-num">2</span>
+                        <span class="goal-text">用途に応じて最適なAIツールを選択できる</span>
+                    </div>
+                    <div class="goal-item">
+                        <span class="goal-num">3</span>
+                        <span class="goal-text">無料版と有料版の違い、企業利用時の注意点を理解する</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 3: OVERVIEW MAP =================== -->
+    <section class="slide" id="slide-3">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">OVERVIEW</div>
+                <h2 class="reveal">AIツール4強の全体像</h2>
+                <div class="overview-grid reveal">
+                    <div class="overview-card chatgpt-accent">
+                        <div class="tool-label chatgpt-color">ChatGPT</div>
+                        <div class="tool-company">OpenAI</div>
+                        <div class="tool-desc">最も普及した万能型。文章・画像・コードまで幅広く対応</div>
+                    </div>
+                    <div class="overview-card claude-accent">
+                        <div class="tool-label claude-color">Claude</div>
+                        <div class="tool-company">Anthropic</div>
+                        <div class="tool-desc">長文処理と論理分析が得意。安全性を最重視した設計</div>
+                    </div>
+                    <div class="overview-card gemini-accent">
+                        <div class="tool-label gemini-color">Gemini</div>
+                        <div class="tool-company">Google</div>
+                        <div class="tool-desc">Google Workspace連携とリアルタイム検索が強み</div>
+                    </div>
+                    <div class="overview-card copilot-accent">
+                        <div class="tool-label copilot-color">Copilot</div>
+                        <div class="tool-company">Microsoft</div>
+                        <div class="tool-desc">Word・Excel・Teams等のOfficeアプリに直接統合</div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 4: ChatGPT =================== -->
+    <section class="slide" id="slide-4">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal" style="background:rgba(16,163,127,0.1);color:#10a37f;">ChatGPT</div>
+                <h2 class="reveal">ChatGPT <span style="font-weight:400;font-size:0.6em;color:var(--text-secondary);">- 万能型のAIアシスタント</span></h2>
+                <div class="accent-line reveal" style="background:#10a37f;"></div>
+                <div class="tool-detail reveal">
+                    <div>
+                        <h3 style="color:#059669;margin-bottom:0.5em;">Strengths</h3>
+                        <ul class="strength-list">
+                            <li>幅広い対応力 - 文章・画像・コードまで</li>
+                            <li>GPTsで目的特化のカスタムAI作成</li>
+                            <li>DALL-Eによる画像生成を内蔵</li>
+                            <li>最大のユーザーベースと情報量</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color:#D97706;margin-bottom:0.5em;">Cautions</h3>
+                        <ul class="weakness-list">
+                            <li>回答の正確性にムラがある</li>
+                            <li>最新情報に弱い場合がある</li>
+                        </ul>
+                        <div style="margin-top:clamp(0.5rem,1.5vw,1rem);padding:clamp(0.4rem,1vw,0.8rem);background:#f0fdf4;border-radius:6px;">
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);color:#059669;font-weight:600;">Best for:</p>
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);">アイデア出し / 文章作成 / 翻訳 / 画像生成</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 5: Claude =================== -->
+    <section class="slide" id="slide-5">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal" style="background:rgba(212,162,127,0.15);color:#b8763f;">CLAUDE</div>
+                <h2 class="reveal">Claude <span style="font-weight:400;font-size:0.6em;color:var(--text-secondary);">- 正確さと安全性の優等生</span></h2>
+                <div class="accent-line reveal" style="background:#d4a27f;"></div>
+                <div class="tool-detail reveal">
+                    <div>
+                        <h3 style="color:#059669;margin-bottom:0.5em;">Strengths</h3>
+                        <ul class="strength-list">
+                            <li>100ページ超の長文処理が可能</li>
+                            <li>論理的で正確な回答品質</li>
+                            <li>安全性を最重視した設計</li>
+                            <li>ビジネス文書の品質が高い</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color:#D97706;margin-bottom:0.5em;">Cautions</h3>
+                        <ul class="weakness-list">
+                            <li>画像生成は非対応</li>
+                            <li>日本での知名度がまだ低い</li>
+                        </ul>
+                        <div style="margin-top:clamp(0.5rem,1.5vw,1rem);padding:clamp(0.4rem,1vw,0.8rem);background:#fef3c7;border-radius:6px;">
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);color:#92400e;font-weight:600;">Best for:</p>
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);">長文要約 / 資料分析 / 契約書 / ビジネスメール</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 6: Gemini =================== -->
+    <section class="slide" id="slide-6">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal" style="background:rgba(66,133,244,0.1);color:#4285f4;">GEMINI</div>
+                <h2 class="reveal">Gemini <span style="font-weight:400;font-size:0.6em;color:var(--text-secondary);">- Google連携のパワー</span></h2>
+                <div class="accent-line reveal" style="background:#4285f4;"></div>
+                <div class="tool-detail reveal">
+                    <div>
+                        <h3 style="color:#059669;margin-bottom:0.5em;">Strengths</h3>
+                        <ul class="strength-list">
+                            <li>Google Workspace完全連携</li>
+                            <li>リアルタイム検索で最新情報取得</li>
+                            <li>画像・動画のマルチモーダル対応</li>
+                            <li>Gmail・ドキュメント内で直接利用</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color:#D97706;margin-bottom:0.5em;">Cautions</h3>
+                        <ul class="weakness-list">
+                            <li>独自の差別化がやや弱い</li>
+                            <li>アプリの完成度に改善の余地</li>
+                        </ul>
+                        <div style="margin-top:clamp(0.5rem,1.5vw,1rem);padding:clamp(0.4rem,1vw,0.8rem);background:#dbeafe;border-radius:6px;">
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);color:#1d4ed8;font-weight:600;">Best for:</p>
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);">情報検索 / Gmail連携 / Googleドキュメント作成</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 7: Copilot =================== -->
+    <section class="slide" id="slide-7">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal" style="background:rgba(0,120,212,0.1);color:#0078d4;">COPILOT</div>
+                <h2 class="reveal">Copilot <span style="font-weight:400;font-size:0.6em;color:var(--text-secondary);">- Officeに溶け込むAI</span></h2>
+                <div class="accent-line reveal" style="background:#0078d4;"></div>
+                <div class="tool-detail reveal">
+                    <div>
+                        <h3 style="color:#059669;margin-bottom:0.5em;">Strengths</h3>
+                        <ul class="strength-list">
+                            <li>Word / Excel / PPT / Teams統合</li>
+                            <li>社内データを安全に活用可能</li>
+                            <li>企業向けセキュリティ設計</li>
+                            <li>会議要約・アクションアイテム抽出</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color:#D97706;margin-bottom:0.5em;">Cautions</h3>
+                        <ul class="weakness-list">
+                            <li>M365ライセンス+追加料金が必要</li>
+                            <li>コストが他ツールより高い</li>
+                        </ul>
+                        <div style="margin-top:clamp(0.5rem,1.5vw,1rem);padding:clamp(0.4rem,1vw,0.8rem);background:#eff6ff;border-radius:6px;">
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);color:#0078d4;font-weight:600;">Best for:</p>
+                            <p style="font-size:clamp(0.65rem,1vw,0.8rem);">Word文書作成 / Excelデータ分析 / 会議要約</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 8: COMPARISON TABLE =================== -->
+    <section class="slide" id="slide-8">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">COMPARISON</div>
+                <h2 class="reveal">4ツール比較一覧</h2>
+                <div class="reveal" style="overflow-x:auto;">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">項目</th>
+                                <th>ChatGPT</th>
+                                <th>Claude</th>
+                                <th>Gemini</th>
+                                <th>Copilot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>文章作成</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-great">&#9678;</td>
+                            </tr>
+                            <tr>
+                                <td>長文分析</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-good">&#9675;</td>
+                            </tr>
+                            <tr>
+                                <td>情報検索</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-ok">&#9651;</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-good">&#9675;</td>
+                            </tr>
+                            <tr>
+                                <td>画像生成</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-no">&#10005;</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-good">&#9675;</td>
+                            </tr>
+                            <tr>
+                                <td>Office連携</td>
+                                <td class="rating-ok">&#9651;</td>
+                                <td class="rating-ok">&#9651;</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-great">&#9678;</td>
+                            </tr>
+                            <tr>
+                                <td>Google連携</td>
+                                <td class="rating-ok">&#9651;</td>
+                                <td class="rating-ok">&#9651;</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-ok">&#9651;</td>
+                            </tr>
+                            <tr>
+                                <td>安全性</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-great">&#9678;</td>
+                                <td class="rating-good">&#9675;</td>
+                                <td class="rating-great">&#9678;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="reveal" style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);margin-top:clamp(0.3rem,0.8vw,0.6rem);">&#9678; 非常に得意 &nbsp; &#9675; 対応可 &nbsp; &#9651; 限定的 &nbsp; &#10005; 非対応</p>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 9: USE CASES =================== -->
+    <section class="slide" id="slide-9">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">USE CASES</div>
+                <h2 class="reveal">こんなときはこのツール</h2>
+                <div class="reveal">
+                    <div class="use-case-row">
+                        <span class="use-case-label">アイデア出し・ブレスト</span>
+                        <span class="use-case-tool chatgpt-color">&#x2192; ChatGPT</span>
+                    </div>
+                    <div class="use-case-row">
+                        <span class="use-case-label">長文資料の要約・分析</span>
+                        <span class="use-case-tool claude-color">&#x2192; Claude</span>
+                    </div>
+                    <div class="use-case-row">
+                        <span class="use-case-label">最新情報のリサーチ</span>
+                        <span class="use-case-tool gemini-color">&#x2192; Gemini</span>
+                    </div>
+                    <div class="use-case-row">
+                        <span class="use-case-label">Word / Excel業務の効率化</span>
+                        <span class="use-case-tool copilot-color">&#x2192; Copilot</span>
+                    </div>
+                    <div class="use-case-row">
+                        <span class="use-case-label">ビジネスメール・文書作成</span>
+                        <span class="use-case-tool" style="color:var(--text-primary);">&#x2192; ChatGPT or Claude</span>
+                    </div>
+                    <div class="use-case-row">
+                        <span class="use-case-label">画像素材の作成</span>
+                        <span class="use-case-tool chatgpt-color">&#x2192; ChatGPT</span>
+                    </div>
+                    <div class="use-case-row" style="border-bottom:none;">
+                        <span class="use-case-label">会議議事録の要約</span>
+                        <span class="use-case-tool copilot-color">&#x2192; Copilot (Teams) or Claude</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 10: PRICING =================== -->
+    <section class="slide" id="slide-10">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">PRICING</div>
+                <h2 class="reveal">無料版と有料版の違い</h2>
+                <div class="pricing-grid reveal">
+                    <div class="pricing-card chatgpt-accent">
+                        <div class="tool-name chatgpt-color">ChatGPT</div>
+                        <p style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);">無料: GPT-4o mini（制限付き）</p>
+                        <div class="price">$20<span style="font-size:0.5em;font-weight:400;">/月</span></div>
+                        <p class="price-note">GPT-4o無制限 + 画像生成</p>
+                    </div>
+                    <div class="pricing-card claude-accent">
+                        <div class="tool-name claude-color">Claude</div>
+                        <p style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);">無料: Sonnet（制限付き）</p>
+                        <div class="price">$20<span style="font-size:0.5em;font-weight:400;">/月</span></div>
+                        <p class="price-note">全モデル + 大容量ファイル</p>
+                    </div>
+                    <div class="pricing-card gemini-accent">
+                        <div class="tool-name gemini-color">Gemini</div>
+                        <p style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);">無料: 基本チャット機能</p>
+                        <div class="price">$20<span style="font-size:0.5em;font-weight:400;">/月</span></div>
+                        <p class="price-note">Advanced + Workspace連携</p>
+                    </div>
+                    <div class="pricing-card copilot-accent">
+                        <div class="tool-name copilot-color">Copilot</div>
+                        <p style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);">無料: Web版のみ</p>
+                        <div class="price">$30<span style="font-size:0.5em;font-weight:400;">/月</span></div>
+                        <p class="price-note">Office統合（M365必須）</p>
+                    </div>
+                </div>
+                <p class="reveal" style="font-size:clamp(0.6rem,0.9vw,0.75rem);color:var(--text-secondary);margin-top:clamp(0.3rem,0.8vw,0.5rem);text-align:center;">* まず無料版で試して、自分の業務に合うか確認するのがおすすめ</p>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 11: CAUTIONS =================== -->
+    <section class="slide" id="slide-11">
+        <div class="page">
+            <div class="page-content">
+                <div class="section-tag reveal">IMPORTANT</div>
+                <h2 class="reveal">企業で使うときの3つの注意点</h2>
+                <div style="display:flex;flex-direction:column;gap:clamp(0.4rem,1.2vw,0.8rem);">
+                    <div class="warning-card security reveal">
+                        <h3 style="color:#DC2626;font-size:clamp(0.85rem,1.3vw,1rem);margin-bottom:0.3em;">1. セキュリティ</h3>
+                        <p style="font-size:clamp(0.7rem,1vw,0.85rem);">顧客情報・機密データは絶対に入力しない。有料版でも契約内容を必ず確認する。</p>
+                    </div>
+                    <div class="warning-card rules reveal">
+                        <h3 style="color:#D97706;font-size:clamp(0.85rem,1.3vw,1rem);margin-bottom:0.3em;">2. 社内ルール</h3>
+                        <p style="font-size:clamp(0.7rem,1vw,0.85rem);">利用可能なツール・用途を確認。わからなければ上長・IT部門に相談する。</p>
+                    </div>
+                    <div class="warning-card verify reveal">
+                        <h3 style="color:var(--accent);font-size:clamp(0.85rem,1.3vw,1rem);margin-bottom:0.3em;">3. 出力の検証（ファクトチェック）</h3>
+                        <p style="font-size:clamp(0.7rem,1vw,0.85rem);">AIの回答にはハルシネーション（事実と異なる出力）の可能性あり。数字・法律・社内規定は必ず人間が検証する。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =================== SLIDE 12: SUMMARY & CTA =================== -->
+    <section class="slide" id="slide-12">
+        <div class="page">
+            <div class="page-content" style="align-items:center;padding-left:var(--slide-padding);">
+                <div class="section-tag reveal">SUMMARY</div>
+                <h2 class="reveal" style="text-align:center;">まとめ</h2>
+                <div class="reveal" style="max-width:600px;width:100%;">
+                    <div class="summary-item">
+                        <span class="summary-icon">&#x1F3AF;</span>
+                        <p style="font-size:clamp(0.75rem,1.2vw,0.9rem);">4大ツールにはそれぞれ<strong>明確な得意分野</strong>がある</p>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-icon">&#x1F504;</span>
+                        <p style="font-size:clamp(0.75rem,1.2vw,0.9rem);">用途に合わせた<strong>ツール選び</strong>が成果への近道</p>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-icon">&#x1F4B0;</span>
+                        <p style="font-size:clamp(0.75rem,1.2vw,0.9rem);"><strong>無料版</strong>で試して、自分に合うツールを見つけよう</p>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-icon">&#x1F512;</span>
+                        <p style="font-size:clamp(0.75rem,1.2vw,0.9rem);">セキュリティ・社内ルール・ファクトチェックは<strong>必須</strong></p>
+                    </div>
+                </div>
+                <div class="cta-box reveal" style="max-width:500px;width:100%;">
+                    <p>確認テスト（5問） &mdash; 80%以上で修了</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-103</span>
+                <span>12 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE PRESENTATION CONTROLLER
+         =========================================== -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.tabs = document.querySelectorAll('.nav-tab');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupTabNav();
+            }
+
+            /* Intersection Observer — add .visible for animations */
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = [...this.slides].indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateTabs();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            /* Keyboard nav */
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goTo(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goTo(this.slides.length - 1);
+                    }
+                });
+            }
+
+            /* Touch / swipe */
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        } else {
+                            this.goTo(Math.max(this.currentSlide - 1, 0));
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            /* Tab navigation */
+            setupTabNav() {
+                this.tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const idx = parseInt(tab.dataset.slide, 10);
+                        this.goTo(idx);
+                    });
+                });
+            }
+
+            /* Navigate to slide */
+            goTo(index) {
+                if (index >= 0 && index < this.slides.length) {
+                    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                    this.currentSlide = index;
+                    this.updateTabs();
+                }
+            }
+
+            /* Update active tab */
+            updateTabs() {
+                this.tabs.forEach((tab, i) => {
+                    tab.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+        }
+
+        /* Initialize on load */
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

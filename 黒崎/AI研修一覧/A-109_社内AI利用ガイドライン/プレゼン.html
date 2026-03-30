@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-109: 社内AI利用ガイドラインの考え方</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans (Notebook Tabs preset) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --accent: #2563EB;
+            --accent-light: #dbeafe;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* === VIEWPORT BASE CSS (MANDATORY) === */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* Short viewports */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+        /* === END VIEWPORT BASE CSS === */
+
+        /* ===========================================
+           NOTEBOOK TABS THEME
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* === PAGE CONTAINER (paper card on dark bg) === */
+        .page-container {
+            width: min(92vw, 1100px);
+            height: min(88vh, 800px);
+            background: var(--bg-page);
+            border-radius: clamp(8px, 1.5vw, 16px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        /* === BINDER HOLES (left side decoration) === */
+        .binder-holes {
+            position: absolute;
+            left: clamp(8px, 1.5vw, 20px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 3vh, 32px);
+            z-index: 2;
+        }
+        .binder-hole {
+            width: clamp(8px, 1vw, 14px);
+            height: clamp(8px, 1vw, 14px);
+            border-radius: 50%;
+            background: var(--bg-outer);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        /* === TABS (right edge) === */
+        .tab-strip {
+            position: absolute;
+            right: calc(-1 * clamp(28px, 3.5vw, 44px));
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2px, 0.5vh, 6px);
+            z-index: 3;
+        }
+        .tab {
+            width: clamp(28px, 3.5vw, 44px);
+            height: clamp(40px, 6vh, 64px);
+            border-radius: 0 clamp(4px, 0.5vw, 8px) clamp(4px, 0.5vw, 8px) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s var(--ease-out-expo), filter 0.3s;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+        }
+        .tab:hover { transform: translateX(4px); filter: brightness(1.05); }
+        .tab.active { transform: translateX(8px); box-shadow: 3px 3px 10px rgba(0,0,0,0.2); }
+        .tab span {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: clamp(0.5rem, 1vh, 0.7rem);
+            font-weight: 700;
+            color: rgba(0,0,0,0.6);
+            letter-spacing: 0.05em;
+        }
+        .tab:nth-child(5n+1) { background: var(--tab-1); }
+        .tab:nth-child(5n+2) { background: var(--tab-2); }
+        .tab:nth-child(5n+3) { background: var(--tab-3); }
+        .tab:nth-child(5n+4) { background: var(--tab-4); }
+        .tab:nth-child(5n+5) { background: var(--tab-5); }
+
+        /* === SLIDE CONTENT AREA === */
+        .page-body {
+            flex: 1;
+            padding: clamp(1rem, 3vw, 3rem);
+            padding-left: clamp(2rem, 4vw, 4rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* === TYPOGRAPHY === */
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            color: var(--text-primary);
+        }
+        h1 { font-size: var(--title-size); font-weight: 700; line-height: 1.15; margin-bottom: var(--element-gap); }
+        h2 { font-size: var(--h2-size); font-weight: 700; line-height: 1.2; margin-bottom: var(--element-gap); }
+        h3 { font-size: var(--h3-size); font-weight: 400; font-style: italic; color: var(--text-secondary); }
+        p, li { font-size: var(--body-size); line-height: 1.6; color: var(--text-secondary); }
+
+        /* === SLIDE NUMBER === */
+        .slide-number {
+            position: absolute;
+            bottom: clamp(8px, 1.5vh, 16px);
+            right: clamp(12px, 2vw, 24px);
+            font-family: var(--font-display);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* === COURSE TAG === */
+        .course-tag {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            font-weight: 700;
+            padding: clamp(2px, 0.3vh, 4px) clamp(8px, 1vw, 14px);
+            border-radius: 99px;
+            margin-bottom: var(--element-gap);
+            letter-spacing: 0.05em;
+        }
+
+        /* === CONTENT CARDS === */
+        .card-grid {
+            display: grid;
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+        }
+        .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 700px) {
+            .card-grid.cols-3, .card-grid.cols-2 { grid-template-columns: 1fr; }
+        }
+        .info-card {
+            background: white;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            padding: clamp(0.5rem, 1.2vw, 1rem);
+            border-left: 3px solid var(--accent);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .info-card h4 {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: clamp(2px, 0.3vh, 6px);
+        }
+        .info-card p {
+            font-size: var(--small-size);
+            margin: 0;
+        }
+        .info-card.danger { border-left-color: #DC2626; }
+        .info-card.warning { border-left-color: #D97706; }
+        .info-card.success { border-left-color: #059669; }
+        .info-card.mint { border-left-color: var(--tab-1); }
+        .info-card.lavender { border-left-color: var(--tab-2); }
+        .info-card.pink { border-left-color: var(--tab-3); }
+        .info-card.sky { border-left-color: var(--tab-4); }
+        .info-card.cream { border-left-color: var(--tab-5); }
+
+        /* === TABLE === */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--small-size);
+        }
+        .data-table th {
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            padding: clamp(4px, 0.6vh, 8px) clamp(6px, 1vw, 12px);
+            text-align: left;
+        }
+        .data-table td {
+            padding: clamp(4px, 0.6vh, 8px) clamp(6px, 1vw, 12px);
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .data-table tr:nth-child(even) td { background: #faf9f6; }
+
+        /* === FLOW DIAGRAM === */
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.3rem, 0.8vw, 0.6rem);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .flow-step {
+            background: white;
+            border: 2px solid var(--accent);
+            border-radius: clamp(6px, 0.8vw, 10px);
+            padding: clamp(0.3rem, 0.8vw, 0.6rem) clamp(0.5rem, 1vw, 0.8rem);
+            font-size: var(--small-size);
+            font-weight: 500;
+            text-align: center;
+            min-width: clamp(60px, 8vw, 100px);
+        }
+        .flow-arrow {
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* === NUMBERED LIST === */
+        .numbered-list {
+            list-style: none;
+            counter-reset: items;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+        .numbered-list li {
+            counter-increment: items;
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.8rem);
+        }
+        .numbered-list li::before {
+            content: counter(items);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(20px, 2vw, 28px);
+            height: clamp(20px, 2vw, 28px);
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-size: var(--small-size);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* === STEP CARDS (vertical flow) === */
+        .step-cards {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.6vh, 0.5rem);
+        }
+        .step-card {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.4rem, 0.8vw, 0.8rem);
+            background: white;
+            border-radius: clamp(6px, 0.8vw, 10px);
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.5rem, 1vw, 0.8rem);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .step-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(24px, 2.5vw, 32px);
+            height: clamp(24px, 2.5vw, 32px);
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-size: var(--small-size);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* === PHASE TIMELINE === */
+        .phase-timeline {
+            display: flex;
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+        }
+        .phase-item {
+            flex: 1;
+            background: white;
+            border-radius: clamp(6px, 0.8vw, 10px);
+            padding: clamp(0.5rem, 1vw, 0.8rem);
+            border-top: 3px solid var(--accent);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .phase-item .phase-label {
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: clamp(2px, 0.3vh, 4px);
+        }
+        .phase-item h4 {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            font-weight: 700;
+            margin-bottom: clamp(2px, 0.3vh, 4px);
+        }
+        .phase-item p {
+            font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+            margin: 0;
+        }
+
+        /* === HIGHLIGHT BOX === */
+        .highlight-box {
+            background: var(--accent-light);
+            border-radius: clamp(6px, 0.8vw, 10px);
+            padding: clamp(0.4rem, 1vw, 0.8rem);
+            margin-top: var(--element-gap);
+            font-size: var(--small-size);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* === ANIMATIONS === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* === PROGRESS BAR === */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* === NAV DOTS === */
+        .nav-dots {
+            position: fixed;
+            left: clamp(8px, 1.5vw, 16px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(4px, 0.6vh, 8px);
+            z-index: 100;
+        }
+        .nav-dot {
+            width: clamp(6px, 0.6vw, 8px);
+            height: clamp(6px, 0.6vw, 8px);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--tab-1);
+            transform: scale(1.4);
+        }
+
+        /* === TITLE SLIDE SPECIAL === */
+        .title-slide .page-body {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .title-slide h1 {
+            font-size: clamp(1.8rem, 5.5vw, 3.5rem);
+            letter-spacing: -0.02em;
+        }
+        .title-slide h3 {
+            margin-top: var(--element-gap);
+        }
+
+        /* === SANDWICH STRUCTURE (navy title/end slides) === */
+        .slide-navy .page-container {
+            background: #1B2A4A;
+        }
+        .slide-navy h1, .slide-navy h2, .slide-navy h3 { color: white; }
+        .slide-navy p, .slide-navy .slide-number { color: rgba(255,255,255,0.7); }
+        .slide-navy .course-tag { background: rgba(255,255,255,0.15); color: white; }
+        .slide-navy .binder-hole { background: rgba(255,255,255,0.15); box-shadow: none; }
+
+        /* === KEY MESSAGE === */
+        .key-message {
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            font-style: italic;
+            color: var(--accent);
+            margin-top: var(--element-gap);
+            padding-left: clamp(8px, 1vw, 16px);
+            border-left: 3px solid var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ==========================================
+         SLIDE 1: TITLE (Navy sandwich)
+         ========================================== -->
+    <section class="slide slide-navy title-slide" data-slide="0">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="tab-strip" id="tabStrip"></div>
+            <div class="page-body">
+                <span class="course-tag reveal">A-109 | 全社員向け入門 | 20分</span>
+                <h1 class="reveal">社内AI利用ガイドラインの考え方</h1>
+                <h3 class="reveal">安全で効果的なAI活用のための第一歩</h3>
+            </div>
+            <span class="slide-number">01 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 2: TODAY'S GOALS
+         ========================================== -->
+    <section class="slide" data-slide="1">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">GOALS</span>
+                <h2 class="reveal">今日のゴール</h2>
+                <ol class="numbered-list reveal" style="margin-top: var(--content-gap);">
+                    <li>なぜ社内AI利用ガイドラインが必要かを<strong>3つの理由</strong>で説明できる</li>
+                    <li>ガイドラインに含めるべき<strong>主要4項目</strong>（利用範囲・禁止事項・データ取扱い・承認フロー）を理解する</li>
+                    <li>他社のAI利用ガイドライン事例から<strong>自社への応用ポイント</strong>を整理できる</li>
+                </ol>
+            </div>
+            <span class="slide-number">02 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 3: AI IN THE WORKPLACE
+         ========================================== -->
+    <section class="slide" data-slide="2">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">BACKGROUND</span>
+                <h2 class="reveal">AIが職場に浸透する今</h2>
+                <div class="card-grid cols-2 reveal" style="margin-top: var(--content-gap);">
+                    <div class="info-card mint">
+                        <h4>約70%</h4>
+                        <p>ビジネスパーソンがAIツールを業務利用（2025年時点）</p>
+                    </div>
+                    <div class="info-card danger">
+                        <h4>約40%</h4>
+                        <p>社内ルール未整備のまま利用している企業の割合</p>
+                    </div>
+                </div>
+                <p class="key-message reveal">使う人は増えているが、ルールが追いついていない</p>
+                <div class="highlight-box reveal">用途の広がり: メール下書き / 資料作成 / コード生成 / データ分析 / 議事録要約</div>
+            </div>
+            <span class="slide-number">03 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 4: 3 REASONS
+         ========================================== -->
+    <section class="slide" data-slide="3">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">WHY</span>
+                <h2 class="reveal">ガイドラインが必要な3つの理由</h2>
+                <div class="card-grid cols-3 reveal" style="margin-top: var(--content-gap);">
+                    <div class="info-card danger">
+                        <h4>1. 情報漏えいリスクの防止</h4>
+                        <p>機密情報や個人情報の外部流出を防ぐ。AIの学習データに取り込まれるリスクも。</p>
+                    </div>
+                    <div class="info-card warning">
+                        <h4>2. 品質・正確性の担保</h4>
+                        <p>ハルシネーション（もっともらしい嘘）による業務ミスを防ぐ。</p>
+                    </div>
+                    <div class="info-card lavender">
+                        <h4>3. 法的・倫理的リスクの回避</h4>
+                        <p>著作権侵害や差別的出力など、法的トラブルを未然に防ぐ。</p>
+                    </div>
+                </div>
+                <p class="key-message reveal">3つのリスクに組織として対処するためにガイドラインが不可欠</p>
+            </div>
+            <span class="slide-number">04 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 5: SCOPE
+         ========================================== -->
+    <section class="slide" data-slide="4">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">ITEM 01</span>
+                <h2 class="reveal">主要項目① 利用範囲の定義</h2>
+                <table class="data-table reveal" style="margin-top: var(--content-gap);">
+                    <thead>
+                        <tr><th>分類</th><th>例</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="color:#059669;font-weight:700;">利用推奨</td><td>アイデア出し、文章校正、議事録要約</td></tr>
+                        <tr><td style="color:#D97706;font-weight:700;">条件付き許可</td><td>顧客向け資料の下書き（要上長確認）</td></tr>
+                        <tr><td style="color:#DC2626;font-weight:700;">利用禁止</td><td>機密情報の入力、無確認での最終利用</td></tr>
+                    </tbody>
+                </table>
+                <p class="key-message reveal">曖昧な表現を避け、具体的にどの業務にどのレベルで使えるかを示す</p>
+            </div>
+            <span class="slide-number">05 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 6: PROHIBITED ACTIONS
+         ========================================== -->
+    <section class="slide" data-slide="5">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">ITEM 02</span>
+                <h2 class="reveal">主要項目② 禁止事項の明確化</h2>
+                <ol class="numbered-list reveal" style="margin-top: var(--content-gap);">
+                    <li>個人情報・顧客情報のAIサービスへの入力</li>
+                    <li>AI生成コンテンツの無断での社外公開</li>
+                    <li>社内承認なしでの有料AIサービスの契約</li>
+                    <li>AIを使った他者の著作物の複製・改変</li>
+                    <li>人事評価・採用判断をAIに委ねること</li>
+                </ol>
+                <div class="highlight-box reveal">「不適切な利用は禁止」ではなく、具体的な行為を列挙する</div>
+            </div>
+            <span class="slide-number">06 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 7: DATA HANDLING
+         ========================================== -->
+    <section class="slide" data-slide="6">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">ITEM 03</span>
+                <h2 class="reveal">主要項目③ データ取扱いルール</h2>
+                <div class="flow-steps reveal" style="margin-top: var(--content-gap);">
+                    <div class="flow-step" style="border-color: var(--tab-1);">データを分類</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="border-color: #059669; color: #059669;">公開情報<br><small>外部AI OK</small></div>
+                    <div class="flow-step" style="border-color: #D97706; color: #D97706;">社内限定<br><small>社内AIのみ</small></div>
+                    <div class="flow-step" style="border-color: #DC2626; color: #DC2626;">機密/個人情報<br><small>AI禁止</small></div>
+                </div>
+                <div class="highlight-box reveal" style="margin-top: var(--element-gap);">
+                    外部AIサービスの「オプトアウト設定」（学習への利用を拒否）を必ず有効にすることをルール化
+                </div>
+            </div>
+            <span class="slide-number">07 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 8: APPROVAL FLOW
+         ========================================== -->
+    <section class="slide" data-slide="7">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">ITEM 04</span>
+                <h2 class="reveal">主要項目④ 承認フロー</h2>
+                <div class="step-cards reveal" style="margin-top: var(--content-gap);">
+                    <div class="step-card"><span class="step-num">1</span><div><strong>利用申請</strong> — AIで何をしたいかを申請</div></div>
+                    <div class="step-card"><span class="step-num">2</span><div><strong>上長承認</strong> — 利用範囲内かを確認</div></div>
+                    <div class="step-card"><span class="step-num">3</span><div><strong>情シスチェック</strong> — データ分類を確認</div></div>
+                    <div class="step-card"><span class="step-num">4</span><div><strong>利用開始</strong> — 承認後にAI利用を開始</div></div>
+                    <div class="step-card"><span class="step-num">5</span><div><strong>定期レビュー</strong> — 月次で利用状況を確認</div></div>
+                </div>
+                <div class="highlight-box reveal">フローを重くしすぎない: 利用推奨は包括承認、条件付きのみ個別承認</div>
+            </div>
+            <span class="slide-number">08 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 9: CASE STUDY 1 (ENTERPRISE)
+         ========================================== -->
+    <section class="slide" data-slide="8">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">CASE STUDY</span>
+                <h2 class="reveal">他社事例① 大手IT企業のアプローチ</h2>
+                <div class="card-grid cols-2 reveal" style="margin-top: var(--content-gap);">
+                    <div class="info-card mint">
+                        <h4>全社員AIリテラシー研修</h4>
+                        <p>ガイドラインの「なぜ」を丁寧に説明</p>
+                    </div>
+                    <div class="info-card sky">
+                        <h4>社内専用AIプラットフォーム</h4>
+                        <p>データの外部流出リスクを根本排除</p>
+                    </div>
+                    <div class="info-card lavender">
+                        <h4>AI利用ログの記録・監査</h4>
+                        <p>四半期ごとに不適切利用をチェック</p>
+                    </div>
+                    <div class="info-card cream">
+                        <h4>AI倫理委員会の設置</h4>
+                        <p>技術進化に合わせて継続的にアップデート</p>
+                    </div>
+                </div>
+                <p class="key-message reveal">「ルールを作って終わり」ではなく、運用体制を一体で整備</p>
+            </div>
+            <span class="slide-number">09 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 10: CASE STUDY 2 (SME)
+         ========================================== -->
+    <section class="slide" data-slide="9">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">CASE STUDY</span>
+                <h2 class="reveal">他社事例② 中小企業の段階的アプローチ</h2>
+                <div class="phase-timeline reveal" style="margin-top: var(--content-gap);">
+                    <div class="phase-item" style="border-top-color: var(--tab-1);">
+                        <div class="phase-label">Phase 1（1ヶ月目）</div>
+                        <h4>最低限の禁止事項だけ</h4>
+                        <p>機密・個人情報のAI入力禁止、AI出力の無断社外公開禁止の2つだけ定める</p>
+                    </div>
+                    <div class="phase-item" style="border-top-color: var(--tab-4);">
+                        <div class="phase-label">Phase 2（3ヶ月目）</div>
+                        <h4>利用実態を調査</h4>
+                        <p>社員のAI利用状況を把握し、利用範囲の分類とデータルールを策定</p>
+                    </div>
+                    <div class="phase-item" style="border-top-color: var(--tab-2);">
+                        <div class="phase-label">Phase 3（6ヶ月目）</div>
+                        <h4>正式ガイドライン</h4>
+                        <p>承認フローと研修プログラムを整備し、正式にリリース</p>
+                    </div>
+                </div>
+                <p class="key-message reveal">完璧を目指さず、まず始めて段階的に改善する</p>
+            </div>
+            <span class="slide-number">10 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 11: 5 STEPS
+         ========================================== -->
+    <section class="slide" data-slide="10">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body">
+                <span class="course-tag reveal">ACTION</span>
+                <h2 class="reveal">自社で始める5つのステップ</h2>
+                <div class="step-cards reveal" style="margin-top: var(--content-gap);">
+                    <div class="step-card"><span class="step-num" style="background:var(--tab-1);">1</span><div><strong>現状把握</strong> — 社員のAI利用状況をアンケート・ヒアリングで調査</div></div>
+                    <div class="step-card"><span class="step-num" style="background:var(--tab-4);">2</span><div><strong>リスク評価</strong> — 自社にとっての最大リスクを特定する</div></div>
+                    <div class="step-card"><span class="step-num" style="background:var(--tab-2);">3</span><div><strong>ドラフト作成</strong> — 4つの主要項目を骨子にガイドラインを起草</div></div>
+                    <div class="step-card"><span class="step-num" style="background:var(--tab-3);">4</span><div><strong>パイロット運用</strong> — 一部門で試行してフィードバックを収集</div></div>
+                    <div class="step-card"><span class="step-num" style="background:var(--tab-5);color:#1a1a1a;">5</span><div><strong>全社展開</strong> — 研修と合わせてガイドラインを正式リリース</div></div>
+                </div>
+                <div class="highlight-box reveal">定期的な見直し（少なくとも年2回）を予定に組み込む</div>
+            </div>
+            <span class="slide-number">11 / 12</span>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 12: SUMMARY (Navy sandwich)
+         ========================================== -->
+    <section class="slide slide-navy" data-slide="11">
+        <div class="page-container">
+            <div class="binder-holes decorative">
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+                <div class="binder-hole"></div>
+            </div>
+            <div class="page-body" style="align-items:center;text-align:center;">
+                <span class="course-tag reveal">SUMMARY</span>
+                <h2 class="reveal" style="font-size:var(--h2-size);">まとめ</h2>
+                <div class="card-grid cols-3 reveal" style="margin-top: var(--content-gap);">
+                    <div class="info-card" style="background:rgba(255,255,255,0.1);border-left-color:var(--tab-1);color:white;">
+                        <h4 style="color:var(--tab-1);">必要な理由</h4>
+                        <p style="color:rgba(255,255,255,0.8);">情報漏えい防止・品質担保・法的リスク回避</p>
+                    </div>
+                    <div class="info-card" style="background:rgba(255,255,255,0.1);border-left-color:var(--tab-4);color:white;">
+                        <h4 style="color:var(--tab-4);">主要4項目</h4>
+                        <p style="color:rgba(255,255,255,0.8);">利用範囲・禁止事項・データ取扱い・承認フロー</p>
+                    </div>
+                    <div class="info-card" style="background:rgba(255,255,255,0.1);border-left-color:var(--tab-2);color:white;">
+                        <h4 style="color:var(--tab-2);">成功のカギ</h4>
+                        <p style="color:rgba(255,255,255,0.8);">完璧を目指さず段階的に整備し、定期的に見直す</p>
+                    </div>
+                </div>
+                <p class="reveal" style="margin-top:var(--content-gap);color:rgba(255,255,255,0.6);font-style:italic;">確認テストへ進んでください（5問中4問正解で修了）</p>
+            </div>
+            <span class="slide-number">12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.setupTabs();
+            }
+
+            /* --- Intersection Observer for .visible class --- */
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = parseInt(entry.target.dataset.slide);
+                            if (!isNaN(idx)) {
+                                this.currentSlide = idx;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                                this.updateTabs();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            /* --- Keyboard navigation --- */
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            /* --- Touch/swipe support --- */
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        this.goToSlide(this.currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                });
+            }
+
+            /* --- Progress bar --- */
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+            updateProgressBar() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+
+            /* --- Navigation dots --- */
+            setupNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = nav.querySelectorAll('.nav-dot');
+            }
+            updateNavDots() {
+                this.dots.forEach((d, i) => d.classList.toggle('active', i === this.currentSlide));
+            }
+
+            /* --- Tabs --- */
+            setupTabs() {
+                const strip = document.getElementById('tabStrip');
+                const labels = ['Title','Goals','背景','理由','範囲','禁止','Data','承認','事例1','事例2','Steps','End'];
+                labels.forEach((lbl, i) => {
+                    const tab = document.createElement('div');
+                    tab.className = 'tab' + (i === 0 ? ' active' : '');
+                    tab.innerHTML = `<span>${lbl}</span>`;
+                    tab.addEventListener('click', () => this.goToSlide(i));
+                    strip.appendChild(tab);
+                });
+                this.tabs = strip.querySelectorAll('.tab');
+                // Clone tab strip to all slides
+                this.slides.forEach((slide, idx) => {
+                    if (idx === 0) return;
+                    const container = slide.querySelector('.page-container');
+                    if (container) {
+                        const clone = strip.cloneNode(true);
+                        clone.removeAttribute('id');
+                        clone.querySelectorAll('.tab').forEach((t, i) => {
+                            t.className = 'tab' + (i === idx ? ' active' : '');
+                            t.addEventListener('click', () => this.goToSlide(i));
+                        });
+                        container.appendChild(clone);
+                    }
+                });
+            }
+            updateTabs() {
+                document.querySelectorAll('.tab-strip').forEach(strip => {
+                    strip.querySelectorAll('.tab').forEach((t, i) => {
+                        t.classList.toggle('active', i === this.currentSlide);
+                    });
+                });
+            }
+
+            /* --- Navigate to slide --- */
+            goToSlide(idx) {
+                if (idx < 0 || idx >= this.slides.length) return;
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        /* Initialize when DOM is ready */
+        document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+    </script>
+</body>
+</html>

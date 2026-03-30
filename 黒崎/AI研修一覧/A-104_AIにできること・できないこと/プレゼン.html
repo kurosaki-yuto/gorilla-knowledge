@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A-104: AIにできること・できないこと</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* === viewport-base.css === */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+.slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+:root {
+  --bg-outer: #2d2d2d; --bg-page: #f8f6f1; --text-primary: #1a1a1a; --text-secondary: #555;
+  --accent: #2563EB; --tab-1: #98d4bb; --tab-2: #c7b8ea; --tab-3: #f4b8c5; --tab-4: #a8d8ea; --tab-5: #ffe6a7;
+  --font-display: 'Bodoni Moda', serif; --font-body: 'DM Sans', sans-serif;
+  --title-size: clamp(2rem, 5vw, 3.5rem); --h2-size: clamp(1.25rem, 3vw, 2rem); --body-size: clamp(0.8rem, 1.3vw, 1rem); --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); } }
+@media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --title-size: clamp(1.1rem, 4vw, 2rem); } .nav-tabs, .decorative { display: none; } }
+@media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
+
+/* === Theme: Notebook Tabs === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg-outer); font-family: var(--font-body); color: var(--text-primary); }
+
+.slide {
+  background: var(--bg-page);
+  border-left: 1px solid #e0ddd5;
+  border-right: 1px solid #e0ddd5;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.15);
+}
+
+/* Notebook ruled lines */
+.slide::before {
+  content: '';
+  position: absolute;
+  left: clamp(3rem, 6vw, 5rem);
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(220, 80, 80, 0.15);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Right-edge tab navigation */
+.nav-tabs {
+  position: fixed;
+  right: max(calc((100vw - 1200px) / 2 - 50px), 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 100;
+}
+.nav-tab {
+  width: 32px; height: 28px;
+  border-radius: 0 6px 6px 0;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-tab:hover { opacity: 0.8; transform: translateX(-2px); }
+.nav-tab.active { opacity: 1; transform: translateX(-4px); box-shadow: -2px 0 8px rgba(0,0,0,0.1); }
+
+/* Footer */
+.slide-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 0.5rem var(--slide-padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  border-top: 1px solid #e8e5dd;
+  background: rgba(248,246,241,0.9);
+}
+
+/* Reveal animation */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.15s; }
+.reveal-delay-2 { transition-delay: 0.3s; }
+.reveal-delay-3 { transition-delay: 0.45s; }
+.reveal-delay-4 { transition-delay: 0.6s; }
+
+/* Section tag */
+.section-tag {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* Card styles */
+.card-grid { display: grid; gap: clamp(0.5rem, 1.5vw, 1rem); }
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: clamp(0.8rem, 2vw, 1.2rem);
+  border: 1px solid #e8e5dd;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.info-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.card-title { font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem; }
+.card-desc { font-size: calc(var(--body-size) * 0.85); color: var(--text-secondary); line-height: 1.5; }
+
+/* Two-column layout */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+.col-header {
+  font-family: var(--font-display);
+  font-size: calc(var(--h2-size) * 0.8);
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid;
+}
+
+/* List items */
+.check-list { list-style: none; padding: 0; }
+.check-list li {
+  padding: 0.4rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: var(--body-size);
+  line-height: 1.6;
+}
+.check-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.65rem;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* Slide-specific styles */
+.slide-title {
+  background: linear-gradient(135deg, #1a1a1a 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Quote / callout */
+.callout {
+  background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(37,99,235,0.03));
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: clamp(0.8rem, 2vw, 1.2rem);
+  margin-top: clamp(0.5rem, 1.5vw, 1rem);
+}
+.callout-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: calc(var(--body-size) * 1.1);
+  color: var(--accent);
+  line-height: 1.6;
+}
+
+/* Comparison table */
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.compare-good, .compare-bad {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: calc(var(--body-size) * 0.9);
+}
+.compare-good { background: rgba(5,150,105,0.08); border-left: 3px solid #059669; }
+.compare-bad { background: rgba(220,38,38,0.08); border-left: 3px solid #dc2626; }
+
+/* Warning box */
+.warning-box {
+  background: rgba(220,38,38,0.06);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 10px;
+  padding: clamp(0.6rem, 1.5vw, 1rem);
+  margin-top: 0.5rem;
+}
+.warning-icon { font-size: 1.2rem; margin-right: 0.5rem; }
+
+/* Number badge */
+.num-badge {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Goal item */
+.goal-item {
+  display: flex; align-items: flex-start; gap: 0.8rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #e8e5dd;
+}
+.goal-item:last-child { border-bottom: none; }
+.goal-text { font-size: var(--body-size); line-height: 1.6; }
+
+/* Hero slide */
+.hero-bg {
+  background: linear-gradient(160deg, #1a1a1a 0%, #2d3748 50%, var(--accent) 150%);
+  color: white;
+}
+.hero-bg::before { background: rgba(255,255,255,0.05); }
+.hero-bg .slide-footer { background: transparent; border-top-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+
+.hero-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 1rem;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--title-size);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.8rem;
+}
+.hero-divider {
+  width: 60px; height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero-subtitle {
+  font-size: calc(var(--h2-size) * 0.8);
+  opacity: 0.7;
+  margin-bottom: 2rem;
+}
+.hero-meta {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+
+/* Slide heading */
+.slide-heading {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 700;
+  margin-bottom: var(--content-gap);
+  line-height: 1.3;
+}
+
+/* Framework box */
+.framework-box {
+  background: white;
+  border-radius: 12px;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 2px solid var(--accent);
+  text-align: center;
+  margin-top: clamp(0.5rem, 1.5vw, 1rem);
+}
+.framework-quote {
+  font-family: var(--font-display);
+  font-size: calc(var(--h2-size) * 0.85);
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.4;
+}
+
+/* Summary cards */
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.5rem, 1.5vw, 1rem); }
+@media (max-width: 700px) { .summary-grid { grid-template-columns: 1fr; } }
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: clamp(0.8rem, 2vw, 1.2rem);
+  border: 1px solid #e8e5dd;
+  text-align: center;
+}
+.summary-num {
+  font-family: var(--font-display);
+  font-size: calc(var(--h2-size) * 1.2);
+  font-weight: 700;
+  color: var(--accent);
+}
+.summary-label {
+  font-size: calc(var(--body-size) * 0.85);
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+.summary-items {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  text-align: left;
+  font-size: calc(var(--body-size) * 0.85);
+}
+.summary-items li { padding: 0.15rem 0; }
+
+/* CTA end slide */
+.cta-bg {
+  background: linear-gradient(160deg, var(--accent), #1d4ed8);
+  color: white;
+}
+.cta-bg::before { background: rgba(255,255,255,0.03); }
+.cta-bg .slide-footer { background: transparent; border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+</style>
+</head>
+<body>
+
+<!-- Tab Navigation -->
+<nav class="nav-tabs" id="navTabs"></nav>
+
+<!-- SLIDE 1: Title -->
+<section class="slide hero-bg" id="slide-1">
+  <div class="slide-content" style="justify-content: center; align-items: flex-start;">
+    <div class="reveal hero-label">A-104 &mdash; 全社員向け入門</div>
+    <h1 class="reveal hero-title reveal-delay-1">AIにできること<br>・できないこと</h1>
+    <div class="reveal hero-divider reveal-delay-2"></div>
+    <p class="reveal hero-subtitle reveal-delay-2">得意と苦手を知って、正しく使いこなす</p>
+    <p class="reveal hero-meta reveal-delay-3">20分 &nbsp;|&nbsp; スライド12枚 &nbsp;|&nbsp; 確認テスト付き</p>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>1 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 2: Goals -->
+<section class="slide" id="slide-2">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-1); color: #1a5c42;">GOALS</span>
+    <h2 class="reveal slide-heading">今日のゴール</h2>
+    <div style="max-width: 700px;">
+      <div class="reveal goal-item reveal-delay-1">
+        <span class="num-badge">1</span>
+        <span class="goal-text">AIの<strong>得意領域</strong>（文章生成、要約、翻訳、分析、コード生成）を具体例で説明できる</span>
+      </div>
+      <div class="reveal goal-item reveal-delay-2">
+        <span class="num-badge">2</span>
+        <span class="goal-text">AIの<strong>苦手領域</strong>（最新情報、計算、感情理解、倫理判断）を理解する</span>
+      </div>
+      <div class="reveal goal-item reveal-delay-3">
+        <span class="num-badge">3</span>
+        <span class="goal-text">「<strong>AIに任せること</strong>」と「<strong>人が判断すること</strong>」の線引きができる</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>2 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 3: AI得意領域 全体像 -->
+<section class="slide" id="slide-3">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-1); color: #1a5c42;">STRENGTHS</span>
+    <h2 class="reveal slide-heading">AIが得意な5つの領域</h2>
+    <div class="card-grid reveal reveal-delay-1" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));">
+      <div class="info-card">
+        <div class="card-icon" style="background: rgba(37,99,235,0.1);">&#x270D;&#xFE0F;</div>
+        <div class="card-title">文章生成</div>
+        <div class="card-desc">メール、報告書、企画書の下書き</div>
+      </div>
+      <div class="info-card">
+        <div class="card-icon" style="background: rgba(152,212,187,0.3);">&#x1F4CB;</div>
+        <div class="card-title">要約</div>
+        <div class="card-desc">長文を短くまとめる</div>
+      </div>
+      <div class="info-card">
+        <div class="card-icon" style="background: rgba(199,184,234,0.3);">&#x1F310;</div>
+        <div class="card-title">翻訳</div>
+        <div class="card-desc">多言語の自然な変換</div>
+      </div>
+      <div class="info-card">
+        <div class="card-icon" style="background: rgba(168,216,234,0.3);">&#x1F4CA;</div>
+        <div class="card-title">データ分析</div>
+        <div class="card-desc">パターン発見・傾向把握</div>
+      </div>
+      <div class="info-card">
+        <div class="card-icon" style="background: rgba(255,230,167,0.3);">&#x1F4BB;</div>
+        <div class="card-title">コード生成</div>
+        <div class="card-desc">プログラムの自動生成</div>
+      </div>
+    </div>
+    <div class="reveal callout reveal-delay-2">
+      <div class="callout-text">共通点: 大量のデータからパターンを見つけて再現する作業</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>3 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 4: 文章生成・要約 -->
+<section class="slide" id="slide-4">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-2); color: #4a3880;">DETAIL</span>
+    <h2 class="reveal slide-heading">得意 &#9312; 文章生成 &amp; 要約</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <div class="info-card" style="margin-bottom: 0.8rem;">
+          <div class="card-title">&#x2709;&#xFE0F; メールの下書き</div>
+          <div class="card-desc">「取引先へのお礼メールを書いて」と指示するだけで数秒で完成</div>
+        </div>
+        <div class="info-card" style="margin-bottom: 0.8rem;">
+          <div class="card-title">&#x1F4DD; 議事録の要約</div>
+          <div class="card-desc">1時間分の議事録を重要ポイント3行にまとめる</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title">&#x1F4C4; 報告書のドラフト</div>
+          <div class="card-desc">箇条書きメモから文章化</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div style="background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02)); border-radius: 12px; padding: clamp(1rem, 2.5vw, 1.5rem); text-align: center;">
+          <div style="font-size: calc(var(--body-size) * 0.85); color: var(--text-secondary); margin-bottom: 0.8rem;">時間比較</div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <div style="font-family: var(--font-display); font-size: calc(var(--h2-size) * 1.2); font-weight: 700; color: var(--text-secondary);">30分</div>
+              <div style="font-size: calc(var(--body-size) * 0.8); color: var(--text-secondary);">人間だけ</div>
+            </div>
+            <div style="font-size: 1.5rem; color: var(--accent);">&rarr;</div>
+            <div>
+              <div style="font-family: var(--font-display); font-size: calc(var(--h2-size) * 1.2); font-weight: 700; color: var(--accent);">5分</div>
+              <div style="font-size: calc(var(--body-size) * 0.8); color: var(--text-secondary);">AI + 確認</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>4 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 5: 翻訳 -->
+<section class="slide" id="slide-5">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-2); color: #4a3880;">DETAIL</span>
+    <h2 class="reveal slide-heading">得意 &#9313; 翻訳・多言語対応</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <ul class="check-list">
+          <li style="padding-left: 0;"><strong style="color: var(--accent);">&#x1F4E7; ビジネスメール翻訳</strong><br><span style="color: var(--text-secondary);">文脈を理解した自然な翻訳。上司に転送できるレベル</span></li>
+          <li style="padding-left: 0; margin-top: 0.8rem;"><strong style="color: var(--accent);">&#x1F4D6; マニュアル多言語化</strong><br><span style="color: var(--text-secondary);">日→英・中・韓を一括で変換</span></li>
+          <li style="padding-left: 0; margin-top: 0.8rem;"><strong style="color: var(--accent);">&#x1F4F0; 海外ニュース要約翻訳</strong><br><span style="color: var(--text-secondary);">原文を読まずにポイント把握</span></li>
+        </ul>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="info-card" style="border-left: 3px solid var(--text-secondary); margin-bottom: 0.8rem;">
+          <div class="card-title" style="color: var(--text-secondary);">従来の翻訳ツール</div>
+          <div class="card-desc">文を1つずつ直訳。ビジネス文脈を無視</div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid var(--accent);">
+          <div class="card-title" style="color: var(--accent);">生成AI翻訳</div>
+          <div class="card-desc">文脈を理解して意訳。トーンの調整も可能</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>5 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 6: データ分析・コード生成 -->
+<section class="slide" id="slide-6">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-2); color: #4a3880;">DETAIL</span>
+    <h2 class="reveal slide-heading">得意 &#9314; データ分析 &amp; コード生成</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <div class="col-header" style="border-bottom-color: var(--tab-4);">&#x1F4CA; データ分析</div>
+        <ul class="check-list">
+          <li style="padding-left: 1.2rem;">売上データから季節トレンドを発見</li>
+          <li style="padding-left: 1.2rem;">アンケート自由記述を自動分類</li>
+          <li style="padding-left: 1.2rem;">CSV/Excelの傾向を自然言語で解説</li>
+        </ul>
+        <style>.check-list li::before { background: var(--accent); }</style>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="col-header" style="border-bottom-color: var(--tab-5);">&#x1F4BB; コード生成</div>
+        <ul class="check-list">
+          <li style="padding-left: 1.2rem;">Excelマクロの自動生成</li>
+          <li style="padding-left: 1.2rem;">簡単なWebページ作成</li>
+          <li style="padding-left: 1.2rem;">データ整形スクリプト</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal callout reveal-delay-3">
+      <div class="callout-text">プログラミング未経験でもAIが代行する時代</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>6 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 7: AI苦手 全体像 -->
+<section class="slide" id="slide-7">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-3); color: #8a3050;">WEAKNESSES</span>
+    <h2 class="reveal slide-heading">AIが苦手な4つの領域</h2>
+    <div class="card-grid reveal reveal-delay-1" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));">
+      <div class="info-card" style="border-top: 3px solid #dc2626;">
+        <div class="card-icon" style="background: rgba(220,38,38,0.08);">&#x1F4C5;</div>
+        <div class="card-title">最新情報</div>
+        <div class="card-desc">学習データ以降の情報を知らない</div>
+      </div>
+      <div class="info-card" style="border-top: 3px solid #d97706;">
+        <div class="card-icon" style="background: rgba(217,119,6,0.08);">&#x1F522;</div>
+        <div class="card-title">正確な計算</div>
+        <div class="card-desc">数学的な厳密性に欠ける</div>
+      </div>
+      <div class="info-card" style="border-top: 3px solid #7c3aed;">
+        <div class="card-icon" style="background: rgba(124,58,237,0.08);">&#x1F497;</div>
+        <div class="card-title">感情の理解</div>
+        <div class="card-desc">人の気持ちに本当には寄り添えない</div>
+      </div>
+      <div class="info-card" style="border-top: 3px solid #059669;">
+        <div class="card-icon" style="background: rgba(5,150,105,0.08);">&#x2696;&#xFE0F;</div>
+        <div class="card-title">倫理判断</div>
+        <div class="card-desc">善悪の判断は人間の領域</div>
+      </div>
+    </div>
+    <div class="reveal warning-box reveal-delay-2">
+      <span class="warning-icon">&#x26A0;&#xFE0F;</span>
+      <span style="font-size: var(--body-size); font-weight: 500;">これらをAIに任せると重大なミスにつながる可能性があります</span>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>7 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 8: 最新情報 -->
+<section class="slide" id="slide-8">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-3); color: #8a3050;">DETAIL</span>
+    <h2 class="reveal slide-heading">苦手 &#9312; 最新情報 &amp; 事実確認</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <div style="font-size: var(--body-size); line-height: 1.7; color: var(--text-secondary); margin-bottom: 1rem;">
+          AIは学習した時点までのデータしか持っていません。「知らないこと」を「知らない」と言えず、もっともらしい嘘をつきます。
+        </div>
+        <div class="info-card" style="border-left: 3px solid #dc2626; margin-bottom: 0.5rem;">
+          <div class="card-desc">&#x274C; 「今日の日経平均株価は?」&rarr; 過去データを元にでっちあげる</div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid #dc2626; margin-bottom: 0.5rem;">
+          <div class="card-desc">&#x274C; 「法律の最新改正は?」&rarr; 古い情報を最新と偽る</div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid #dc2626;">
+          <div class="card-desc">&#x274C; 「この論文の著者は?」&rarr; 実在しない名前を生成</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div style="background: rgba(220,38,38,0.05); border-radius: 12px; padding: clamp(1rem, 2.5vw, 1.5rem);">
+          <div style="font-weight: 700; font-size: calc(var(--body-size) * 1.1); margin-bottom: 0.8rem; color: #dc2626;">&#x1F47B; ハルシネーション</div>
+          <div style="font-size: var(--body-size); color: var(--text-secondary); line-height: 1.7;">
+            AIが自信たっぷりに間違った情報を出す現象。9割正しくても残り1割が致命的な間違いの可能性。
+          </div>
+          <div style="margin-top: 1rem; padding: 0.6rem 1rem; background: white; border-radius: 8px; font-size: calc(var(--body-size) * 0.9); font-weight: 500;">
+            &#x2705; 対策: 必ず一次ソースでファクトチェック
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>8 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 9: 計算・論理 -->
+<section class="slide" id="slide-9">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-3); color: #8a3050;">DETAIL</span>
+    <h2 class="reveal slide-heading">苦手 &#9313; 正確な計算 &amp; 論理推論</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <div style="background: rgba(217,119,6,0.06); border-radius: 12px; padding: clamp(0.8rem, 2vw, 1.2rem); margin-bottom: 0.8rem;">
+          <div style="font-weight: 700; font-size: var(--body-size); margin-bottom: 0.5rem;">なぜ苦手?</div>
+          <div style="font-size: calc(var(--body-size) * 0.9); color: var(--text-secondary); line-height: 1.7;">
+            AIは数式を計算しているのではなく、「それっぽい答え」をパターンから予測しているだけ
+          </div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid #d97706; margin-bottom: 0.5rem;">
+          <div class="card-desc">&#x274C; 1234 &times; 5678 = ? &rarr; 微妙に間違える</div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid #d97706; margin-bottom: 0.5rem;">
+          <div class="card-desc">&#x274C; 見積書の合計 &rarr; 端数が合わない</div>
+        </div>
+        <div class="info-card" style="border-left: 3px solid #d97706;">
+          <div class="card-desc">&#x274C; A&rarr;B, B&rarr;C, A&rarr;? &rarr; 複雑だと間違う</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div style="background: rgba(5,150,105,0.06); border-radius: 12px; padding: clamp(1rem, 2.5vw, 1.5rem); text-align: center;">
+          <div style="font-weight: 700; font-size: calc(var(--body-size) * 1.1); margin-bottom: 1rem; color: #059669;">&#x2705; 正しい役割分担</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+            <div style="background: white; border-radius: 8px; padding: 0.8rem;">
+              <div style="font-weight: 700; font-size: calc(var(--body-size) * 0.9); margin-bottom: 0.3rem;">AI</div>
+              <div style="font-size: calc(var(--body-size) * 0.8); color: var(--text-secondary);">何を計算すべきか整理 / 数式の作成支援</div>
+            </div>
+            <div style="background: white; border-radius: 8px; padding: 0.8rem;">
+              <div style="font-weight: 700; font-size: calc(var(--body-size) * 0.9); margin-bottom: 0.3rem;">Excel/電卓</div>
+              <div style="font-size: calc(var(--body-size) * 0.8); color: var(--text-secondary);">実際の計算と数値の検証</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>9 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 10: 感情・倫理 -->
+<section class="slide" id="slide-10">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-3); color: #8a3050;">DETAIL</span>
+    <h2 class="reveal slide-heading">苦手 &#9314; 感情の理解 &amp; 倫理判断</h2>
+    <div class="two-col">
+      <div class="reveal reveal-delay-1">
+        <div class="col-header" style="border-bottom-color: #7c3aed;">&#x1F497; 感情理解</div>
+        <div style="font-size: var(--body-size); color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.8rem;">
+          文字のパターンを認識しているだけで、本当の気持ちは理解していない
+        </div>
+        <div class="info-card" style="border-left: 3px solid #7c3aed;">
+          <div class="card-desc"><strong>例: クレーム対応</strong><br>定型的な謝罪文は書けるが、お客様の怒りの本質や信頼回復の方法はわからない</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="col-header" style="border-bottom-color: #059669;">&#x2696;&#xFE0F; 倫理判断</div>
+        <div style="font-size: var(--body-size); color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.8rem;">
+          善悪の基準がなく、組織の価値観や社会通念を理解できない
+        </div>
+        <div class="info-card" style="border-left: 3px solid #059669;">
+          <div class="card-desc"><strong>例:</strong> 人事評価、懲戒処分、顧客トラブルの対応方針 &mdash; すべて人間の判断が必要</div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal callout reveal-delay-3" style="border-left-color: #7c3aed; background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(124,58,237,0.02));">
+      <div class="callout-text" style="color: #7c3aed;">感情と倫理が絡む判断は、必ず人間が行う</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>10 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 11: 線引きフレームワーク -->
+<section class="slide" id="slide-11">
+  <div class="slide-content">
+    <span class="reveal section-tag" style="background: var(--tab-4); color: #1a5c7a;">FRAMEWORK</span>
+    <h2 class="reveal slide-heading">AIに任せる vs 人が判断する</h2>
+    <div class="two-col reveal reveal-delay-1">
+      <div>
+        <div class="col-header" style="border-bottom-color: #059669; color: #059669;">&#x2705; AIに任せてOK</div>
+        <ul class="check-list" style="font-size: var(--body-size);">
+          <li style="padding-left: 1.2rem;">定型的な文章の下書き</li>
+          <li style="padding-left: 1.2rem;">情報の整理・要約</li>
+          <li style="padding-left: 1.2rem;">翻訳・言い換え</li>
+          <li style="padding-left: 1.2rem;">データの傾向把握</li>
+          <li style="padding-left: 1.2rem;">アイデアの叩き台</li>
+        </ul>
+        <style>#slide-11 .check-list li::before { background: #059669; }</style>
+      </div>
+      <div>
+        <div class="col-header" style="border-bottom-color: #dc2626; color: #dc2626;">&#x1F6D1; 人が判断すべき</div>
+        <ul class="check-list" style="font-size: var(--body-size);">
+          <li style="padding-left: 1.2rem;">最終的な意思決定</li>
+          <li style="padding-left: 1.2rem;">数値の正確性の検証</li>
+          <li style="padding-left: 1.2rem;">感情を伴うコミュニケーション</li>
+          <li style="padding-left: 1.2rem;">倫理的・法的な判断</li>
+          <li style="padding-left: 1.2rem;">機密情報の取り扱い</li>
+        </ul>
+        <style>#slide-11 .two-col > div:last-child .check-list li::before { background: #dc2626; }</style>
+      </div>
+    </div>
+    <div class="reveal framework-box reveal-delay-2">
+      <div class="framework-quote">「AIは優秀なアシスタント。最終判断は人間の仕事。」</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>11 / 12</span>
+  </div>
+</section>
+
+<!-- SLIDE 12: まとめ & CTA -->
+<section class="slide cta-bg" id="slide-12">
+  <div class="slide-content" style="align-items: center; text-align: center;">
+    <h2 class="reveal" style="font-family: var(--font-display); font-size: var(--h2-size); font-weight: 700; margin-bottom: var(--content-gap);">今日のまとめ</h2>
+    <div class="summary-grid reveal reveal-delay-1" style="width: 100%; max-width: 800px;">
+      <div class="summary-card" style="color: var(--text-primary);">
+        <div class="summary-num" style="color: #059669;">&#x2705;</div>
+        <div class="summary-label" style="font-weight: 700; color: var(--text-primary);">AIの得意</div>
+        <ul class="summary-items">
+          <li>文章生成・要約</li>
+          <li>翻訳・多言語</li>
+          <li>データ分析</li>
+          <li>コード生成</li>
+        </ul>
+      </div>
+      <div class="summary-card" style="color: var(--text-primary);">
+        <div class="summary-num" style="color: #dc2626;">&#x26A0;&#xFE0F;</div>
+        <div class="summary-label" style="font-weight: 700; color: var(--text-primary);">AIの苦手</div>
+        <ul class="summary-items">
+          <li>最新情報</li>
+          <li>正確な計算</li>
+          <li>感情理解</li>
+          <li>倫理判断</li>
+        </ul>
+      </div>
+      <div class="summary-card" style="color: var(--text-primary);">
+        <div class="summary-num" style="color: var(--accent);">&#x1F91D;</div>
+        <div class="summary-label" style="font-weight: 700; color: var(--text-primary);">線引き</div>
+        <ul class="summary-items">
+          <li>AIは下書き担当</li>
+          <li>最終判断は人間</li>
+          <li>必ずファクトチェック</li>
+          <li>機密情報はNG</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2" style="margin-top: var(--content-gap); padding: 1rem 2rem; background: rgba(255,255,255,0.15); border-radius: 12px;">
+      <div style="font-size: var(--body-size); margin-bottom: 0.3rem;">このあと <strong>確認テスト（5問）</strong> があります</div>
+      <div style="font-size: calc(var(--body-size) * 0.9); opacity: 0.8;">80%以上の正答で修了です</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>A-104</span><span>12 / 12</span>
+  </div>
+</section>
+
+<script>
+// =====================================================
+// SlidePresentation Class
+// =====================================================
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.currentSlide = 0;
+    this.totalSlides = this.slides.length;
+    this.init();
+  }
+
+  init() {
+    this.createNavTabs();
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+  }
+
+  createNavTabs() {
+    const nav = document.getElementById('navTabs');
+    const tabColors = [
+      'var(--tab-1)', 'var(--tab-1)',
+      'var(--tab-1)', 'var(--tab-2)', 'var(--tab-2)', 'var(--tab-2)',
+      'var(--tab-3)', 'var(--tab-3)', 'var(--tab-3)', 'var(--tab-3)',
+      'var(--tab-4)', 'var(--tab-5)'
+    ];
+    this.slides.forEach((_, i) => {
+      const tab = document.createElement('button');
+      tab.className = 'nav-tab' + (i === 0 ? ' active' : '');
+      tab.style.background = tabColors[i] || 'var(--tab-5)';
+      tab.textContent = i + 1;
+      tab.addEventListener('click', () => {
+        this.slides[i].scrollIntoView({ behavior: 'smooth' });
+      });
+      nav.appendChild(tab);
+    });
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Update active tab
+          const index = Array.from(this.slides).indexOf(entry.target);
+          this.currentSlide = index;
+          document.querySelectorAll('.nav-tab').forEach((tab, i) => {
+            tab.classList.toggle('active', i === index);
+          });
+
+          // Trigger reveal animations
+          entry.target.querySelectorAll('.reveal').forEach(el => {
+            el.classList.add('visible');
+          });
+        }
+      });
+    }, { threshold: 0.5 });
+
+    this.slides.forEach(slide => observer.observe(slide));
+  }
+
+  setupKeyboardNav() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        if (this.currentSlide < this.totalSlides - 1) {
+          this.slides[this.currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (this.currentSlide > 0) {
+          this.slides[this.currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  new SlidePresentation();
+});
+</script>
+</body>
+</html>

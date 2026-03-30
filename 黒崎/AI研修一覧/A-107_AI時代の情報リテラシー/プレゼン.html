@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-107: AI時代の情報リテラシー</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --accent-light: #DBEAFE;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --h3-size: clamp(1rem, 2vw, 1.4rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --small-size: clamp(0.65rem, 1vw, 0.85rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+
+            --navy: #1B2A4A;
+            --green: #059669;
+            --green-bg: #D1FAE5;
+            --amber: #D97706;
+            --amber-bg: #FEF3C7;
+            --red: #DC2626;
+            --red-bg: #FEE2E2;
+        }
+
+        /* ===========================================
+           BASE STYLES (viewport-base.css)
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-outer);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        /* ===========================================
+           NOTEBOOK PAGE CONTAINER
+           =========================================== */
+        .page {
+            background: var(--bg-page);
+            border-radius: clamp(8px, 1.5vw, 16px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            margin: clamp(1rem, 3vh, 2.5rem) clamp(1rem, 4vw, 4rem);
+            padding: clamp(1.5rem, 4vw, 3rem);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Binder holes */
+        .page::before {
+            content: '';
+            position: absolute;
+            left: clamp(10px, 1.5vw, 20px);
+            top: 15%;
+            width: clamp(8px, 1vw, 12px);
+            height: 70%;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--bg-outer) 0px,
+                var(--bg-outer) clamp(6px, 0.8vw, 10px),
+                transparent clamp(6px, 0.8vw, 10px),
+                transparent clamp(24px, 3vw, 36px)
+            );
+            border-radius: 50px;
+        }
+
+        /* ===========================================
+           SECTION TABS (right edge)
+           =========================================== */
+        .tabs {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2px, 0.4vh, 4px);
+            z-index: 100;
+        }
+
+        .tab {
+            width: clamp(28px, 3.5vw, 44px);
+            padding: clamp(8px, 1.2vh, 14px) 0;
+            border-radius: clamp(4px, 0.5vw, 8px) 0 0 clamp(4px, 0.5vw, 8px);
+            cursor: pointer;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: var(--font-body);
+            font-size: clamp(0.5rem, 1vh, 0.7rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .tab:hover, .tab.active {
+            opacity: 1;
+            width: clamp(36px, 4.5vw, 56px);
+        }
+
+        .tab:nth-child(1) { background: var(--tab-1); }
+        .tab:nth-child(2) { background: var(--tab-2); }
+        .tab:nth-child(3) { background: var(--tab-3); }
+        .tab:nth-child(4) { background: var(--tab-4); }
+        .tab:nth-child(5) { background: var(--tab-5); }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        .page-title {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--content-gap);
+            line-height: 1.2;
+        }
+
+        .page-subtitle {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            margin-bottom: var(--content-gap);
+            line-height: 1.6;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            font-weight: 700;
+            padding: clamp(2px, 0.3vw, 4px) clamp(8px, 1vw, 14px);
+            border-radius: 4px;
+            margin-bottom: clamp(0.5rem, 1vh, 1rem);
+        }
+
+        /* ===========================================
+           CARD LAYOUTS
+           =========================================== */
+        .cards {
+            display: grid;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+            flex: 1;
+        }
+
+        .cards-3 { grid-template-columns: repeat(3, 1fr); }
+        .cards-4 { grid-template-columns: repeat(4, 1fr); }
+        .cards-2 { grid-template-columns: repeat(2, 1fr); }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: clamp(6px, 1vw, 12px);
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-accent {
+            border-top: 3px solid var(--accent);
+        }
+
+        .card-green { border-top: 3px solid var(--green); }
+        .card-amber { border-top: 3px solid var(--amber); }
+        .card-red { border-top: 3px solid var(--red); }
+
+        .card-icon {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            margin-bottom: clamp(0.3rem, 0.5vh, 0.5rem);
+        }
+
+        .card-title {
+            font-family: var(--font-body);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
+        }
+
+        .card-body {
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        /* ===========================================
+           FLOW / STEPS
+           =========================================== */
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            margin: var(--content-gap) 0;
+        }
+
+        .flow-step {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: clamp(6px, 1vw, 10px);
+            padding: clamp(0.5rem, 1vw, 1rem);
+            text-align: center;
+        }
+
+        .flow-step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(24px, 3vw, 36px);
+            height: clamp(24px, 3vw, 36px);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            font-weight: 700;
+            margin-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
+        }
+
+        .flow-step-label {
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .flow-step-desc {
+            font-family: var(--font-body);
+            font-size: clamp(0.6rem, 0.9vw, 0.8rem);
+            color: var(--text-secondary);
+            margin-top: clamp(0.15rem, 0.3vh, 0.3rem);
+        }
+
+        .flow-arrow {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           CHECKLIST
+           =========================================== */
+        .checklist {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 0.8vh, 0.8rem);
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.8rem);
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .checklist li::before {
+            content: '\2713';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(18px, 2vw, 24px);
+            height: clamp(18px, 2vw, 24px);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* ===========================================
+           MATRIX TABLE
+           =========================================== */
+        .matrix {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+        }
+
+        .matrix th, .matrix td {
+            padding: clamp(0.4rem, 0.8vw, 0.75rem) clamp(0.5rem, 1vw, 1rem);
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .matrix th {
+            font-weight: 700;
+            color: var(--text-primary);
+            background: #f3f4f6;
+        }
+
+        .matrix td {
+            color: var(--text-secondary);
+        }
+
+        .badge-high { background: var(--green-bg); color: var(--green); padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+        .badge-mid { background: var(--amber-bg); color: var(--amber); padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+        .badge-low { background: var(--red-bg); color: var(--red); padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+
+        /* ===========================================
+           NUMBERED LIST
+           =========================================== */
+        .num-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 0.8vh, 0.75rem);
+        }
+
+        .num-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .num-list .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(22px, 2.5vw, 30px);
+            height: clamp(22px, 2.5vw, 30px);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            font-size: var(--small-size);
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ===========================================
+           FOOTER
+           =========================================== */
+        .slide-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.5rem, 5vw, 5rem);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: rgba(255,255,255,0.4);
+        }
+
+        .page .slide-footer {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        /* ===========================================
+           TITLE/END SLIDE (Navy sandwich)
+           =========================================== */
+        .slide-title {
+            background: var(--navy);
+        }
+
+        .slide-title .slide-content {
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-main {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: clamp(0.5rem, 1vh, 1rem);
+        }
+
+        .title-sub {
+            font-family: var(--font-body);
+            font-size: var(--h3-size);
+            color: rgba(255,255,255,0.6);
+            margin-bottom: clamp(1rem, 2vh, 2rem);
+        }
+
+        .title-meta {
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: rgba(255,255,255,0.35);
+        }
+
+        .title-accent-line {
+            width: clamp(40px, 8vw, 100px);
+            height: 2px;
+            background: var(--accent);
+            margin: clamp(0.5rem, 1vh, 1rem) auto;
+        }
+
+        /* ===========================================
+           SUMMARY POINTS
+           =========================================== */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.5rem, 1vw, 1rem);
+            flex: 1;
+        }
+
+        .summary-card {
+            background: #fff;
+            border-radius: clamp(6px, 1vw, 10px);
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            border-left: 4px solid var(--accent);
+        }
+
+        .summary-card-num {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            color: var(--accent);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: clamp(0.2rem, 0.4vh, 0.4rem);
+        }
+
+        .summary-card-title {
+            font-family: var(--font-body);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: clamp(0.15rem, 0.3vh, 0.3rem);
+        }
+
+        .summary-card-desc {
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .tabs { display: none; }
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards-3, .cards-4 { grid-template-columns: 1fr; }
+            .cards-2 { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .flow { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Section Tabs -->
+    <nav class="tabs" id="tabs">
+        <div class="tab active" data-section="0" style="background:var(--tab-1)">導入</div>
+        <div class="tab" data-section="1" style="background:var(--tab-2)">基礎</div>
+        <div class="tab" data-section="2" style="background:var(--tab-3)">実践</div>
+        <div class="tab" data-section="3" style="background:var(--tab-4)">応用</div>
+        <div class="tab" data-section="4" style="background:var(--tab-5)">まとめ</div>
+    </nav>
+
+    <!-- ============================================
+         SLIDE 1: TITLE (Navy)
+         ============================================ -->
+    <section class="slide slide-title" data-section="0">
+        <div class="slide-content">
+            <div class="reveal title-main">AI時代の情報リテラシー</div>
+            <div class="title-accent-line reveal"></div>
+            <div class="reveal title-sub">AIの嘘を見抜く力を身につける</div>
+            <div class="reveal title-meta">A-107 &nbsp;|&nbsp; 全社員向け &nbsp;|&nbsp; 20分</div>
+        </div>
+        <div class="slide-footer">
+            <span>A-107</span>
+            <span>1 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: GOALS
+         ============================================ -->
+    <section class="slide" data-section="0">
+        <div class="page">
+            <div class="tag reveal">GOALS</div>
+            <h2 class="page-title reveal">今日のゴール</h2>
+            <ol class="num-list reveal">
+                <li><span class="num">1</span><span>ハルシネーション（AIの嘘）の仕組みと対策を実践できる</span></li>
+                <li><span class="num">2</span><span>AIの回答をファクトチェックする3ステップの手順を使える</span></li>
+                <li><span class="num">3</span><span>情報の信頼性を評価する基準（ソース確認・クロスチェック・専門家検証）を理解する</span></li>
+            </ol>
+            <div class="slide-footer"><span>A-107</span><span>2 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: HALLUCINATION
+         ============================================ -->
+    <section class="slide" data-section="1">
+        <div class="page">
+            <div class="tag reveal">CONCEPT</div>
+            <h2 class="page-title reveal">ハルシネーション — AIの「もっともらしいウソ」</h2>
+            <div class="cards cards-3 reveal">
+                <div class="card card-red">
+                    <div class="card-icon">&#128218;</div>
+                    <div class="card-title">架空の論文引用</div>
+                    <div class="card-body">存在しない研究を、著者名・雑誌名付きで生成</div>
+                </div>
+                <div class="card card-red">
+                    <div class="card-icon">&#128202;</div>
+                    <div class="card-title">架空の統計データ</div>
+                    <div class="card-body">もっともらしい数字を出すが、出典が存在しない</div>
+                </div>
+                <div class="card card-red">
+                    <div class="card-icon">&#128100;</div>
+                    <div class="card-title">架空の人物情報</div>
+                    <div class="card-body">実在しない人物のプロフィールを詳細に語る</div>
+                </div>
+            </div>
+            <div class="reveal" style="background:var(--navy);color:#fff;padding:clamp(0.5rem,1vw,0.75rem) clamp(1rem,2vw,1.5rem);border-radius:8px;margin-top:auto;font-family:var(--font-body);font-size:var(--body-size);text-align:center;">
+                原因: AIは「事実を調べている」のではなく「次に来そうな言葉を予測している」だけ
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>3 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: DANGER ZONES
+         ============================================ -->
+    <section class="slide" data-section="1">
+        <div class="page">
+            <div class="tag reveal" style="background:var(--red-bg);color:var(--red);">WARNING</div>
+            <h2 class="page-title reveal">ハルシネーションが起きやすい場面</h2>
+            <div class="cards cards-4 reveal">
+                <div class="card card-amber">
+                    <div class="card-icon">&#9877;</div>
+                    <div class="card-title">専門知識</div>
+                    <div class="card-body">医療・法律・技術の詳細。定義や手順を微妙に間違える</div>
+                </div>
+                <div class="card card-amber">
+                    <div class="card-icon">&#128200;</div>
+                    <div class="card-title">数値・統計</div>
+                    <div class="card-body">もっともらしい数字を出すが出典が存在しない</div>
+                </div>
+                <div class="card card-amber">
+                    <div class="card-icon">&#128197;</div>
+                    <div class="card-title">最新情報</div>
+                    <div class="card-body">学習データ以降の出来事を推測で答える</div>
+                </div>
+                <div class="card card-amber">
+                    <div class="card-icon">&#128269;</div>
+                    <div class="card-title">マイナー情報</div>
+                    <div class="card-body">知名度の低い人物・組織の情報を混ぜ合わせて生成</div>
+                </div>
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>4 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: FACT-CHECK 3 STEPS
+         ============================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tag reveal">METHOD</div>
+            <h2 class="page-title reveal">ファクトチェック 3ステップ</h2>
+            <div class="flow reveal">
+                <div class="flow-step">
+                    <div class="flow-step-num">1</div>
+                    <div class="flow-step-label">ソース確認</div>
+                    <div class="flow-step-desc">「出典はどこ？」とAIに聞く</div>
+                </div>
+                <div class="flow-arrow">&#10140;</div>
+                <div class="flow-step">
+                    <div class="flow-step-num">2</div>
+                    <div class="flow-step-label">クロスチェック</div>
+                    <div class="flow-step-desc">別の情報源で裏を取る</div>
+                </div>
+                <div class="flow-arrow">&#10140;</div>
+                <div class="flow-step">
+                    <div class="flow-step-num">3</div>
+                    <div class="flow-step-label">専門家検証</div>
+                    <div class="flow-step-desc">重要な判断は専門家に確認</div>
+                </div>
+            </div>
+            <p class="reveal page-subtitle" style="margin-top:auto;text-align:center;font-weight:700;color:var(--accent);">
+                この3つを習慣にするだけで、AIの嘘に騙されるリスクは大きく下がる
+            </p>
+            <div class="slide-footer"><span>A-107</span><span>5 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: STEP 1 — SOURCE CHECK
+         ============================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tag reveal" style="background:var(--tab-1);color:var(--text-primary);">STEP 1</div>
+            <h2 class="page-title reveal">ソース確認の具体的なやり方</h2>
+            <ul class="checklist reveal">
+                <li>AIに「その情報の出典やURLを教えて」と聞く</li>
+                <li>URLが返ってきたら実際にアクセスして内容を確認</li>
+                <li>論文・書籍の場合は著者名・発行年をGoogle Scholarで検索</li>
+                <li>引用元が実在する場合も原文と比較して正確性を確認</li>
+            </ul>
+            <div class="reveal" style="background:var(--green-bg);color:var(--green);padding:clamp(0.5rem,1vw,0.75rem) clamp(1rem,2vw,1.5rem);border-radius:8px;margin-top:auto;font-family:var(--font-body);font-size:var(--small-size);text-align:center;font-weight:700;">
+                ソース確認の習慣だけで、ハルシネーション被害は大幅に減少
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>6 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: STEP 2 — CROSS-CHECK
+         ============================================ -->
+    <section class="slide" data-section="2">
+        <div class="page">
+            <div class="tag reveal" style="background:var(--tab-2);color:var(--text-primary);">STEP 2</div>
+            <h2 class="page-title reveal">クロスチェックのコツ</h2>
+            <div class="cards cards-3 reveal">
+                <div class="card card-accent">
+                    <div class="card-icon">&#128270;</div>
+                    <div class="card-title">Google検索</div>
+                    <div class="card-body">公式サイト・政府機関・大手メディアで確認</div>
+                </div>
+                <div class="card card-accent">
+                    <div class="card-icon">&#129302;</div>
+                    <div class="card-title">別のAIに聞く</div>
+                    <div class="card-body">Gemini, Copilot等に同じ質問をぶつける</div>
+                </div>
+                <div class="card card-accent">
+                    <div class="card-icon">&#127963;</div>
+                    <div class="card-title">公式DB検索</div>
+                    <div class="card-body">官公庁統計・学術DB・業界団体の一次情報</div>
+                </div>
+            </div>
+            <div class="reveal" style="background:var(--accent-light);color:var(--accent);padding:clamp(0.5rem,1vw,0.75rem) clamp(1rem,2vw,1.5rem);border-radius:8px;margin-top:auto;font-family:var(--font-body);font-size:var(--body-size);text-align:center;font-weight:700;">
+                目安: 3つ以上の独立した情報源が一致すれば信頼度 HIGH
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>7 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: STEP 3 — EXPERT VERIFICATION
+         ============================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tag reveal" style="background:var(--tab-3);color:var(--text-primary);">STEP 3</div>
+            <h2 class="page-title reveal">専門家検証 — 人間のチェックが最後の砦</h2>
+            <p class="page-subtitle reveal">以下の場面では、必ず人間の専門家による最終確認を行う:</p>
+            <div class="cards cards-2 reveal">
+                <div class="card card-green">
+                    <div class="card-icon">&#9878;</div>
+                    <div class="card-title">法務・コンプライアンス</div>
+                    <div class="card-body">契約書の解釈、法的助言は必ず法務部門・弁護士に確認</div>
+                </div>
+                <div class="card card-green">
+                    <div class="card-icon">&#128196;</div>
+                    <div class="card-title">顧客提出資料</div>
+                    <div class="card-body">提案書・報告書は社内担当者がダブルチェック</div>
+                </div>
+                <div class="card card-green">
+                    <div class="card-icon">&#9881;</div>
+                    <div class="card-title">技術仕様・数値</div>
+                    <div class="card-body">スペック、設定値、予算は間違い許容ゼロ</div>
+                </div>
+                <div class="card card-green">
+                    <div class="card-icon">&#127970;</div>
+                    <div class="card-title">意思決定の根拠</div>
+                    <div class="card-body">経営判断・方針決定の根拠にする場合は複数人で検証</div>
+                </div>
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>8 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9: TRUST MATRIX
+         ============================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tag reveal">FRAMEWORK</div>
+            <h2 class="page-title reveal">情報の信頼性を評価する</h2>
+            <table class="matrix reveal">
+                <thead>
+                    <tr>
+                        <th>信頼度</th>
+                        <th>情報源の例</th>
+                        <th>業務での扱い</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge-high">HIGH</span></td>
+                        <td>官公庁データ / 査読済み論文 / 公式プレスリリース</td>
+                        <td>そのまま引用可</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-mid">MID</span></td>
+                        <td>大手メディア記事 / 業界レポート / 企業ブログ</td>
+                        <td>複数確認で引用可</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-low">CHECK</span></td>
+                        <td>AIの回答 / SNS投稿 / 個人ブログ / Wikipedia</td>
+                        <td>必ず裏取りが必要</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="reveal" style="background:var(--red-bg);color:var(--red);padding:clamp(0.5rem,1vw,0.75rem) clamp(1rem,2vw,1.5rem);border-radius:8px;margin-top:auto;font-family:var(--font-body);font-size:var(--body-size);text-align:center;font-weight:700;">
+                AIの回答は常に「CHECK」に分類されることを忘れない
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>9 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10: PRACTICAL TIPS
+         ============================================ -->
+    <section class="slide" data-section="3">
+        <div class="page">
+            <div class="tag reveal">TIPS</div>
+            <h2 class="page-title reveal">日常業務で使える5つのテクニック</h2>
+            <ol class="num-list reveal">
+                <li><span class="num">1</span><span>「正確な情報が必要です。不確かなら教えて」と前置きする</span></li>
+                <li><span class="num">2</span><span>「確信度を%で教えて」とAIに聞いて危険度を把握</span></li>
+                <li><span class="num">3</span><span>AIで作った資料には「要検証」タグを付けて共有</span></li>
+                <li><span class="num">4</span><span>チーム内でファクトチェック担当を明確にする</span></li>
+                <li><span class="num">5</span><span>「AIが言っていた」を根拠にしない文化をつくる</span></li>
+            </ol>
+            <div class="slide-footer"><span>A-107</span><span>10 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11: SUMMARY
+         ============================================ -->
+    <section class="slide" data-section="4">
+        <div class="page">
+            <div class="tag reveal">SUMMARY</div>
+            <h2 class="page-title reveal">まとめ</h2>
+            <div class="summary-grid reveal">
+                <div class="summary-card">
+                    <div class="summary-card-num">01</div>
+                    <div class="summary-card-title">ハルシネーション</div>
+                    <div class="summary-card-desc">AIは次の言葉を予測しているだけ。もっともらしいウソをつくことがある</div>
+                </div>
+                <div class="summary-card" style="border-left-color:var(--green);">
+                    <div class="summary-card-num" style="color:var(--green);">02</div>
+                    <div class="summary-card-title">3ステップ</div>
+                    <div class="summary-card-desc">ソース確認 → クロスチェック → 専門家検証</div>
+                </div>
+                <div class="summary-card" style="border-left-color:var(--amber);">
+                    <div class="summary-card-num" style="color:var(--amber);">03</div>
+                    <div class="summary-card-title">信頼性評価</div>
+                    <div class="summary-card-desc">HIGH / MID / CHECK の3段階で情報源を分類</div>
+                </div>
+                <div class="summary-card" style="border-left-color:var(--tab-2);">
+                    <div class="summary-card-num" style="color:var(--tab-2);">04</div>
+                    <div class="summary-card-title">実践の原則</div>
+                    <div class="summary-card-desc">AIの回答は「下書き」。最終確認は必ず人間が行う</div>
+                </div>
+            </div>
+            <div class="slide-footer"><span>A-107</span><span>11 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12: END (Navy)
+         ============================================ -->
+    <section class="slide slide-title" data-section="4">
+        <div class="slide-content">
+            <div class="reveal title-sub" style="color:rgba(255,255,255,0.5);margin-bottom:clamp(0.5rem,1vh,1rem);">A-107 修了</div>
+            <div class="reveal title-main" style="font-size:var(--h2-size);">お疲れさまでした</div>
+            <div class="title-accent-line reveal"></div>
+            <div class="reveal" style="font-family:var(--font-body);font-size:var(--body-size);color:rgba(255,255,255,0.7);margin-top:clamp(0.5rem,1vh,1rem);">
+                確認テスト: 5問中4問正解で修了
+            </div>
+            <div class="reveal" style="font-family:var(--font-display);font-size:var(--h3-size);color:var(--tab-5);margin-top:clamp(1rem,2vh,2rem);font-style:italic;">
+                「それ、出典ある？」を口癖にしましょう
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>A-107</span>
+            <span>12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isTransitioning = false;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupTabs();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = Array.from(this.slides).indexOf(entry.target);
+                            this.currentSlide = idx;
+                            this.updateProgressBar();
+                            this.updateTabs();
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diffY = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diffY) > 50) {
+                        if (diffY > 0) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupProgressBar() {
+                window.addEventListener('scroll', () => this.updateProgressBar());
+            }
+
+            updateProgressBar() {
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+            }
+
+            setupTabs() {
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const section = tab.dataset.section;
+                        const target = document.querySelector(`.slide[data-section="${section}"]`);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+            }
+
+            updateTabs() {
+                const currentSection = this.slides[this.currentSlide]?.dataset.section;
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.section === currentSection);
+                });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isTransitioning) return;
+                this.isTransitioning = true;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => { this.isTransitioning = false; }, 600);
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

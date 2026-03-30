@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-110: AIで変わる仕事の未来</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans (Notebook Tabs theme) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --accent: #2563EB;
+            --accent-light: #dbeafe;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --green: #059669;
+            --green-bg: #d1fae5;
+            --amber: #d97706;
+            --amber-bg: #fef3c7;
+            --red: #dc2626;
+            --red-bg: #fee2e2;
+            --border: #e0ddd5;
+
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           VIEWPORT BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-outer);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           NOTEBOOK TABS THEME
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* Paper page container */
+        .page {
+            position: absolute;
+            top: clamp(1rem, 3vh, 2.5rem);
+            left: clamp(1.5rem, 4vw, 4rem);
+            right: clamp(1.5rem, 4vw, 4rem);
+            bottom: clamp(1rem, 3vh, 2.5rem);
+            background: var(--bg-page);
+            border-radius: 4px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Binder holes */
+        .page::before {
+            content: '';
+            position: absolute;
+            left: clamp(12px, 2vw, 20px);
+            top: 15%;
+            width: clamp(8px, 1vw, 12px);
+            height: clamp(8px, 1vw, 12px);
+            border-radius: 50%;
+            background: var(--bg-outer);
+            box-shadow:
+                0 calc(35vh) 0 var(--bg-outer),
+                0 calc(70vh) 0 var(--bg-outer);
+        }
+
+        /* Colorful tabs on right edge */
+        .tabs {
+            position: absolute;
+            right: calc(-1 * clamp(28px, 3.5vw, 44px));
+            top: 10%;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 0.5vh, 6px);
+            z-index: 10;
+        }
+
+        .tab {
+            width: clamp(28px, 3.5vw, 44px);
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s var(--ease-out-expo), filter 0.3s;
+            writing-mode: vertical-rl;
+            font-size: clamp(0.5rem, 1vh, 0.7rem);
+            font-weight: 500;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+        .tab:hover { transform: translateX(4px); filter: brightness(0.95); }
+        .tab.active { transform: translateX(6px); font-weight: 700; }
+
+        .tab-1 { background: var(--tab-1); height: clamp(50px, 8vh, 80px); }
+        .tab-2 { background: var(--tab-2); height: clamp(45px, 7vh, 70px); }
+        .tab-3 { background: var(--tab-3); height: clamp(55px, 9vh, 90px); }
+        .tab-4 { background: var(--tab-4); height: clamp(40px, 6.5vh, 65px); }
+        .tab-5 { background: var(--tab-5); height: clamp(48px, 7.5vh, 75px); }
+
+        /* Page content area */
+        .page-content {
+            flex: 1;
+            padding: clamp(1.5rem, 3vw, 3rem);
+            padding-left: clamp(2.5rem, 5vw, 4rem);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Page footer */
+        .page-footer {
+            padding: clamp(0.5rem, 1vh, 0.75rem) clamp(1.5rem, 3vw, 3rem);
+            padding-left: clamp(2.5rem, 5vw, 4rem);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--text-primary);
+        }
+        h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin-bottom: var(--content-gap);
+        }
+        h3 {
+            font-family: var(--font-body);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        p, li {
+            font-size: var(--body-size);
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           COMPONENT STYLES
+           =========================================== */
+
+        /* Section tag */
+        .tag {
+            display: inline-block;
+            padding: 0.15em 0.6em;
+            border-radius: 4px;
+            font-size: var(--small-size);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5em;
+        }
+        .tag-accent { background: var(--accent-light); color: var(--accent); }
+        .tag-green { background: var(--green-bg); color: var(--green); }
+        .tag-amber { background: var(--amber-bg); color: var(--amber); }
+        .tag-red { background: var(--red-bg); color: var(--red); }
+
+        /* Cards grid */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+        }
+        .card-accent { border-top: 3px solid var(--accent); }
+        .card-green { border-top: 3px solid var(--green); }
+        .card-amber { border-top: 3px solid var(--amber); }
+        .card-red { border-top: 3px solid var(--red); }
+
+        .card .card-icon {
+            width: clamp(32px, 4vw, 48px);
+            height: clamp(32px, 4vw, 48px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            margin-bottom: 0.5em;
+        }
+
+        .card h3 {
+            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+            margin-bottom: 0.3em;
+        }
+        .card p {
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            color: var(--text-muted);
+        }
+
+        /* Flow / Before-After */
+        .flow-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+            align-items: center;
+        }
+        .flow-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+        .flow-box h3 {
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            margin-bottom: 0.4em;
+        }
+        .flow-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .flow-box ul li {
+            font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+            padding: 0.15em 0;
+            color: var(--text-secondary);
+        }
+        .flow-box ul li::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 0.5em;
+            vertical-align: middle;
+        }
+        .flow-box.box-before ul li::before { background: var(--text-muted); }
+        .flow-box.box-after ul li::before { background: var(--accent); }
+
+        .flow-arrow {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .human-role {
+            margin-top: clamp(0.5rem, 1vh, 0.75rem);
+            padding: clamp(0.5rem, 1vw, 0.75rem);
+            background: var(--green-bg);
+            border-left: 3px solid var(--green);
+            border-radius: 0 6px 6px 0;
+        }
+        .human-role p {
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        /* Steps */
+        .step-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1.2vw, 1rem);
+            text-align: center;
+        }
+        .step-num {
+            width: clamp(28px, 3vw, 40px);
+            height: clamp(28px, 3vw, 40px);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+            margin-bottom: 0.4em;
+        }
+        .step-card h3 {
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            margin-bottom: 0.3em;
+        }
+        .step-card p {
+            font-size: clamp(0.65rem, 1vw, 0.8rem);
+            color: var(--text-muted);
+        }
+
+        /* Summary rows */
+        .summary-row {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.75rem, 1.5vw, 1rem);
+            gap: clamp(0.5rem, 1vw, 1rem);
+        }
+        .summary-row + .summary-row { margin-top: clamp(0.4rem, 0.8vh, 0.6rem); }
+        .summary-label {
+            font-weight: 700;
+            font-size: clamp(0.75rem, 1.3vw, 0.95rem);
+            white-space: nowrap;
+            min-width: 7em;
+        }
+        .summary-text {
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            color: var(--text-secondary);
+        }
+
+        /* Insight bar */
+        .insight-bar {
+            margin-top: auto;
+            padding: clamp(0.4rem, 0.8vh, 0.6rem) clamp(0.75rem, 1.5vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            font-weight: 500;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* Card stagger within grids */
+        .slide.visible .grid-3 .card:nth-child(1),
+        .slide.visible .grid-4 .step-card:nth-child(1) { transition-delay: 0.2s; }
+        .slide.visible .grid-3 .card:nth-child(2),
+        .slide.visible .grid-4 .step-card:nth-child(2) { transition-delay: 0.35s; }
+        .slide.visible .grid-3 .card:nth-child(3),
+        .slide.visible .grid-4 .step-card:nth-child(3) { transition-delay: 0.5s; }
+        .slide.visible .grid-4 .step-card:nth-child(4) { transition-delay: 0.65s; }
+
+        .grid-3 .card, .grid-4 .step-card {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.5s var(--ease-out-expo),
+                        transform 0.5s var(--ease-out-expo);
+        }
+        .slide.visible .grid-3 .card,
+        .slide.visible .grid-4 .step-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===========================================
+           TITLE SLIDE (Sandwich: dark outer, page inner)
+           =========================================== */
+        .title-slide .page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .title-slide .page-content {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .title-slide h1 {
+            font-size: clamp(2.2rem, 6vw, 4.5rem);
+        }
+        .title-slide .subtitle {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(0.9rem, 2vw, 1.4rem);
+            color: var(--accent);
+            margin-top: 0.5em;
+        }
+        .title-slide .meta {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            margin-top: 1.5em;
+            letter-spacing: 0.1em;
+        }
+        .title-divider {
+            width: clamp(40px, 8vw, 80px);
+            height: 2px;
+            background: var(--accent);
+            margin: 0.8em auto;
+        }
+
+        /* ===========================================
+           END SLIDE
+           =========================================== */
+        .end-slide .page {
+            background: var(--text-primary);
+        }
+        .end-slide .page-content {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .end-slide h1 {
+            color: var(--bg-page);
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+        }
+        .end-slide .subtitle {
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(0.9rem, 2vw, 1.3rem);
+            margin-top: 0.5em;
+        }
+        .end-slide .cta-box {
+            background: var(--bg-page);
+            border-radius: 8px;
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(1.5rem, 3vw, 2.5rem);
+            margin-top: 1.5em;
+            text-align: center;
+        }
+        .end-slide .cta-box h3 { color: var(--text-primary); margin-bottom: 0.3em; }
+        .end-slide .cta-box p { color: var(--accent); font-weight: 500; }
+        .end-slide .cta-action {
+            color: var(--green);
+            font-weight: 700;
+            font-size: clamp(0.8rem, 1.3vw, 1rem);
+            margin-top: 0.8em;
+        }
+        .end-slide .page-footer {
+            border-top-color: #333;
+            color: #666;
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(8px, 1.5vw, 16px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ============================================
+         SLIDE 1: TITLE
+         ============================================ -->
+    <section class="slide title-slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1 active">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <h1 class="reveal">AIで変わる<br>仕事の未来</h1>
+                <div class="title-divider reveal"></div>
+                <p class="subtitle reveal">あなたのキャリアを進化させるAI活用戦略</p>
+                <p class="meta reveal">A-110 &nbsp;|&nbsp; 全社員向け &nbsp;|&nbsp; 20分</p>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>1 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: GOALS
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1 active">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <h2 class="reveal">今日のゴール</h2>
+                <div style="display:flex; flex-direction:column; gap:clamp(0.6rem,1.5vh,1rem); flex:1; justify-content:center;">
+                    <div class="reveal" style="display:flex; align-items:flex-start; gap:clamp(0.5rem,1vw,1rem);">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:clamp(28px,3vw,40px);height:clamp(28px,3vw,40px);border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:clamp(0.8rem,1.5vw,1.1rem);">1</span>
+                        <p style="flex:1;">AI時代に必要な3つのスキル（問いを立てる力・判断力・創造力）を説明できる</p>
+                    </div>
+                    <hr style="border:none;border-top:1px solid var(--border);">
+                    <div class="reveal" style="display:flex; align-items:flex-start; gap:clamp(0.5rem,1vw,1rem);">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:clamp(28px,3vw,40px);height:clamp(28px,3vw,40px);border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:clamp(0.8rem,1.5vw,1.1rem);">2</span>
+                        <p style="flex:1;">AIによって変化する職種・業務の具体例を5つ以上挙げられる</p>
+                    </div>
+                    <hr style="border:none;border-top:1px solid var(--border);">
+                    <div class="reveal" style="display:flex; align-items:flex-start; gap:clamp(0.5rem,1vw,1rem);">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:clamp(28px,3vw,40px);height:clamp(28px,3vw,40px);border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:clamp(0.8rem,1.5vw,1.1rem);">3</span>
+                        <p style="flex:1;">自分のキャリアにAIをどう活かすかの行動計画を立てられる</p>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: 3 WAVES
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1 active">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <h2 class="reveal">AIが仕事を変える3つの波</h2>
+                <div class="grid-3" style="flex:1; align-items:stretch;">
+                    <div class="card card-accent">
+                        <div class="card-icon" style="background:var(--accent-light);">
+                            <span style="color:var(--accent);">&#9881;</span>
+                        </div>
+                        <h3>第1波: 自動化</h3>
+                        <p>定型業務をAIが代替</p>
+                        <p style="margin-top:0.3em; font-size:clamp(0.6rem,1vw,0.8rem); color:var(--text-muted);">データ入力 / 集計 / 分類</p>
+                    </div>
+                    <div class="card card-green">
+                        <div class="card-icon" style="background:var(--green-bg);">
+                            <span style="color:var(--green);">&#9889;</span>
+                        </div>
+                        <h3>第2波: 拡張</h3>
+                        <p>人間の能力をAIが強化</p>
+                        <p style="margin-top:0.3em; font-size:clamp(0.6rem,1vw,0.8rem); color:var(--text-muted);">分析支援 / 創作補助 / 翻訳</p>
+                    </div>
+                    <div class="card card-amber">
+                        <div class="card-icon" style="background:var(--amber-bg);">
+                            <span style="color:var(--amber);">&#10024;</span>
+                        </div>
+                        <h3>第3波: 変革</h3>
+                        <p>まったく新しい仕事の誕生</p>
+                        <p style="margin-top:0.3em; font-size:clamp(0.6rem,1vw,0.8rem); color:var(--text-muted);">AI運用 / プロンプト設計 / 倫理監査</p>
+                    </div>
+                </div>
+                <div class="insight-bar reveal" style="background:var(--accent-light); color:var(--accent);">
+                    AIは仕事を「奪う」のではなく、仕事の「質」を変えていく
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: 3 SKILLS
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2 active">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <h2 class="reveal">AI時代に必要な3つのスキル</h2>
+                <div class="grid-3" style="flex:1; align-items:stretch;">
+                    <div class="card card-accent">
+                        <div class="card-icon" style="background:var(--accent-light);">
+                            <span style="color:var(--accent);">&#10068;</span>
+                        </div>
+                        <h3>問いを立てる力</h3>
+                        <p>AIに正しい質問をする。何を聞くかで結果が変わる</p>
+                    </div>
+                    <div class="card card-green">
+                        <div class="card-icon" style="background:var(--green-bg);">
+                            <span style="color:var(--green);">&#9878;</span>
+                        </div>
+                        <h3>判断力</h3>
+                        <p>AIの回答を評価し、使うか使わないか決める</p>
+                    </div>
+                    <div class="card card-amber">
+                        <div class="card-icon" style="background:var(--amber-bg);">
+                            <span style="color:var(--amber);">&#128161;</span>
+                        </div>
+                        <h3>創造力</h3>
+                        <p>AIが生み出せない独自のアイデアや価値を創る</p>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: SALES & MARKETING
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3 active">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <span class="tag tag-accent reveal">変化する仕事 01</span>
+                <h2 class="reveal" style="margin-bottom:clamp(0.5rem,1vh,0.75rem);">営業・マーケティング</h2>
+                <div class="flow-row reveal">
+                    <div class="flow-box box-before">
+                        <h3 style="color:var(--text-muted);">Before</h3>
+                        <ul>
+                            <li>リスト作成に半日</li>
+                            <li>提案書を一から作成</li>
+                            <li>手動でメール配信</li>
+                        </ul>
+                    </div>
+                    <div class="flow-arrow">&#10132;</div>
+                    <div class="flow-box box-after" style="border-left:3px solid var(--accent);">
+                        <h3 style="color:var(--accent);">After (AI)</h3>
+                        <ul>
+                            <li>リード分析・スコアリング</li>
+                            <li>提案書の自動生成</li>
+                            <li>パーソナライズ配信</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="human-role reveal">
+                    <p>&#128100; 人間の役割: 顧客との信頼構築 / 交渉 / クロージング</p>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: ACCOUNTING
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3 active">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <span class="tag tag-green reveal">変化する仕事 02</span>
+                <h2 class="reveal" style="margin-bottom:clamp(0.5rem,1vh,0.75rem);">経理・管理部門</h2>
+                <div class="flow-row reveal">
+                    <div class="flow-box box-before">
+                        <h3 style="color:var(--text-muted);">Before</h3>
+                        <ul>
+                            <li>手入力での仕訳処理</li>
+                            <li>紙の領収書を手動チェック</li>
+                            <li>月次レポート作成に3日</li>
+                        </ul>
+                    </div>
+                    <div class="flow-arrow">&#10132;</div>
+                    <div class="flow-box box-after" style="border-left:3px solid var(--green);">
+                        <h3 style="color:var(--green);">After (AI)</h3>
+                        <ul>
+                            <li>仕訳自動分類</li>
+                            <li>OCR領収書読取・異常検知</li>
+                            <li>リアルタイムダッシュボード</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="human-role reveal">
+                    <p>&#128100; 人間の役割: 経営判断への助言 / 予算戦略の立案 / コンプライアンス管理</p>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: CUSTOMER SUPPORT
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3 active">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <span class="tag tag-amber reveal">変化する仕事 03</span>
+                <h2 class="reveal" style="margin-bottom:clamp(0.5rem,1vh,0.75rem);">カスタマーサポート</h2>
+                <div class="flow-row reveal">
+                    <div class="flow-box box-before">
+                        <h3 style="color:var(--text-muted);">Before</h3>
+                        <ul>
+                            <li>一件一件手作業で対応</li>
+                            <li>FAQ検索に時間がかかる</li>
+                            <li>営業時間内のみ対応</li>
+                        </ul>
+                    </div>
+                    <div class="flow-arrow">&#10132;</div>
+                    <div class="flow-box box-after" style="border-left:3px solid var(--amber);">
+                        <h3 style="color:var(--amber);">After (AI)</h3>
+                        <ul>
+                            <li>チャットボットが一次対応</li>
+                            <li>FAQ自動回答</li>
+                            <li>24時間365日対応</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="human-role reveal">
+                    <p>&#128100; 人間の役割: 複雑なクレーム対応 / 感情を伴う顧客フォロー / サービス改善提案</p>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: CREATIVE
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3 active">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <span class="tag tag-red reveal">変化する仕事 04</span>
+                <h2 class="reveal" style="margin-bottom:clamp(0.5rem,1vh,0.75rem);">企画・クリエイティブ</h2>
+                <div class="flow-row reveal">
+                    <div class="flow-box box-before">
+                        <h3 style="color:var(--text-muted);">Before</h3>
+                        <ul>
+                            <li>市場調査に2週間</li>
+                            <li>デザイン案を手作業で10案</li>
+                            <li>コピーライティングに丸一日</li>
+                        </ul>
+                    </div>
+                    <div class="flow-arrow">&#10132;</div>
+                    <div class="flow-box box-after" style="border-left:3px solid var(--red);">
+                        <h3 style="color:var(--red);">After (AI)</h3>
+                        <ul>
+                            <li>市場データ分析・トレンド抽出</li>
+                            <li>デザイン案の自動生成</li>
+                            <li>コピー素案を秒で作成</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="human-role reveal">
+                    <p>&#128100; 人間の役割: ブランドの世界観構築 / コンセプト設計 / 最終クリエイティブ判断</p>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9: ENGINEERING
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3 active">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <span class="tag tag-accent reveal">変化する仕事 05</span>
+                <h2 class="reveal" style="margin-bottom:clamp(0.5rem,1vh,0.75rem);">エンジニア・IT部門</h2>
+                <div class="flow-row reveal">
+                    <div class="flow-box box-before">
+                        <h3 style="color:var(--text-muted);">Before</h3>
+                        <ul>
+                            <li>コードを一行一行手書き</li>
+                            <li>バグ原因究明に数時間</li>
+                            <li>ドキュメント作成が後回し</li>
+                        </ul>
+                    </div>
+                    <div class="flow-arrow">&#10132;</div>
+                    <div class="flow-box box-after" style="border-left:3px solid var(--accent);">
+                        <h3 style="color:var(--accent);">After (AI)</h3>
+                        <ul>
+                            <li>コード補完・生成</li>
+                            <li>バグ自動検出・修正提案</li>
+                            <li>ドキュメント自動生成</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="human-role reveal">
+                    <p>&#128100; 人間の役割: アーキテクチャ設計 / 要件定義 / コードレビューと品質管理</p>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10: ACTION PLAN
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4 active">Plan</div>
+                <div class="tab tab-5">End</div>
+            </div>
+            <div class="page-content">
+                <h2 class="reveal">AIキャリア行動計画の立て方</h2>
+                <div class="grid-4" style="flex:1; align-items:stretch;">
+                    <div class="step-card">
+                        <div class="step-num" style="background:var(--accent);">1</div>
+                        <h3>棚卸し</h3>
+                        <p>業務を「定型/判断/創造」に分類</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num" style="background:var(--green);">2</div>
+                        <h3>AI活用ポイント特定</h3>
+                        <p>定型業務からAI化を検討</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num" style="background:var(--amber);">3</div>
+                        <h3>スキルアップ計画</h3>
+                        <p>3つのスキルを強化する学習計画</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num" style="background:var(--accent);">4</div>
+                        <h3>実践と振り返り</h3>
+                        <p>週1回AIツールを試し効果を記録</p>
+                    </div>
+                </div>
+                <div class="insight-bar reveal" style="background:var(--amber-bg); color:var(--amber);">
+                    小さなサイクルを回し続けることが、AI時代のキャリアを切り拓く最も確実な方法
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11: SUMMARY
+         ============================================ -->
+    <section class="slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5 active">End</div>
+            </div>
+            <div class="page-content" style="justify-content:center; gap:clamp(0.4rem,0.8vh,0.6rem);">
+                <h2 class="reveal">まとめ</h2>
+                <div class="summary-row reveal">
+                    <span class="summary-label" style="color:var(--accent);">3つの波</span>
+                    <span class="summary-text">自動化 → 拡張 → 変革。仕事を奪うのではなく質を変える</span>
+                </div>
+                <div class="summary-row reveal" style="border-left:3px solid var(--green);">
+                    <span class="summary-label" style="color:var(--green);">3つのスキル</span>
+                    <span class="summary-text">問いを立てる力 / 判断力 / 創造力がAI時代の武器</span>
+                </div>
+                <div class="summary-row reveal" style="border-left:3px solid var(--amber);">
+                    <span class="summary-label" style="color:var(--amber);">5つの変化</span>
+                    <span class="summary-text">営業・経理・サポート・企画・エンジニア全てでAI活用が進む</span>
+                </div>
+                <div class="summary-row reveal" style="border-left:3px solid var(--accent);">
+                    <span class="summary-label" style="color:var(--accent);">行動計画</span>
+                    <span class="summary-text">棚卸し → AI活用ポイント特定 → スキルアップ → 実践と振り返り</span>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12: END
+         ============================================ -->
+    <section class="slide end-slide">
+        <div class="page">
+            <div class="tabs">
+                <div class="tab tab-1">Intro</div>
+                <div class="tab tab-2">Skills</div>
+                <div class="tab tab-3">Jobs</div>
+                <div class="tab tab-4">Plan</div>
+                <div class="tab tab-5 active">End</div>
+            </div>
+            <div class="page-content">
+                <h1 class="reveal">AIを味方に、<br>キャリアを進化させよう</h1>
+                <div class="cta-box reveal">
+                    <h3>確認テスト（5問）</h3>
+                    <p>80%以上の正答で修了</p>
+                    <p class="cta-action">今日から1つ、AIツールを使ってみましょう</p>
+                </div>
+                <p class="subtitle reveal" style="margin-top:1em;">お疲れさまでした！</p>
+            </div>
+            <div class="page-footer">
+                <span>A-110</span>
+                <span>12 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.setupWheelNav();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = Array.from(this.slides).indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goToSlide(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.goToSlide(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        } else {
+                            this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                let lastWheel = 0;
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastWheel < 800) return;
+                    lastWheel = now;
+                    if (e.deltaY > 0) {
+                        this.goToSlide(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.deltaY < 0) {
+                        this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (this.progressBar) {
+                    const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                    this.progressBar.style.width = pct + '%';
+                }
+            }
+
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return;
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    container.appendChild(dot);
+                });
+                this.navDotEls = container.querySelectorAll('.nav-dot');
+            }
+
+            updateNavDots() {
+                if (!this.navDotEls) return;
+                this.navDotEls.forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length) return;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

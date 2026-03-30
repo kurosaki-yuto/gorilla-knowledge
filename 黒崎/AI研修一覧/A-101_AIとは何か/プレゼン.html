@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-101: AIとは何か？〜歴史から最新トレンドまで</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* --- viewport-base.css --- */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.5rem, 1.5vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.3);
+        }
+        .nav-dot.page-dot {
+            border-color: rgba(0,0,0,0.2);
+        }
+        .nav-dot.page-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===========================================
+           SECTION TABS (right side, color-coded)
+           =========================================== */
+        .section-tabs {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 99;
+        }
+        .section-tab {
+            width: 6px;
+            height: 40px;
+            border-radius: 3px 0 0 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+        .section-tab.active {
+            width: 10px;
+            opacity: 1;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* ===========================================
+           SLIDE FOOTER
+           =========================================== */
+        .slide-footer {
+            position: absolute;
+            bottom: clamp(0.5rem, 1.5vh, 1rem);
+            left: var(--slide-padding);
+            right: var(--slide-padding);
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            opacity: 0.6;
+        }
+
+        /* ===========================================
+           TITLE / END SLIDES (Navy sandwich)
+           =========================================== */
+        .slide-title, .slide-end {
+            background: #1B2A4A;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title .slide-content, .slide-end .slide-content {
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        .slide-title .subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            color: #93C5FD;
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-title .meta {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #9CA3AF;
+            margin-top: clamp(1rem, 3vh, 2rem);
+            letter-spacing: 0.1em;
+        }
+        .slide-title .divider-line {
+            width: clamp(60px, 15vw, 180px);
+            height: 2px;
+            background: #93C5FD;
+            margin: clamp(0.5rem, 1.5vh, 1rem) auto;
+        }
+        .slide-end h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-end p {
+            color: #93C5FD;
+            font-size: var(--body-size);
+        }
+        .slide-title .slide-footer, .slide-end .slide-footer {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ===========================================
+           CONTENT SLIDES (Notebook page)
+           =========================================== */
+        .slide-page {
+            background: var(--bg-outer);
+        }
+        .slide-page .slide-content {
+            background: var(--bg-page);
+            margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem);
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            padding: var(--slide-padding);
+            position: relative;
+        }
+        .slide-page h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+            font-weight: 700;
+        }
+        .slide-page .tag {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .slide-page .slide-footer {
+            position: absolute;
+            bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+
+        /* Tab indicator on page slides */
+        .slide-page .slide-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        /* ===========================================
+           CARD COMPONENTS
+           =========================================== */
+        .card-row {
+            display: grid;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+        .card-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1.2rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+        .card-item .card-icon {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+        }
+        .card-item h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-item p {
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .card-item.accent-border {
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Numbered goals */
+        .goal-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .goal-num {
+            flex-shrink: 0;
+            width: clamp(2rem, 3.5vw, 2.8rem);
+            height: clamp(2rem, 3.5vw, 2.8rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+        }
+        .goal-text {
+            font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Definition box */
+        .definition-box {
+            background: #DBEAFE;
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.5rem);
+            margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        .definition-box p {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+            color: var(--accent);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            align-items: stretch;
+            gap: clamp(0.3rem, 0.8vw, 0.6rem);
+            margin: clamp(0.5rem, 1.2vh, 1rem) 0;
+        }
+        .timeline-item {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 1rem);
+            text-align: center;
+            position: relative;
+        }
+        .timeline-item .era {
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .timeline-item h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.2vw, 1rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: clamp(0.15rem, 0.4vh, 0.3rem) 0;
+        }
+        .timeline-item p {
+            font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+        .timeline-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+        }
+
+        /* Comparison table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+        .comparison-table th {
+            background: #f3f4f6;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem);
+            text-align: left;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .comparison-table td {
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem);
+            border-bottom: 1px solid #e5e7eb;
+            color: var(--text-secondary);
+        }
+        .comparison-table tr td:first-child {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Flow diagram */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.3rem, 0.6vw, 0.5rem);
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
+        }
+        .flow-step {
+            background: var(--accent);
+            color: #fff;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 600;
+        }
+        .flow-step.green { background: #059669; }
+        .flow-arrow {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+        }
+
+        /* Bullet list with icons */
+        .icon-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.6rem);
+        }
+        .icon-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        .icon-list-item .li-icon {
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        }
+        .icon-list-item .li-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .icon-list-item .li-text strong {
+            color: var(--text-primary);
+        }
+
+        /* Pros/Cons badges */
+        .badge-row {
+            display: flex;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            margin-top: clamp(0.4rem, 1vh, 0.8rem);
+        }
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: clamp(0.3rem, 0.5vh, 0.4rem) clamp(0.6rem, 1vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            font-weight: 600;
+        }
+        .badge.pro { background: #D1FAE5; color: #059669; }
+        .badge.con { background: #FEF3C7; color: #D97706; }
+        .badge.warn { background: #FEE2E2; color: #DC2626; }
+
+        /* Gear diagram (3 interlocking) */
+        .gear-row {
+            display: flex;
+            justify-content: center;
+            gap: clamp(1rem, 3vw, 2.5rem);
+            margin: clamp(0.5rem, 1.5vh, 1.2rem) 0;
+        }
+        .gear-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+        .gear-circle {
+            width: clamp(3rem, 6vw, 5rem);
+            height: clamp(3rem, 6vw, 5rem);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+        }
+        .gear-label {
+            font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .gear-sub {
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Activity cards (for slide 10) */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+        }
+        .activity-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 1rem);
+        }
+        .activity-card h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: clamp(0.15rem, 0.4vh, 0.3rem);
+        }
+        .activity-card p {
+            font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Warning cards (for slide 11) */
+        .warning-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 1vh, 0.8rem);
+        }
+        .warning-item {
+            display: flex;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 1rem);
+            align-items: flex-start;
+        }
+        .warning-icon {
+            flex-shrink: 0;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+        }
+        .warning-text h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.1vw, 0.92rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .warning-text p {
+            font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+
+        /* Summary slide */
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vh, 0.8rem);
+        }
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+            padding: clamp(0.4rem, 0.8vh, 0.7rem) 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-num {
+            flex-shrink: 0;
+            background: var(--accent);
+            color: #fff;
+            width: clamp(1.4rem, 2.5vw, 2rem);
+            height: clamp(1.4rem, 2.5vw, 2rem);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 700;
+        }
+        .summary-text {
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        .summary-text strong { color: var(--accent); }
+
+        /* Highlight callout */
+        .callout {
+            background: #FEF3C7;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #92400E;
+            font-weight: 500;
+            margin-top: clamp(0.4rem, 1vh, 0.8rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .activity-grid { grid-template-columns: 1fr; }
+            .timeline { flex-direction: column; }
+            .timeline-arrow { transform: rotate(90deg); justify-content: center; }
+            .card-row.cols-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ============================================
+         SLIDE 1: TITLE (Navy)
+         ============================================ -->
+    <section class="slide slide-title" data-section="intro">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#129302;</div>
+            <h1 class="reveal">AIとは何か？</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">歴史から最新トレンドまで</p>
+            <p class="meta reveal">A-101 &nbsp;|&nbsp; 全社員向け入門 &nbsp;|&nbsp; 20分</p>
+        </div>
+        <div class="slide-footer">
+            <span>A-101</span>
+            <span>1 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: GOALS (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="intro">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">AIの定義を一文で説明できる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">AIの3つの波（ルールベース → 機械学習 → 生成AI）を区別できる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <span class="goal-text">現在の生成AIブームの背景と意義を理解する</span>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: DEFINITION (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="definition">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">DEFINITION</span>
+            <h2 class="reveal">AIって結局なに？</h2>
+            <div class="definition-box reveal">
+                <p>人間の知的なふるまいを、コンピュータで再現する技術</p>
+            </div>
+            <div class="card-row cols-3 reveal" style="margin-top: clamp(0.3rem, 0.8vh, 0.6rem);">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128065;</div>
+                    <h3>判断する</h3>
+                    <p>メールがスパムかどうか見分ける</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128200;</div>
+                    <h3>予測する</h3>
+                    <p>明日の天気や売上を予想する</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#9997;&#65039;</div>
+                    <h3>作る</h3>
+                    <p>文章を書く、画像を描く</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128161; AIは「考えている」のではなく、データからパターンを見つけて答えを出しているだけ
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: THREE WAVES OVERVIEW (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="history">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">HISTORY</span>
+            <h2 class="reveal">AI進化の3つの波</h2>
+            <div class="timeline reveal">
+                <div class="timeline-item" style="border-top: 3px solid var(--accent);">
+                    <div class="era">1950年代〜</div>
+                    <h3>第1の波</h3>
+                    <p>ルールベースAI</p>
+                    <p style="margin-top:4px; font-size: clamp(0.55rem, 0.75vw, 0.68rem); color: #9CA3AF;">人間がルールを書く</p>
+                </div>
+                <div class="timeline-arrow reveal">&#10132;</div>
+                <div class="timeline-item" style="border-top: 3px solid #059669;">
+                    <div class="era">2010年代〜</div>
+                    <h3>第2の波</h3>
+                    <p>機械学習・深層学習</p>
+                    <p style="margin-top:4px; font-size: clamp(0.55rem, 0.75vw, 0.68rem); color: #9CA3AF;">データからパターンを学ぶ</p>
+                </div>
+                <div class="timeline-arrow reveal">&#10132;</div>
+                <div class="timeline-item" style="border-top: 3px solid #D97706;">
+                    <div class="era">2020年代〜</div>
+                    <h3>第3の波</h3>
+                    <p>生成AI</p>
+                    <p style="margin-top:4px; font-size: clamp(0.55rem, 0.75vw, 0.68rem); color: #9CA3AF;">新しいコンテンツを作る</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128161; 「古い → 新しい」ではなく、それぞれ得意分野が違う。今も3つとも現役！
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: WAVE 1 — RULE-BASED (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="history">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">WAVE 1</span>
+            <h2 class="reveal">第1の波 — ルールベースAI</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.4rem, 1vh, 0.8rem);">
+                「もし〇〇なら△△する」を人間がプログラムで書く方式
+            </p>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#9823;</div>
+                    <h3>チェスAI</h3>
+                    <p>1997年 Deep Blue が世界チャンピオンに勝利</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128172;</div>
+                    <h3>チャットボット</h3>
+                    <p>Q&Aを人間が全部登録して応答</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128231;</div>
+                    <h3>メールフィルタ</h3>
+                    <p>件名に「当選」 → 迷惑メールへ振り分け</p>
+                </div>
+            </div>
+            <div class="badge-row reveal">
+                <div class="badge pro">&#9989; 動きが予測できて説明しやすい</div>
+                <div class="badge con">&#9888;&#65039; ルール外のことには対応不可</div>
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: WAVE 2 — MACHINE LEARNING (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="history">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">WAVE 2</span>
+            <h2 class="reveal">第2の波 — 機械学習</h2>
+            <div class="flow-row reveal">
+                <div class="flow-step">大量のデータ</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">学習</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">パターン発見</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step green">予測・分類</div>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item">
+                    <div class="card-icon">&#128247;</div>
+                    <h3>画像認識</h3>
+                    <p>スマホの顔認証、自動運転のカメラ</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#127908;</div>
+                    <h3>音声認識</h3>
+                    <p>Siri、Alexa が声を聞き取る</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128722;</div>
+                    <h3>レコメンド</h3>
+                    <p>Amazon「この商品もおすすめ」</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#129504; ディープラーニング（深層学習）＝ 脳の神経回路を模倣した学習手法で精度が飛躍的に向上
+            </div>
+            <div class="badge-row reveal">
+                <div class="badge pro">&#9989; 人間が気づかないパターンを発見</div>
+                <div class="badge con">&#9888;&#65039; なぜその答えか説明しにくい</div>
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: WAVE 3 — GENERATIVE AI (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="generative">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">WAVE 3</span>
+            <h2 class="reveal">第3の波 — 生成AI</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);">
+                2022年11月 ChatGPT公開 → 2か月で1億ユーザー突破
+            </p>
+            <div class="card-row cols-4 reveal">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128221;</div>
+                    <h3>文章生成</h3>
+                    <p>ChatGPT, Claude, Gemini</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#127912;</div>
+                    <h3>画像生成</h3>
+                    <p>Midjourney, DALL-E</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128187;</div>
+                    <h3>コード生成</h3>
+                    <p>GitHub Copilot</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#127916;</div>
+                    <h3>動画生成</h3>
+                    <p>Sora, Runway</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128218; 大規模言語モデル（LLM）＝ 膨大なテキストを学習した巨大AIモデル。ChatGPTやClaudeの頭脳にあたる技術
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: WHY NOW? (Blue tab)
+         ============================================ -->
+    <section class="slide slide-page tab-blue" data-section="why">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">WHY NOW?</span>
+            <h2 class="reveal">なぜ今、AIが爆発的に広がったのか？</h2>
+            <div class="gear-row reveal">
+                <div class="gear-item">
+                    <div class="gear-circle" style="background: #DBEAFE;">&#9881;&#65039;</div>
+                    <div class="gear-label">計算能力</div>
+                    <div class="gear-sub">GPU の劇的な進化</div>
+                </div>
+                <div class="gear-item">
+                    <div class="gear-circle" style="background: #D1FAE5;">&#128202;</div>
+                    <div class="gear-label">データ量</div>
+                    <div class="gear-sub">インターネットの爆発的普及</div>
+                </div>
+                <div class="gear-item">
+                    <div class="gear-circle" style="background: #FEF3C7;">&#128161;</div>
+                    <div class="gear-label">アルゴリズム</div>
+                    <div class="gear-sub">2017年 Transformer の発明</div>
+                </div>
+            </div>
+            <div class="definition-box reveal">
+                <p style="font-size: clamp(0.8rem, 1.3vw, 1.1rem); text-align: center;">
+                    3つの要素が同時に揃ったことで、AIが一気に実用レベルへ
+                </p>
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9: COMPARISON TABLE (Blue tab)
+         ============================================ -->
+    <section class="slide slide-page tab-blue" data-section="comparison">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">COMPARISON</span>
+            <h2 class="reveal">3つの波を比較する</h2>
+            <div class="reveal" style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th style="color: var(--accent);">第1の波: ルールベース</th>
+                            <th style="color: #059669;">第2の波: 機械学習</th>
+                            <th style="color: #D97706;">第3の波: 生成AI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>年代</td>
+                            <td>1950年代〜</td>
+                            <td>2010年代〜</td>
+                            <td>2020年代〜</td>
+                        </tr>
+                        <tr>
+                            <td>仕組み</td>
+                            <td>人間がルールを書く</td>
+                            <td>データからパターンを学ぶ</td>
+                            <td>学んだパターンから新しく作る</td>
+                        </tr>
+                        <tr>
+                            <td>得意なこと</td>
+                            <td>決まった応答</td>
+                            <td>予測・分類</td>
+                            <td>コンテンツ生成</td>
+                        </tr>
+                        <tr>
+                            <td>代表例</td>
+                            <td>チャットボット、Deep Blue</td>
+                            <td>顔認証、レコメンド</td>
+                            <td>ChatGPT、Midjourney</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout reveal">
+                &#128161; 「何をやりたいか」で適切な技術を選ぶことが大切。全てに生成AIが最適とは限らない！
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10: BUSINESS IMPACT (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="practice">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">PRACTICE</span>
+            <h2 class="reveal">生成AIが変える私たちの仕事</h2>
+            <div class="activity-grid reveal">
+                <div class="activity-card" style="border-left: 3px solid var(--accent);">
+                    <h3>&#128221; 文書作成</h3>
+                    <p>メール下書き、報告書の要約、翻訳</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #059669;">
+                    <h3>&#128194; 情報整理</h3>
+                    <p>議事録の自動作成、データの分類</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #D97706;">
+                    <h3>&#128161; アイデア出し</h3>
+                    <p>企画のブレスト、キャッチコピー案</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #7C3AED;">
+                    <h3>&#128270; 調査・分析</h3>
+                    <p>市場調査の要約、競合情報の整理</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#9888;&#65039; 基本は「AIに下書き → 人間が確認して仕上げる」。丸投げはNG！
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11: CAUTIONS (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="practice">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">CAUTION</span>
+            <h2 class="reveal">AIを使うときの3つの注意点</h2>
+            <div class="warning-list">
+                <div class="warning-item reveal">
+                    <div class="warning-icon">&#128274;</div>
+                    <div class="warning-text">
+                        <h3>機密情報を入力しない</h3>
+                        <p>社外AIサービスに顧客情報・社内機密を入れない。会社のAI利用ガイドラインを必ず確認</p>
+                    </div>
+                </div>
+                <div class="warning-item reveal">
+                    <div class="warning-icon">&#128064;</div>
+                    <div class="warning-text">
+                        <h3>出力を鵜呑みにしない</h3>
+                        <p>AIは自信満々に間違える（ハルシネーション = AIの思い込み）。必ず人間がファクトチェック</p>
+                    </div>
+                </div>
+                <div class="warning-item reveal">
+                    <div class="warning-icon">&#9878;&#65039;</div>
+                    <div class="warning-text">
+                        <h3>著作権・倫理に配慮する</h3>
+                        <p>AI生成物の権利関係は法整備が進行中。外部公開時は上長に確認</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>A-101</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12: END (Navy)
+         ============================================ -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <h2 class="reveal">まとめ</h2>
+            <div class="summary-list" style="text-align: left; max-width: min(90vw, 600px); margin: 0 auto;">
+                <div class="summary-item reveal">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">1</div>
+                    <div class="summary-text" style="color: #e5e7eb;">
+                        AI = <strong style="color: #93C5FD;">人間の知的なふるまいをコンピュータで再現する技術</strong>
+                    </div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1);">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">2</div>
+                    <div class="summary-text" style="color: #e5e7eb;">
+                        3つの波: <strong style="color: #93C5FD;">ルールベース → 機械学習 → 生成AI</strong>
+                    </div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1);">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">3</div>
+                    <div class="summary-text" style="color: #e5e7eb;">
+                        ブームの背景: <strong style="color: #93C5FD;">計算能力 x データ量 x アルゴリズム</strong>
+                    </div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1); border-bottom: none;">
+                    <div class="summary-num" style="background: #FEF3C7; color: #92400E;">!</div>
+                    <div class="summary-text" style="color: #e5e7eb;">
+                        注意: <strong style="color: #FEF3C7;">機密情報NG / 鵜呑みNG / 著作権に注意</strong>
+                    </div>
+                </div>
+            </div>
+            <p class="reveal" style="margin-top: clamp(1rem, 2vh, 1.5rem);">確認テスト（5問） — 80%合格で修了</p>
+        </div>
+        <div class="slide-footer">
+            <span>A-101</span>
+            <span>12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupMouseWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            // Update current slide index
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) {
+                                this.currentSlide = index;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, {
+                    threshold: 0.5
+                });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.slides.length - 1);
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => {
+                    this.touchStartY = e.touches[0].clientY;
+                    this.touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                    const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+
+                    // Only navigate if vertical swipe is dominant
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                        if (deltaY > 0) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupMouseWheelNav() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isAnimating) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else if (e.deltaY < -30) {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }, 50);
+                }, { passive: true });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+                setTimeout(() => { this.isAnimating = false; }, 600);
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (!this.progressBar) return;
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return;
+                container.innerHTML = '';
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    // Use page-dot class for notebook page slides
+                    const isPage = slide.classList.contains('slide-page');
+                    dot.className = 'nav-dot' + (isPage ? ' page-dot' : '') + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dot.setAttribute('aria-label', `スライド ${i + 1}`);
+                    container.appendChild(dot);
+                });
+            }
+
+            updateNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>
