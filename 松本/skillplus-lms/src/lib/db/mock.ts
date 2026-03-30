@@ -17,6 +17,7 @@ const trainings: Training[] = [
   { id: "t001", name: "新入社員研修 2025", description: "新入社員向けの基礎研修プログラム", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "t002", name: "マネジメント研修", description: "管理職向けのリーダーシップ・マネジメント研修", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "t003", name: "IT基礎スキル研修", description: "Excel・Word・PowerPointの基本操作と業務活用", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "t004", name: "AI基礎研修", description: "AIの基礎知識からプロンプト活用、導入実践までを体系的に学ぶ研修プログラム", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
 ];
 
 const categories: Category[] = [
@@ -27,6 +28,11 @@ const categories: Category[] = [
   { id: "c005", trainingId: "t002", name: "1on1ミーティング", description: "効果的な1on1ミーティングの進め方", order: 2, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "c006", trainingId: "t003", name: "Excel基礎", description: "表計算、関数、グラフ作成の基本", order: 1, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "c007", trainingId: "t003", name: "PowerPoint基礎", description: "プレゼン資料作成の基本テクニック", order: 2, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  // AI基礎研修カテゴリー
+  { id: "c008", trainingId: "t004", name: "AI基礎知識", description: "AIの概念・歴史から生成AIの仕組み、主要ツール比較まで", order: 1, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "c009", trainingId: "t004", name: "プロンプトエンジニアリング", description: "AIへの効果的な指示の出し方と実践テクニック", order: 2, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "c010", trainingId: "t004", name: "AIリテラシー・法務", description: "AI時代の情報リテラシー、著作権・個人情報、社内ガイドライン", order: 3, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "c011", trainingId: "t004", name: "AI活用・導入", description: "AIが変える仕事の未来、業務別活用法、導入の第一歩", order: 4, createdAt: "2025-01-01", updatedAt: "2025-01-01" },
 ];
 
 const courses: Course[] = [
@@ -42,6 +48,22 @@ const courses: Course[] = [
   { id: "cr010", categoryId: "c006", name: "Excel入門 - 基本操作", description: "セル操作、数式の入力、書式設定", videoUrl: "", isPublished: true, durationSeconds: 540, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "cr011", categoryId: "c006", name: "Excel入門 - 関数", description: "SUM, AVERAGE, IF, VLOOKUPなど基本関数", videoUrl: "", isPublished: true, durationSeconds: 720, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
   { id: "cr012", categoryId: "c007", name: "PowerPoint基本操作", description: "スライド作成、テンプレート活用、アニメーション", videoUrl: "", isPublished: true, durationSeconds: 600, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  // AI基礎研修 - AI基礎知識（c008）
+  { id: "cr101", categoryId: "c008", name: "A-101 AIとは何か", description: "AIの歴史から最新トレンドまでを体系的に解説", videoUrl: "", isPublished: true, durationSeconds: 1273, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr102", categoryId: "c008", name: "A-102 生成AIの仕組み", description: "なぜAIが文章を書けるのか、生成AIの技術的な仕組みを解説", videoUrl: "", isPublished: true, durationSeconds: 1083, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr103", categoryId: "c008", name: "A-103 主要AIツール徹底比較", description: "ChatGPT・Claude・Geminiなど主要AIツールの特徴と使い分け", videoUrl: "", isPublished: true, durationSeconds: 1276, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr104", categoryId: "c008", name: "A-104 AIにできること・できないこと", description: "AIの得意分野と限界を正しく理解する", videoUrl: "", isPublished: true, durationSeconds: 1173, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  // AI基礎研修 - プロンプトエンジニアリング（c009）
+  { id: "cr105", categoryId: "c009", name: "A-105 プロンプトの基本", description: "AIへの指示の出し方の基本を学ぶ", videoUrl: "", isPublished: true, durationSeconds: 822, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr106", categoryId: "c009", name: "A-106 プロンプト実践テクニック", description: "業務で使える実践的なプロンプトテクニック", videoUrl: "", isPublished: true, durationSeconds: 833, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  // AI基礎研修 - AIリテラシー・法務（c010）
+  { id: "cr107", categoryId: "c010", name: "A-107 AI時代の情報リテラシー", description: "AI時代に必要な情報の見極め方と付き合い方", videoUrl: "", isPublished: true, durationSeconds: 741, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr108", categoryId: "c010", name: "A-108 AIと著作権・個人情報", description: "AI利用における著作権と個人情報保護の基礎知識", videoUrl: "", isPublished: true, durationSeconds: 755, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr109", categoryId: "c010", name: "A-109 社内AI利用ガイドライン", description: "社内でAIを安全に活用するためのガイドラインの考え方", videoUrl: "", isPublished: true, durationSeconds: 744, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  // AI基礎研修 - AI活用・導入（c011）
+  { id: "cr110", categoryId: "c011", name: "A-110 AIで変わる仕事の未来", description: "AIが仕事や働き方にもたらす変化を展望する", videoUrl: "", isPublished: true, durationSeconds: 1200, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr111", categoryId: "c011", name: "A-111 業務別AI活用マップ", description: "営業・事務・企画など業務別のAI活用パターン", videoUrl: "", isPublished: true, durationSeconds: 600, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
+  { id: "cr112", categoryId: "c011", name: "A-112 AI導入の第一歩", description: "明日からできるAI導入のステップを解説", videoUrl: "", isPublished: true, durationSeconds: 1200, thumbnailUrl: "", createdAt: "2025-01-01", updatedAt: "2025-01-01" },
 ];
 
 const users: User[] = [
