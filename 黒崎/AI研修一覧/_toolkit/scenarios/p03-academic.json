@@ -1,0 +1,25 @@
+{
+  "service": "perplexity",
+  "url": "https://www.perplexity.ai",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000 },
+    { "action": "screenshot", "path": "/tmp/p03-academic-start.png" },
+    { "action": "click", "selector": "#ask-input", "description": "検索入力欄をクリック" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "screenshot", "path": "/tmp/p03-academic-input-focused.png" },
+    { "action": "type", "text": "大規模言語モデルの最新研究動向と企業での活用事例について学術論文ベースで教えてください", "delay": 50 },
+    { "action": "wait", "ms": 1000 },
+    { "action": "screenshot", "path": "/tmp/p03-academic-typed.png" },
+    { "action": "press", "key": "Enter" },
+    { "action": "waitForAI", "timeout": 60000, "stableMs": 3000 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "screenshot", "path": "/tmp/p03-academic-result.png" },
+    { "action": "scroll", "direction": "down", "amount": 500 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "down", "amount": 500 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "up", "amount": 1000 },
+    { "action": "wait", "ms": 1500 }
+  ]
+}

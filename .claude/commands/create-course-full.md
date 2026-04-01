@@ -1,17 +1,20 @@
 # AI研修コース生成（実演動画付き・完全自動版）
 
 テーマを聞いて、最新情報をリサーチして、台本→スライド→実演録画→動画まで完全自動で作る。
-`_pipeline/` ディレクトリのツール群を使う。
+`_toolkit/` ディレクトリのツール群を使う。
 
 ---
 
 ## Step 0: テーマ確認
 
 ユーザーに聞く:
-1. **テーマ**: 何についての研修か
-2. **パート数**: デフォルト5
-3. **実演対象サービスのURL**: 実演で操作するサービス
-4. **対象者・レベル**: 誰向け・入門/実践/応用
+1. **題材名**: トップディレクトリ名になる（例: Perplexity, ChatGPT, Notion）
+2. **テーマ**: 何についての研修か
+3. **パート数**: デフォルト5
+4. **実演対象サービスのURL**: 実演で操作するサービス
+5. **対象者・レベル**: 誰向け・入門/実践/応用
+
+**ディレクトリは `黒崎/AI研修一覧/<題材名>/P-XX_パート名/` に作成する。**
 
 ## Step 1: 最新情報リサーチ（★絶対に飛ばすな）
 
@@ -24,7 +27,7 @@
 - 競合との違い
 - 企業導入事例
 
-リサーチ結果を `_pipeline/<テーマ名>-latest.md` に保存する。
+リサーチ結果を `_toolkit/<テーマ名>-latest.md` に保存する。
 **古い知識で台本を書くな。必ずリサーチしてから書け。**
 
 ## Step 2: パート構成を決める
@@ -45,7 +48,7 @@ Part 5: 業務活用（スライド＋実演）〜12分
 実演パートの録画を先に撮る。録画の尺が台本のベースになるから。
 
 ### 3-1. シナリオJSON作成
-各実演パートの操作手順を `_pipeline/scenarios/<name>.json` に書く。
+各実演パートの操作手順を `_toolkit/scenarios/<name>.json` に書く。
 
 シナリオ作成のルール:
 - 最初に `wait` 4000ms（ページ読み込み完了待ち。白画面を見せるな）
@@ -81,7 +84,7 @@ ffmpeg -y -i recordings/<part>/<file>.webm -vf "fps=1/3" /tmp/frames/<name>_%03d
 
 Agent で各パートを並列生成。**各Agentに以下を必ず渡す:**
 
-1. `_pipeline/<テーマ名>-latest.md` の最新情報全文
+1. `_toolkit/<テーマ名>-latest.md` の最新情報全文
 2. スライドのデザインルール（下記テンプレート参照）
 3. 実演パートの場合: 録画のタイムライン情報
 
@@ -105,7 +108,7 @@ Agent で各パートを並列生成。**各Agentに以下を必ず渡す:**
    - 録画の尺（例: 33秒）に合わせたナレーションを書く
    - 「今画面で〜しています」のように画面実況するナレーション
 ⑧ build スクリプトで実演込み動画を生成:
-   python3 _pipeline/build-with-demo.py \
+   python3 _toolkit/build-with-demo.py \
      --course-dir <パートディレクトリ> \
      --demo-slides "5=recordings/<part>/<file>.webm,8=recordings/<part>/<file2>.webm" \
      --narrations narrations.json
@@ -121,7 +124,7 @@ Agent で各パートを並列生成。**各Agentに以下を必ず渡す:**
 
 ## 必読スキルファイル（生成前に必ず読む）
 
-- `@黒崎/AI研修一覧/_templates/design-system.js` — PPTXのデザインルール（カラー・フォント・レイアウト）
+- `@黒崎/AI研修一覧/_toolkit/design-system.js` — PPTXのデザインルール（カラー・フォント・レイアウト）
 - `@.claude/skills/ai-training-course/SKILL.md` — 生成ルール（台本・テスト・動画の仕様）
 
 ※ frontend-slides（HTML）関連のスキルは読まなくてよい。PPTXのみ生成する。
@@ -143,7 +146,7 @@ Agent で各パートを並列生成。**各Agentに以下を必ず渡す:**
 ## パイプラインツール
 
 ```
-黒崎/AI研修一覧/_pipeline/
+黒崎/AI研修一覧/_toolkit/
 ├── src/record-screen.ts      # Playwright画面録画
 ├── src/utils/
 │   ├── wait-ai-response.ts   # AI応答完了検知
@@ -156,17 +159,23 @@ Agent で各パートを並列生成。**各Agentに以下を必ず渡す:**
 
 ## 出力ディレクトリ構成
 
+**必ず題材名のディレクトリを先に作り、その下にパートディレクトリを配置する。**
+
 ```
 黒崎/AI研修一覧/
-├── P-XX_テーマ名/
-│   ├── README.md
-│   ├── 台本.md
-│   ├── テスト.md
-│   ├── narrations.json
-│   ├── プレゼン.html
-│   ├── generate_slides.js
-│   ├── スライド.pptx
-│   ├── スライド画像/
-│   └── 動画.mp4          ← 実演込み完成動画
-└── _pipeline/              ← 共有ツール群（テーマ問わず使い回す）
+├── <題材名>/                 ← 題材ごとのトップディレクトリ（例: Perplexity/）
+│   ├── P-01_パート名/
+│   │   ├── README.md
+│   │   ├── 台本.md
+│   │   ├── テスト.md
+│   │   ├── narrations.json
+│   │   ├── generate_slides.js
+│   │   ├── スライド.pptx
+│   │   ├── スライド画像/
+│   │   └── 動画.mp4          ← 実演込み完成動画
+│   ├── P-02_パート名/
+│   └── ...
+└── _toolkit/                ← 共有ツール群（テーマ問わず使い回す）
 ```
+
+例: Perplexityの講座なら `黒崎/AI研修一覧/Perplexity/P-01_なぜ今Perplexityなのか/`
