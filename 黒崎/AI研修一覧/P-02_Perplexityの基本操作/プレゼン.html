@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-02: Perplexityの基本操作〜はじめてのAI検索</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES — viewport-base.css inline
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.5rem, 1.5vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.3);
+        }
+        .nav-dot.page-dot {
+            border-color: rgba(0,0,0,0.2);
+        }
+        .nav-dot.page-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+        .reveal:nth-child(7) { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SLIDE FOOTER
+           =========================================== */
+        .slide-footer {
+            position: absolute;
+            bottom: clamp(0.5rem, 1.5vh, 1rem);
+            left: var(--slide-padding);
+            right: var(--slide-padding);
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            opacity: 0.6;
+        }
+
+        /* ===========================================
+           TITLE / END SLIDES (Navy sandwich)
+           =========================================== */
+        .slide-title, .slide-end {
+            background: #1B2A4A;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title .slide-content, .slide-end .slide-content {
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        .slide-title .subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            color: #93C5FD;
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-title .meta {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #9CA3AF;
+            margin-top: clamp(1rem, 3vh, 2rem);
+            letter-spacing: 0.1em;
+        }
+        .slide-title .divider-line {
+            width: clamp(60px, 15vw, 180px);
+            height: 2px;
+            background: #93C5FD;
+            margin: clamp(0.5rem, 1.5vh, 1rem) auto;
+        }
+        .slide-end h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-end p {
+            color: #93C5FD;
+            font-size: var(--body-size);
+        }
+        .slide-title .slide-footer, .slide-end .slide-footer {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ===========================================
+           CONTENT SLIDES (Notebook page)
+           =========================================== */
+        .slide-page {
+            background: var(--bg-outer);
+        }
+        .slide-page .slide-content {
+            background: var(--bg-page);
+            margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem);
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            padding: var(--slide-padding);
+            position: relative;
+        }
+        .slide-page h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+            font-weight: 700;
+        }
+        .slide-page .tag {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .slide-page .slide-footer {
+            position: absolute;
+            bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+
+        /* Tab indicator on page slides */
+        .slide-page .slide-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        /* ===========================================
+           CARD COMPONENTS
+           =========================================== */
+        .card-row {
+            display: grid;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-4 { grid-template-columns: 1fr; }
+        }
+        .card-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1.2rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+        .card-item .card-icon {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+        }
+        .card-item h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-item p {
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .card-item.accent-border {
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Numbered goals */
+        .goal-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .goal-num {
+            flex-shrink: 0;
+            width: clamp(2rem, 3.5vw, 2.8rem);
+            height: clamp(2rem, 3.5vw, 2.8rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+        }
+        .goal-text {
+            font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Definition box */
+        .definition-box {
+            background: #DBEAFE;
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.5rem);
+            margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        .definition-box p {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+            color: var(--accent);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Icon list */
+        .icon-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.6rem);
+        }
+        .icon-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        .icon-list-item .li-icon {
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        }
+        .icon-list-item .li-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .icon-list-item .li-text strong {
+            color: var(--text-primary);
+        }
+
+        /* Step flow */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.3rem, 0.6vw, 0.5rem);
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
+        }
+        .flow-step {
+            background: var(--accent);
+            color: #fff;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 600;
+        }
+        .flow-step.green { background: #059669; }
+        .flow-arrow {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+        }
+
+        /* Comparison */
+        .compare-box {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            margin: clamp(0.3rem, 0.8vh, 0.6rem) 0;
+        }
+        .compare-bad {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: clamp(0.4rem, 0.8vh, 0.6rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+        }
+        .compare-good {
+            background: #D1FAE5;
+            color: #059669;
+            padding: clamp(0.4rem, 0.8vh, 0.6rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+        }
+        .compare-arrow {
+            color: var(--text-secondary);
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+        }
+
+        /* Summary list */
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vh, 0.8rem);
+        }
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+            padding: clamp(0.4rem, 0.8vh, 0.7rem) 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-num {
+            flex-shrink: 0;
+            background: var(--accent);
+            color: #fff;
+            width: clamp(1.4rem, 2.5vw, 2rem);
+            height: clamp(1.4rem, 2.5vw, 2rem);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 700;
+        }
+        .summary-text {
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        .summary-text strong { color: var(--accent); }
+
+        /* Callout */
+        .callout {
+            background: #FEF3C7;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #92400E;
+            font-weight: 500;
+            margin-top: clamp(0.4rem, 1vh, 0.8rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Demo badge */
+        .demo-badge {
+            display: inline-block;
+            background: #059669;
+            color: #fff;
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+            letter-spacing: 0.05em;
+        }
+
+        /* Screen mockup */
+        .screen-mockup {
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: clamp(0.8rem, 1.5vw, 1.2rem);
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
+            position: relative;
+        }
+        .screen-mockup .screen-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);
+        }
+        .screen-mockup .screen-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .screen-mockup .url-bar {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: clamp(0.3rem, 0.5vh, 0.4rem) clamp(0.5rem, 1vw, 0.8rem);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);
+        }
+        .screen-mockup .search-bar {
+            background: #f3f4f6;
+            border: 2px solid var(--accent);
+            border-radius: 24px;
+            padding: clamp(0.5rem, 1vh, 0.8rem) clamp(1rem, 2vw, 1.5rem);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        /* Pricing table */
+        .pricing-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.4rem, 0.8vw, 0.6rem);
+            margin-top: clamp(0.3rem, 0.5vh, 0.5rem);
+        }
+        .pricing-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 0.8rem);
+            text-align: center;
+        }
+        .pricing-card.highlight {
+            border-color: var(--accent);
+            border-width: 2px;
+        }
+        .pricing-card h4 {
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .pricing-card .price {
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            font-weight: 700;
+            color: var(--accent);
+            margin: clamp(0.2rem, 0.3vh, 0.3rem) 0;
+        }
+        .pricing-card .desc {
+            font-size: clamp(0.6rem, 0.8vw, 0.72rem);
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-4 { grid-template-columns: 1fr; }
+            .pricing-row { grid-template-columns: 1fr; }
+            .compare-box { flex-direction: column; }
+            .compare-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ============================================
+         SLIDE 1: TITLE (Navy)
+         ============================================ -->
+    <section class="slide slide-title" data-section="intro">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#128269;</div>
+            <h1 class="reveal">Perplexityの基本操作</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">はじめてのAI検索</p>
+            <p class="meta reveal">P-02 &nbsp;|&nbsp; 全社員向け &nbsp;|&nbsp; 12分</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-02</span>
+            <span>1 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: GOALS (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="intro">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">Perplexityにアクセスして基本検索ができる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">回答の出典（Citation）を確認してファクトチェックできる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <span class="goal-text">フォローアップ質問で対話的に深掘りできる</span>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: ACCESS (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="basics">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">STEP 1</span>
+            <h2 class="reveal">Perplexityへのアクセス</h2>
+            <div class="screen-mockup reveal">
+                <div class="screen-bar">
+                    <div class="screen-dot" style="background: #FF5F56;"></div>
+                    <div class="screen-dot" style="background: #FFBD2E;"></div>
+                    <div class="screen-dot" style="background: #27C93F;"></div>
+                </div>
+                <div class="url-bar">perplexity.ai</div>
+                <div class="search-bar">何でも聞いてください...</div>
+            </div>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9989;</span>
+                    <span class="li-text"><strong>アカウント不要</strong>で今すぐ使える（Quick Search無制限）</span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9989;</span>
+                    <span class="li-text"><strong>無料版</strong>でPro Search・Deep Research各5回/日</span>
+                </div>
+            </div>
+            <div class="pricing-row reveal">
+                <div class="pricing-card highlight">
+                    <h4>Free</h4>
+                    <div class="price">$0</div>
+                    <div class="desc">Quick Search無制限<br>Pro Search 5回/日</div>
+                </div>
+                <div class="pricing-card">
+                    <h4>Pro</h4>
+                    <div class="price">$20/月</div>
+                    <div class="desc">Pro Search無制限<br>最新AIモデル</div>
+                </div>
+                <div class="pricing-card">
+                    <h4>Max</h4>
+                    <div class="price">$200/月</div>
+                    <div class="desc">全機能+Computer<br>プレミアムデータ</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: UI OVERVIEW (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="basics">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">STEP 2</span>
+            <h2 class="reveal">画面の見方</h2>
+            <div class="card-row cols-4 reveal">
+                <div class="card-item">
+                    <div class="card-icon">&#128270;</div>
+                    <h3>検索バー</h3>
+                    <p>画面中央の入力欄。自然な文章で質問</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#127919;</div>
+                    <h3>Focus切替</h3>
+                    <p>All / Academic / Writing / YouTube / Reddit</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#129302;</div>
+                    <h3>モデル選択</h3>
+                    <p>使用AIモデルを選べる。デフォルトでOK</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128218;</div>
+                    <h3>Spaces</h3>
+                    <p>自分専用のナレッジベースを作成</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                <span>&#128161;</span>
+                <span>Tip: キーワードだけでもOKですが、文章で質問するとより的確な回答が返ります</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: DEMO - BASIC SEARCH (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="demo">
+        <div class="slide-content">
+            <span class="demo-badge reveal">HANDS-ON</span>
+            <h2 class="reveal">基本検索をやってみよう</h2>
+            <div class="flow-row reveal">
+                <span class="flow-step">検索バーに入力</span>
+                <span class="flow-arrow">&#10148;</span>
+                <span class="flow-step">Enterで送信</span>
+                <span class="flow-arrow">&#10148;</span>
+                <span class="flow-step green">回答が生成される</span>
+            </div>
+            <div class="screen-mockup reveal">
+                <div class="screen-bar">
+                    <div class="screen-dot" style="background: #FF5F56;"></div>
+                    <div class="screen-dot" style="background: #FFBD2E;"></div>
+                    <div class="screen-dot" style="background: #27C93F;"></div>
+                </div>
+                <div class="search-bar">2024年のAI業界の主要トレンドを5つ教えてください</div>
+            </div>
+            <div class="callout reveal">
+                <span>&#127916;</span>
+                <span>実演動画（33秒）: AIがリアルタイムでWebを検索し、出典付きで回答を生成する様子をご覧ください</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: READING RESULTS (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="skills">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">STEP 3</span>
+            <h2 class="reveal">回答画面の読み方</h2>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item">
+                    <div class="card-icon">&#128279;</div>
+                    <h3>出典番号 [1][2][3]</h3>
+                    <p>回答文中の番号。クリックで元サイトに飛べる</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128196;</div>
+                    <h3>ソースカード</h3>
+                    <p>回答上部に参照元サイトがカード形式で表示</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128172;</div>
+                    <h3>関連質問の提案</h3>
+                    <p>回答下にAIがおすすめの追加質問を提案</p>
+                </div>
+            </div>
+            <div class="definition-box reveal">
+                <p>出典番号 = Perplexity最大の強み。情報の信頼性を自分で確認できる</p>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: FACT CHECK (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="skills">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">IMPORTANT</span>
+            <h2 class="reveal">出典をクリックしてファクトチェック</h2>
+            <div class="flow-row reveal">
+                <span class="flow-step">出典番号をクリック</span>
+                <span class="flow-arrow">&#10148;</span>
+                <span class="flow-step">元サイトが開く</span>
+                <span class="flow-arrow">&#10148;</span>
+                <span class="flow-step green">情報を確認</span>
+            </div>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9888;&#65039;</span>
+                    <span class="li-text">AIには<strong>ハルシネーション</strong>（もっともらしい不正確情報）のリスクがある</span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9888;&#65039;</span>
+                    <span class="li-text"><strong>数字・データ・法的情報</strong>は必ず元ソースで確認</span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9989;</span>
+                    <span class="li-text">信頼性の高いソースを優先: <strong>官公庁 &gt; 大手メディア &gt; 論文</strong></span>
+                </div>
+            </div>
+            <div class="callout reveal">
+                <span>&#9888;&#65039;</span>
+                <span>出典付き = 安心 ではない。重要情報は必ず元サイトで裏取りしよう</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: DEMO - FOLLOW-UP (Blue tab)
+         ============================================ -->
+    <section class="slide slide-page tab-blue" data-section="demo">
+        <div class="slide-content">
+            <span class="demo-badge reveal">HANDS-ON</span>
+            <h2 class="reveal">フォローアップ質問で深掘り</h2>
+            <div class="goal-list reveal">
+                <div class="goal-item">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">「中小企業がAIを業務に導入するための具体的なステップを教えてください」</span>
+                </div>
+                <div class="goal-item">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">「その中で日本企業に最も影響があるのはどれですか？」</span>
+                </div>
+            </div>
+            <div class="definition-box reveal">
+                <p>前の回答の文脈を引き継ぐから「その中で」が通じる = 対話型検索の力</p>
+            </div>
+            <div class="callout reveal">
+                <span>&#127916;</span>
+                <span>実演動画（52秒）: 同じスレッド内でフォローアップ質問する様子をご覧ください</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9: TIP 1 (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="tips">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">TIP 1</span>
+            <h2 class="reveal">検索のコツ(1) 具体的に聞く</h2>
+            <div class="compare-box reveal">
+                <span class="compare-bad">&#10007; 「AI」</span>
+                <span class="compare-arrow">&#10148;</span>
+                <span class="compare-good">&#10003; 「営業部門でメール対応を効率化するAI活用法」</span>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item accent-border">
+                    <h3>誰が</h3>
+                    <p>営業部門、新入社員、経営者...</p>
+                </div>
+                <div class="card-item accent-border">
+                    <h3>何を</h3>
+                    <p>メール効率化、研修設計、市場調査...</p>
+                </div>
+                <div class="card-item accent-border">
+                    <h3>どのように</h3>
+                    <p>ステップ形式で、具体例付きで...</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                <span>&#128161;</span>
+                <span>曖昧な質問には曖昧な回答、具体的な質問には具体的な回答。AI検索の鉄則です。</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10: TIP 2 (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="tips">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">TIP 2</span>
+            <h2 class="reveal">検索のコツ(2) 比較・まとめを頼む</h2>
+            <div class="screen-mockup reveal">
+                <div class="screen-bar">
+                    <div class="screen-dot" style="background: #FF5F56;"></div>
+                    <div class="screen-dot" style="background: #FFBD2E;"></div>
+                    <div class="screen-dot" style="background: #27C93F;"></div>
+                </div>
+                <div class="search-bar">SlackとTeamsの違いを表形式で比較して</div>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item">
+                    <h3>&#128202; 表形式で</h3>
+                    <p>比較表をそのまま資料に使える</p>
+                </div>
+                <div class="card-item">
+                    <h3>&#128203; 箇条書きで</h3>
+                    <p>ポイントを整理して把握しやすく</p>
+                </div>
+                <div class="card-item">
+                    <h3>&#127919; 3つに絞って</h3>
+                    <p>情報量をコントロールできる</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                <span>&#128161;</span>
+                <span>出力形式を指定すると、そのまま資料にコピーして使える回答が返ります</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11: SUMMARY (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="summary">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">SUMMARY</span>
+            <h2 class="reveal">まとめ -- 3つのキーポイント</h2>
+            <div class="summary-list reveal">
+                <div class="summary-item">
+                    <div class="summary-num">1</div>
+                    <div class="summary-text"><strong>perplexity.ai</strong> にアクセスするだけで、出典付きのAI検索ができる（Quick Search無制限）</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num">2</div>
+                    <div class="summary-text"><strong>出典番号</strong>をクリックして、重要な情報は必ずファクトチェック</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num">3</div>
+                    <div class="summary-text"><strong>フォローアップ質問</strong>で、対話的に情報を深掘りできる</div>
+                </div>
+            </div>
+            <div class="callout reveal">
+                <span>&#10024;</span>
+                <span>+&#945;: 具体的に聞く &#38; 比較・まとめを頼む で回答精度アップ！</span>
+            </div>
+            <div class="slide-footer">
+                <span>P-02</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12: END (Navy)
+         ============================================ -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <h2 class="reveal">P-02 修了</h2>
+            <p class="reveal" style="font-size: clamp(1rem, 2vw, 1.5rem); color: #fff; margin-bottom: clamp(0.5rem, 1vh, 1rem);">お疲れさまでした</p>
+            <div class="divider-line reveal" style="width: clamp(60px, 15vw, 180px); height: 2px; background: #93C5FD; margin: clamp(0.5rem, 1vh, 0.8rem) auto;"></div>
+            <p class="reveal">次回: P-03 高度な検索テクニック</p>
+            <p class="reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem); font-size: clamp(0.65rem, 0.9vw, 0.75rem); color: #6B7280;">Pro Search / Deep Research / Spaces / プロンプトの工夫</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-02</span>
+            <span>12 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================
+         JAVASCRIPT: Navigation + Progress + Touch
+         ============================================ -->
+    <script>
+    (function() {
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progressBar');
+        const navDotsContainer = document.getElementById('navDots');
+
+        // Create nav dots
+        slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'nav-dot' + (slides[i].classList.contains('slide-page') ? ' page-dot' : '');
+            dot.setAttribute('aria-label', `Slide ${i + 1}`);
+            dot.addEventListener('click', () => scrollToSlide(i));
+            navDotsContainer.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.nav-dot');
+
+        function scrollToSlide(index) {
+            slides[index].scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateUI() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            progressBar.style.width = progress + '%';
+
+            let current = 0;
+            slides.forEach((slide, i) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+                    current = i;
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === current);
+            });
+
+            slides.forEach((slide, i) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8 && rect.bottom > 0) {
+                    slide.classList.add('visible');
+                }
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            let current = 0;
+            slides.forEach((slide, i) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+                    current = i;
+                }
+            });
+
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (current < totalSlides - 1) scrollToSlide(current + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (current > 0) scrollToSlide(current - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                scrollToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                scrollToSlide(totalSlides - 1);
+            }
+        });
+
+        // Touch support
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            if (Math.abs(diff) < 50) return;
+
+            let current = 0;
+            slides.forEach((slide, i) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+                    current = i;
+                }
+            });
+
+            if (diff > 0 && current < totalSlides - 1) {
+                scrollToSlide(current + 1);
+            } else if (diff < 0 && current > 0) {
+                scrollToSlide(current - 1);
+            }
+        }, { passive: true });
+
+        window.addEventListener('scroll', updateUI, { passive: true });
+        window.addEventListener('resize', updateUI);
+        updateUI();
+    })();
+    </script>
+</body>
+</html>

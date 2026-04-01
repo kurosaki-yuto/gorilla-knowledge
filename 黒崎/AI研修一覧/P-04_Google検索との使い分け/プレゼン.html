@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-04: Google検索との使い分け〜目的別検索ガイド</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES (viewport-base.css inlined)
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } .card-row.cols-2, .card-row.cols-3, .card-row.cols-4 { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.5rem, 1.5vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.3);
+        }
+        .nav-dot.page-dot {
+            border-color: rgba(0,0,0,0.2);
+        }
+        .nav-dot.page-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+        .reveal:nth-child(7) { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SLIDE FOOTER
+           =========================================== */
+        .slide-footer {
+            position: absolute;
+            bottom: clamp(0.5rem, 1.5vh, 1rem);
+            left: var(--slide-padding);
+            right: var(--slide-padding);
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            opacity: 0.6;
+        }
+
+        /* ===========================================
+           TITLE / END SLIDES (Navy sandwich)
+           =========================================== */
+        .slide-title, .slide-end {
+            background: #1B2A4A;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title .slide-content, .slide-end .slide-content {
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        .slide-title .subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            color: #93C5FD;
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-title .meta {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #9CA3AF;
+            margin-top: clamp(1rem, 3vh, 2rem);
+            letter-spacing: 0.1em;
+        }
+        .slide-title .divider-line {
+            width: clamp(60px, 15vw, 180px);
+            height: 2px;
+            background: #93C5FD;
+            margin: clamp(0.5rem, 1.5vh, 1rem) auto;
+        }
+        .slide-end h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-end p {
+            color: #93C5FD;
+            font-size: var(--body-size);
+        }
+        .slide-title .slide-footer, .slide-end .slide-footer {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ===========================================
+           CONTENT SLIDES (Notebook page)
+           =========================================== */
+        .slide-page {
+            background: var(--bg-outer);
+        }
+        .slide-page .slide-content {
+            background: var(--bg-page);
+            margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem);
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            padding: var(--slide-padding);
+            position: relative;
+        }
+        .slide-page h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+            font-weight: 700;
+        }
+        .slide-page .tag {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .slide-page .slide-footer {
+            position: absolute;
+            bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+
+        /* Tab indicator on page slides */
+        .slide-page .slide-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        /* ===========================================
+           CARD COMPONENTS
+           =========================================== */
+        .card-row {
+            display: grid;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+        .card-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1.2rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+        .card-item .card-icon {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+        }
+        .card-item h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-item p {
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .card-item.accent-border {
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Numbered goals */
+        .goal-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .goal-num {
+            flex-shrink: 0;
+            width: clamp(2rem, 3.5vw, 2.8rem);
+            height: clamp(2rem, 3.5vw, 2.8rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+        }
+        .goal-text {
+            font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Comparison table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+        .comparison-table th {
+            background: #f3f4f6;
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem);
+            text-align: left;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .comparison-table td {
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem);
+            border-bottom: 1px solid #e5e7eb;
+            color: var(--text-secondary);
+        }
+        .comparison-table tr td:first-child {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Flow diagram */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.3rem, 0.6vw, 0.5rem);
+            margin: clamp(0.5rem, 1vh, 0.8rem) 0;
+            flex-wrap: wrap;
+        }
+        .flow-step {
+            background: var(--accent);
+            color: #fff;
+            padding: clamp(0.4rem, 0.8vh, 0.6rem) clamp(0.6rem, 1.2vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 600;
+            text-align: center;
+        }
+        .flow-step.green { background: #059669; }
+        .flow-step.purple { background: #7C3AED; }
+        .flow-step.amber { background: #D97706; }
+        .flow-arrow {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+        }
+
+        /* Icon list */
+        .icon-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.6rem);
+        }
+        .icon-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        .icon-list-item .li-icon {
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            line-height: 1.4;
+        }
+        .icon-list-item .li-text {
+            font-size: var(--body-size);
+            line-height: 1.5;
+        }
+        .icon-list-item .li-text strong {
+            color: var(--text-primary);
+        }
+
+        /* Strength/Weakness badges */
+        .badge-good {
+            display: inline-block;
+            background: #D1FAE5;
+            color: #059669;
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        .badge-warn {
+            display: inline-block;
+            background: #FEF3C7;
+            color: #D97706;
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        .badge-info {
+            display: inline-block;
+            background: #DBEAFE;
+            color: #2563EB;
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* Case study layout */
+        .case-study {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+            margin-top: clamp(0.5rem, 1vh, 0.8rem);
+        }
+        @media (max-width: 600px) {
+            .case-study { grid-template-columns: 1fr; }
+        }
+        .case-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1.2rem);
+        }
+        .case-card h3 {
+            font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+            font-weight: 700;
+            margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);
+        }
+        .case-card p {
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .case-card.google-card { border-left: 3px solid #EA4335; }
+        .case-card.perplexity-card { border-left: 3px solid var(--accent); }
+        .case-card .time-badge {
+            display: inline-block;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: clamp(0.2rem, 0.4vh, 0.3rem);
+        }
+        .case-card.google-card .time-badge { background: #FEE2E2; color: #DC2626; }
+        .case-card.perplexity-card .time-badge { background: #D1FAE5; color: #059669; }
+
+        /* Summary bullet */
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+        }
+        .summary-num {
+            flex-shrink: 0;
+            width: clamp(1.5rem, 2.5vw, 2rem);
+            height: clamp(1.5rem, 2.5vw, 2rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            font-weight: 700;
+        }
+        .summary-text {
+            font-size: var(--body-size);
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+
+    <!-- Navigation Dots -->
+    <div class="nav-dots" id="navDots"></div>
+
+    <!-- =========================================
+         SLIDE 1: TITLE
+         ========================================= -->
+    <section class="slide slide-title" data-section="intro">
+        <div class="slide-content">
+            <h1 class="reveal">Google検索との使い分け</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">目的別検索ガイド</p>
+            <p class="meta reveal">P-04 | 全社員向け実践 | 12分</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-04</span>
+            <span>1 / 12</span>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 2: TODAY'S GOALS
+         ========================================= -->
+    <section class="slide slide-page tab-green" data-section="goals">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #D1FAE5; color: #059669;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <div class="goal-text">Google検索とPerplexityの得意・不得意を正しく理解している</div>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <div class="goal-text">業務目的に応じて適切な検索ツールを選択できる</div>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <div class="goal-text">両者を組み合わせたハイブリッド検索ワークフローを実践できる</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 3: GOOGLE STRENGTHS
+         ========================================= -->
+    <section class="slide slide-page tab-green" data-section="google">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #D1FAE5; color: #059669;">GOOGLE</span>
+            <h2 class="reveal">Google検索の強み</h2>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item">
+                    <div class="card-icon">&#9889;</div>
+                    <h3>即時性</h3>
+                    <p>リアルタイムニュース、速報、最新情報をいち早く取得</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128205;</div>
+                    <h3>ローカル検索</h3>
+                    <p>近くのお店、営業時間、口コミを地図付きで表示</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128722;</div>
+                    <h3>ショッピング</h3>
+                    <p>価格比較、在庫確認、購入リンクを一覧表示</p>
+                </div>
+            </div>
+            <div class="card-row cols-2 reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="card-item">
+                    <div class="card-icon">&#128506;</div>
+                    <h3>地図連携</h3>
+                    <p>Google Maps統合でルート検索・所要時間を即確認</p>
+                </div>
+                <div class="card-item">
+                    <div class="card-icon">&#128247;</div>
+                    <h3>画像・動画検索</h3>
+                    <p>ビジュアル情報の網羅的な検索が可能</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 4: GOOGLE WEAKNESSES
+         ========================================= -->
+    <section class="slide slide-page tab-purple" data-section="google">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #FEF3C7; color: #D97706;">WEAKNESS</span>
+            <h2 class="reveal">Google検索の弱み</h2>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128176;</span>
+                    <div class="li-text"><strong>広告の多さ</strong> &#8212; 商業キーワードでは画面上部が広告で埋まり、本当に欲しい情報にたどり着きにくい</div>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128165;</span>
+                    <div class="li-text"><strong>SEO汚染</strong> &#8212; 検索上位＝最高品質とは限らない。SEO対策に長けたサイトが上位を独占し、専門的な情報が埋もれやすい</div>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#129300;</span>
+                    <div class="li-text"><strong>取捨選択が自分頼み</strong> &#8212; リンク一覧が返るだけ。どれが信頼できるか、最新かを自分で判断する必要がある</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 5: PERPLEXITY STRENGTHS
+         ========================================= -->
+    <section class="slide slide-page tab-blue" data-section="perplexity">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #DBEAFE; color: #2563EB;">PERPLEXITY</span>
+            <h2 class="reveal">Perplexityの強み</h2>
+            <div class="card-row cols-2 reveal">
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128221;</div>
+                    <h3>要約力</h3>
+                    <p>複数ソースを横断的に読み取り、1つの簡潔な回答にまとめる</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128279;</div>
+                    <h3>出典付き</h3>
+                    <p>情報源が明示されるのでファクトチェックが容易</p>
+                </div>
+            </div>
+            <div class="card-row cols-2 reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128172;</div>
+                    <h3>対話型</h3>
+                    <p>深掘り質問で段階的に理解を深められる。検索やり直し不要</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#129504;</div>
+                    <h3>複雑な質問に強い</h3>
+                    <p>比較・分析・背景説明など、Googleなら複数回かかる質問に一発回答</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 6: PERPLEXITY WEAKNESSES
+         ========================================= -->
+    <section class="slide slide-page tab-purple" data-section="perplexity">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #FEF3C7; color: #D97706;">WEAKNESS</span>
+            <h2 class="reveal">Perplexityの弱み</h2>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#9200;</span>
+                    <div class="li-text"><strong>リアルタイム性</strong> &#8212; 数分前のニュース速報や災害情報の反映はGoogleに比べてやや遅れる場合がある</div>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128205;</span>
+                    <div class="li-text"><strong>ローカル情報</strong> &#8212; 位置情報に基づいた「近くのお店」検索はGoogleマップほどの体験は提供できない</div>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128722;</span>
+                    <div class="li-text"><strong>ECサイト検索</strong> &#8212; 商品の価格比較・在庫確認・購入導線はなく、ショッピングには不向き</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 7: COMPARISON TABLE
+         ========================================= -->
+    <section class="slide slide-page tab-pink" data-section="compare">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #FCE7F3; color: #DB2777;">COMPARE</span>
+            <h2 class="reveal">目的別ツール選択ガイド</h2>
+            <div class="reveal" style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>目的</th>
+                            <th>Google</th>
+                            <th>Perplexity</th>
+                            <th>判断基準</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ニュース速報</td>
+                            <td style="color:#059669; font-weight:700;">&#9678;</td>
+                            <td>&#9675;</td>
+                            <td>1分1秒を争う情報</td>
+                        </tr>
+                        <tr>
+                            <td>近くのお店</td>
+                            <td style="color:#059669; font-weight:700;">&#9678;</td>
+                            <td>&#9651;</td>
+                            <td>位置情報+地図</td>
+                        </tr>
+                        <tr>
+                            <td>価格比較</td>
+                            <td style="color:#059669; font-weight:700;">&#9678;</td>
+                            <td>&#9651;</td>
+                            <td>ECサイト連携</td>
+                        </tr>
+                        <tr>
+                            <td>画像検索</td>
+                            <td style="color:#059669; font-weight:700;">&#9678;</td>
+                            <td>&#9651;</td>
+                            <td>ビジュアル情報</td>
+                        </tr>
+                        <tr>
+                            <td>概念の理解</td>
+                            <td>&#9651;</td>
+                            <td style="color:#2563EB; font-weight:700;">&#9678;</td>
+                            <td>要約+対話で深掘り</td>
+                        </tr>
+                        <tr>
+                            <td>競合調査</td>
+                            <td>&#9675;</td>
+                            <td style="color:#2563EB; font-weight:700;">&#9678;</td>
+                            <td>複数ソース統合</td>
+                        </tr>
+                        <tr>
+                            <td>技術比較</td>
+                            <td>&#9651;</td>
+                            <td style="color:#2563EB; font-weight:700;">&#9678;</td>
+                            <td>メリデメ整理</td>
+                        </tr>
+                        <tr>
+                            <td>要約・分析</td>
+                            <td>&#9651;</td>
+                            <td style="color:#2563EB; font-weight:700;">&#9678;</td>
+                            <td>情報統合+構造化</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 8: CASE STUDY 1 (Competitive Research)
+         ========================================= -->
+    <section class="slide slide-page tab-blue" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #DBEAFE; color: #2563EB;">CASE STUDY</span>
+            <h2 class="reveal">&#9312; 競合調査 &#8212; Perplexity向き</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">
+                上司から「競合A社の最新AI戦略を30分でまとめて」と依頼
+            </p>
+            <div class="case-study reveal">
+                <div class="case-card google-card">
+                    <h3>&#128269; Google検索の場合</h3>
+                    <p>検索 &#8594; 上位10件の記事を開く &#8594; 読む &#8594; メモ &#8594; 自分で要約</p>
+                    <span class="time-badge">約40分</span>
+                </div>
+                <div class="case-card perplexity-card">
+                    <h3>&#129302; Perplexityの場合</h3>
+                    <p>質問 &#8594; 出典付き要約を取得 &#8594; 深掘り質問 &#8594; 完成</p>
+                    <span class="time-badge">約10分</span>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 9: CASE STUDY 2 (Lunch Spot)
+         ========================================= -->
+    <section class="slide slide-page tab-green" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #D1FAE5; color: #059669;">CASE STUDY</span>
+            <h2 class="reveal">&#9313; 近くのランチ &#8212; Google向き</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">
+                「会社から徒歩5分、個室ありの和食店」を探す
+            </p>
+            <div class="case-study reveal">
+                <div class="case-card google-card" style="border-left-color: #059669;">
+                    <h3>&#128269; Google検索の場合</h3>
+                    <p>検索 &#8594; 地図+写真+口コミ+予約リンク &#8594; 候補3件</p>
+                    <span class="time-badge" style="background: #D1FAE5; color: #059669;">約2分</span>
+                </div>
+                <div class="case-card perplexity-card" style="border-left-color: #D97706;">
+                    <h3>&#129302; Perplexityの場合</h3>
+                    <p>テキスト回答のみ。地図なし、写真なし、位置関係も不明</p>
+                    <span class="time-badge" style="background: #FEF3C7; color: #D97706;">不便</span>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 10: HYBRID WORKFLOW
+         ========================================= -->
+    <section class="slide slide-page tab-yellow" data-section="workflow">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #FEF3C7; color: #D97706;">WORKFLOW</span>
+            <h2 class="reveal">ハイブリッド検索ワークフロー</h2>
+            <div class="flow-row reveal">
+                <div class="flow-step">Step 1<br><small>Perplexityで概要把握</small></div>
+                <span class="flow-arrow">&#10132;</span>
+                <div class="flow-step green">Step 2<br><small>出典で信頼性確認</small></div>
+                <span class="flow-arrow">&#10132;</span>
+                <div class="flow-step amber">Step 3<br><small>Googleで詳細深掘り</small></div>
+                <span class="flow-arrow">&#10132;</span>
+                <div class="flow-step purple">Step 4<br><small>Perplexityで再整理</small></div>
+            </div>
+            <div class="card-row cols-2 reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="card-item">
+                    <h3>&#128161; なぜこの順番？</h3>
+                    <p>まず全体像をつかんでから詳細に入る方が、情報の位置づけを理解しやすく、無駄な検索が減る</p>
+                </div>
+                <div class="card-item">
+                    <h3>&#127919; 効果</h3>
+                    <p>情報収集の速度と精度が飛躍的に向上。複雑な調査でも迷子にならない</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 11: SUMMARY
+         ========================================= -->
+    <section class="slide slide-page tab-pink" data-section="summary">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: #FCE7F3; color: #DB2777;">SUMMARY</span>
+            <h2 class="reveal">まとめ</h2>
+            <div class="summary-list">
+                <div class="summary-item reveal">
+                    <div class="summary-num">1</div>
+                    <div class="summary-text"><strong>Google</strong> = 即時性・ローカル・ショッピング<br><strong>Perplexity</strong> = 要約・分析・対話型の深掘り</div>
+                </div>
+                <div class="summary-item reveal">
+                    <div class="summary-num">2</div>
+                    <div class="summary-text">「答えが1つ」&#8594; Google<br>「理解を深めたい」&#8594; Perplexity</div>
+                </div>
+                <div class="summary-item reveal">
+                    <div class="summary-num">3</div>
+                    <div class="summary-text">ハイブリッド検索が最強<br>Perplexityで概要 &#8594; Googleで深掘り &#8594; Perplexityで再整理</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-04</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         SLIDE 12: END SLIDE
+         ========================================= -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <h2 class="reveal">お疲れさまでした！</h2>
+            <div class="divider-line reveal" style="width: clamp(60px, 15vw, 180px); height: 2px; background: #93C5FD; margin: clamp(0.5rem, 1.5vh, 1rem) auto;"></div>
+            <p class="reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">次回: P-05「業務でPerplexityを活用する」</p>
+            <p class="reveal" style="color: #9CA3AF; font-size: clamp(0.7rem, 1vw, 0.85rem); margin-top: clamp(0.3rem, 0.6vh, 0.5rem);">議事録の要約、競合分析レポート、社内FAQ対応 &#8212; 実践テクニックを学びます</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-04</span>
+            <span>12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupMouseWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) {
+                                this.currentSlide = index;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, {
+                    threshold: 0.5
+                });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.slides.length - 1);
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => {
+                    this.touchStartY = e.touches[0].clientY;
+                    this.touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                    const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                        if (deltaY > 0) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupMouseWheelNav() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isAnimating) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else if (e.deltaY < -30) {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }, 50);
+                }, { passive: true });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+                setTimeout(() => { this.isAnimating = false; }, 600);
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (!this.progressBar) return;
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return;
+                container.innerHTML = '';
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    const isPage = slide.classList.contains('slide-page');
+                    dot.className = 'nav-dot' + (isPage ? ' page-dot' : '') + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    container.appendChild(dot);
+                });
+            }
+
+            updateNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

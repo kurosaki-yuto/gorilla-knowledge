@@ -1,0 +1,33 @@
+{
+  "service": "perplexity",
+  "url": "https://www.perplexity.ai",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "_comment": "ページ完全読み込み待ち" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "click", "selector": "#ask-input" },
+    { "action": "wait", "ms": 500 },
+    { "action": "type", "text": "中小企業がAIを業務に導入するための具体的なステップを教えてください", "delay": 65 },
+    { "action": "wait", "ms": 1500 },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "waitForAI", "timeout": 50000, "stableMs": 3000 },
+    { "action": "wait", "ms": 3000, "_comment": "最初の回答を見せる" },
+    { "action": "scroll", "direction": "down", "amount": 300 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "up", "amount": 300 },
+    { "action": "wait", "ms": 2000, "_comment": "フォローアップ入力へ" },
+    { "action": "click", "selector": "#ask-input" },
+    { "action": "wait", "ms": 500 },
+    { "action": "type", "text": "その中で日本企業に最も影響があるのはどれですか？", "delay": 65 },
+    { "action": "wait", "ms": 1500 },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "waitForAI", "timeout": 50000, "stableMs": 3000 },
+    { "action": "wait", "ms": 3000, "_comment": "フォローアップ回答を見せる" },
+    { "action": "scroll", "direction": "down", "amount": 300 },
+    { "action": "wait", "ms": 3000 },
+    { "action": "scroll", "direction": "up", "amount": 300 },
+    { "action": "wait", "ms": 2000 }
+  ]
+}

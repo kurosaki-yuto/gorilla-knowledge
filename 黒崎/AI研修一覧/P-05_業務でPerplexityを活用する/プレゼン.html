@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-05: 業務でPerplexityを活用する〜実践ケーススタディ</title>
+
+    <!-- Fonts: Bodoni Moda + DM Sans from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — Notebook Tabs Theme
+           =========================================== */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* --- viewport-base.css (inlined) --- */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        body {
+            background: var(--bg-outer);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.5rem, 1.5vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.3);
+        }
+        .nav-dot.page-dot {
+            border-color: rgba(0,0,0,0.2);
+        }
+        .nav-dot.page-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* ===========================================
+           SLIDE FOOTER
+           =========================================== */
+        .slide-footer {
+            position: absolute;
+            bottom: clamp(0.5rem, 1.5vh, 1rem);
+            left: var(--slide-padding);
+            right: var(--slide-padding);
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            opacity: 0.6;
+        }
+
+        /* ===========================================
+           TITLE / END SLIDES (Navy sandwich)
+           =========================================== */
+        .slide-title, .slide-end {
+            background: #1B2A4A;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title .slide-content, .slide-end .slide-content {
+            align-items: center;
+            text-align: center;
+        }
+        .slide-title h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        .slide-title .subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            color: #93C5FD;
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-title .meta {
+            font-family: var(--font-body);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #9CA3AF;
+            margin-top: clamp(1rem, 3vh, 2rem);
+            letter-spacing: 0.1em;
+        }
+        .slide-title .divider-line {
+            width: clamp(60px, 15vw, 180px);
+            height: 2px;
+            background: #93C5FD;
+            margin: clamp(0.5rem, 1.5vh, 1rem) auto;
+        }
+        .slide-end h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .slide-end p {
+            color: #93C5FD;
+            font-size: var(--body-size);
+        }
+        .slide-title .slide-footer, .slide-end .slide-footer {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ===========================================
+           CONTENT SLIDES (Notebook page)
+           =========================================== */
+        .slide-page {
+            background: var(--bg-outer);
+        }
+        .slide-page .slide-content {
+            background: var(--bg-page);
+            margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem);
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            padding: var(--slide-padding);
+            position: relative;
+        }
+        .slide-page h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+            font-weight: 700;
+        }
+        .slide-page .tag {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .slide-page .slide-footer {
+            position: absolute;
+            bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+        }
+
+        /* Tab indicator on page slides */
+        .slide-page .slide-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        /* ===========================================
+           CARD COMPONENTS
+           =========================================== */
+        .card-row {
+            display: grid;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .card-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-4, .card-row.cols-5 { grid-template-columns: repeat(2, 1fr); }
+        }
+        .card-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1.2rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+        .card-item .card-icon {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+        }
+        .card-item h3 {
+            font-family: var(--font-body);
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-item p {
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .card-item.accent-border {
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Numbered goals */
+        .goal-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1.2rem);
+        }
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+        .goal-num {
+            flex-shrink: 0;
+            width: clamp(2rem, 3.5vw, 2.8rem);
+            height: clamp(2rem, 3.5vw, 2.8rem);
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+        }
+        .goal-text {
+            font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Definition / highlight box */
+        .definition-box {
+            background: #DBEAFE;
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.5rem);
+            margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        .definition-box p {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+            color: var(--accent);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Prompt box */
+        .prompt-box {
+            background: #1B2A4A;
+            border-radius: 8px;
+            padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            margin: clamp(0.3rem, 0.8vh, 0.6rem) 0;
+        }
+        .prompt-box code {
+            font-family: 'DM Sans', monospace;
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            color: #93C5FD;
+            line-height: 1.5;
+        }
+
+        /* Step list */
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 1vh, 0.8rem);
+        }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        .step-num {
+            flex-shrink: 0;
+            background: var(--accent);
+            color: #fff;
+            width: clamp(1.4rem, 2.5vw, 2rem);
+            height: clamp(1.4rem, 2.5vw, 2rem);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 700;
+        }
+        .step-text {
+            font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        .step-text strong { color: var(--accent); }
+
+        /* Badge row */
+        .badge-row {
+            display: flex;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            margin-top: clamp(0.4rem, 1vh, 0.8rem);
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: clamp(0.3rem, 0.5vh, 0.4rem) clamp(0.6rem, 1vw, 1rem);
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 1vw, 0.82rem);
+            font-weight: 600;
+        }
+        .badge.pro { background: #D1FAE5; color: #059669; }
+        .badge.con { background: #FEF3C7; color: #D97706; }
+        .badge.warn { background: #FEE2E2; color: #DC2626; }
+        .badge.info { background: #DBEAFE; color: #2563EB; }
+
+        /* Callout */
+        .callout {
+            background: #FEF3C7;
+            border-radius: 8px;
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            color: #92400E;
+            font-weight: 500;
+            margin-top: clamp(0.4rem, 1vh, 0.8rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .callout.blue {
+            background: #DBEAFE;
+            color: #1e40af;
+        }
+
+        /* Summary list */
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.5rem);
+        }
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+            padding: clamp(0.3rem, 0.6vh, 0.5rem) 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-num {
+            flex-shrink: 0;
+            background: var(--accent);
+            color: #fff;
+            width: clamp(1.4rem, 2.5vw, 2rem);
+            height: clamp(1.4rem, 2.5vw, 2rem);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            font-weight: 700;
+        }
+        .summary-label {
+            flex-shrink: 0;
+            font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            color: var(--text-secondary);
+        }
+        .summary-text {
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        .summary-text strong { color: var(--accent); }
+
+        /* Icon list */
+        .icon-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.7vh, 0.6rem);
+        }
+        .icon-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.4rem, 0.8vw, 0.7rem);
+        }
+        .icon-list-item .li-icon {
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        }
+        .icon-list-item .li-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .icon-list-item .li-text strong {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 700px) {
+            .card-row.cols-3, .card-row.cols-5 { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- ============================================
+         SLIDE 1: TITLE (Navy)
+         ============================================ -->
+    <section class="slide slide-title" data-section="intro">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#128270;</div>
+            <h1 class="reveal">業務でPerplexityを活用する</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">実践ケーススタディ</p>
+            <p class="meta reveal">P-05 &nbsp;|&nbsp; 全社員向け実践 &nbsp;|&nbsp; 12分</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-05</span>
+            <span>1 / 12</span>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: GOALS (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="intro">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">各部門でのPerplexity活用パターンを3つ以上挙げられる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">Perplexityを使った業務効率化の具体的な手順を実践できる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <span class="goal-text">チームでPerplexityを共有活用する方法を理解している</span>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>2 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: AI SEARCH USAGE MAP (Green tab)
+         ============================================ -->
+    <section class="slide slide-page tab-green" data-section="map">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">OVERVIEW</span>
+            <h2 class="reveal">業務でのAI検索活用マップ</h2>
+            <div class="card-row cols-5 reveal">
+                <div class="card-item" style="text-align: center; border-top: 3px solid var(--accent);">
+                    <div class="card-icon">&#128188;</div>
+                    <h3>営業</h3>
+                    <p>商談前リサーチ<br>業界動向</p>
+                </div>
+                <div class="card-item" style="text-align: center; border-top: 3px solid #7C3AED;">
+                    <div class="card-icon">&#128161;</div>
+                    <h3>企画</h3>
+                    <p>市場調査<br>競合分析</p>
+                </div>
+                <div class="card-item" style="text-align: center; border-top: 3px solid #059669;">
+                    <div class="card-icon">&#128101;</div>
+                    <h3>人事</h3>
+                    <p>採用トレンド<br>法改正</p>
+                </div>
+                <div class="card-item" style="text-align: center; border-top: 3px solid #D97706;">
+                    <div class="card-icon">&#128200;</div>
+                    <h3>経理/法務</h3>
+                    <p>税制・法令<br>Academic検索</p>
+                </div>
+                <div class="card-item" style="text-align: center; border-top: 3px solid #DC2626;">
+                    <div class="card-icon">&#128187;</div>
+                    <h3>開発</h3>
+                    <p>技術調査<br>エラー解決</p>
+                </div>
+            </div>
+            <div class="callout blue reveal">
+                &#128161; 共通ニーズ：最新の正確な情報を、出典付きで素早く手に入れたい
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>3 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: SALES USE CASE (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">CASE 1</span>
+            <h2 class="reveal">営業 — 商談前の企業リサーチ</h2>
+            <div class="prompt-box reveal">
+                <code>&#128172; 「〇〇株式会社の最新ニュースと事業課題を教えて」</code>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item accent-border">
+                    <h3>&#128240; プレスリリース</h3>
+                    <p>直近のニュース・発表を出典付きで取得</p>
+                </div>
+                <div class="card-item accent-border">
+                    <h3>&#128200; 決算情報</h3>
+                    <p>売上・利益の推移と業界ポジション</p>
+                </div>
+                <div class="card-item accent-border">
+                    <h3>&#128279; 出典リンク</h3>
+                    <p>原典に飛んで裏取り可能</p>
+                </div>
+            </div>
+            <div class="badge-row reveal">
+                <div class="badge pro">&#9989; 準備30分 &#8594; 5分に短縮</div>
+                <div class="badge info">&#128196; 上司への報告にそのまま使える</div>
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>4 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: HANDS-ON — Sales Research (Purple tab)
+         ============================================ -->
+    <section class="slide slide-page tab-purple" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">HANDS-ON</span>
+            <h2 class="reveal">【実演ポイント】商談前リサーチ</h2>
+            <div class="step-list">
+                <div class="step-item reveal">
+                    <div class="step-num">1</div>
+                    <div class="step-text"><strong>Pro Searchをオン</strong>にする（複数情報源を横断深掘り）</div>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">2</div>
+                    <div class="step-text">「〇〇社の<strong>直近1年</strong>の事業戦略と課題を要約して」と入力</div>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">3</div>
+                    <div class="step-text"><strong>出典リンクを確認</strong>し、重要な数字は原典でファクトチェック</div>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128161; コツ：「直近1年」「事業課題」など条件を具体的にすると精度UP
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>5 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: PLANNING USE CASE (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">CASE 2</span>
+            <h2 class="reveal">企画 — 市場調査・競合分析</h2>
+            <div class="prompt-box reveal">
+                <code>&#128172; 「日本のサブスク市場の2025年規模と成長率、主要プレーヤーを教えて」</code>
+            </div>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128202;</span>
+                    <span class="li-text"><strong>Pro Searchで一発取得</strong>：市場規模、CAGR、主要企業、トレンド</span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128172;</span>
+                    <span class="li-text"><strong>フォローアップ質問</strong>：「その中で成長率が最も高いセグメントは？」で深掘り</span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128196;</span>
+                    <span class="li-text"><strong>出典付き</strong>なので企画書にそのまま引用可能</span>
+                </div>
+            </div>
+            <div class="badge-row reveal">
+                <div class="badge pro">&#9989; 調査レポート1本分の概要が数分で</div>
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>6 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: HR USE CASE (Pink tab)
+         ============================================ -->
+    <section class="slide slide-page tab-pink" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">CASE 3</span>
+            <h2 class="reveal">人事 — 採用トレンド・法改正キャッチアップ</h2>
+            <div class="card-row cols-2 reveal">
+                <div class="card-item" style="border-left: 3px solid #059669;">
+                    <h3>&#128101; 採用トレンド</h3>
+                    <p>「2025年のエンジニア採用市場のトレンドと平均年収」</p>
+                    <p style="margin-top: 4px; font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: #059669;">&#8594; 求人倍率・年収相場・人気技術</p>
+                </div>
+                <div class="card-item" style="border-left: 3px solid #D97706;">
+                    <h3>&#9878;&#65039; 法改正キャッチアップ</h3>
+                    <p>「2025年4月施行の労働関連法改正の要点」</p>
+                    <p style="margin-top: 4px; font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: #D97706;">&#8594; 改正内容を箇条書きで整理</p>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#9888;&#65039; 法改正の見落としは大きなリスク。出典が官公庁サイトであることを必ず確認
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>7 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: FINANCE / LEGAL USE CASE (Blue tab)
+         ============================================ -->
+    <section class="slide slide-page tab-blue" data-section="cases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">CASE 4</span>
+            <h2 class="reveal">経理/法務 — 税制改正・法令調査</h2>
+            <div class="definition-box reveal">
+                <p style="font-size: clamp(0.8rem, 1.3vw, 1.1rem);">&#128218; Focus機能「Academic」= 学術論文・公的機関の資料を優先検索</p>
+            </div>
+            <div class="prompt-box reveal">
+                <code>&#128172; 「インボイス制度の経過措置終了後の実務対応」</code>
+            </div>
+            <div class="icon-list reveal">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128209;</span>
+                    <span class="li-text">国税庁ガイドライン・税務専門解説を出典付きで取得</span>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#9888;&#65039; 重要：法令解釈・税務判断は最終的に顧問税理士・弁護士に確認。Perplexityは「調査の起点」
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>8 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9: TEAM USAGE (Blue tab)
+         ============================================ -->
+    <section class="slide slide-page tab-blue" data-section="team">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">TEAM</span>
+            <h2 class="reveal">チーム活用：コレクション共有・Spaces</h2>
+            <div class="card-row cols-2 reveal">
+                <div class="card-item" style="border-top: 3px solid var(--accent);">
+                    <div class="card-icon">&#128194;</div>
+                    <h3>コレクション</h3>
+                    <p>検索スレッドをフォルダのように整理・保存。「競合調査」「法改正」「技術トレンド」などテーマ別に管理</p>
+                </div>
+                <div class="card-item" style="border-top: 3px solid #059669;">
+                    <div class="card-icon">&#128101;</div>
+                    <h3>Spaces</h3>
+                    <p>チームメンバーとスレッド・コレクションを共有するワークスペース。情報の属人化を防止</p>
+                </div>
+            </div>
+            <div class="callout blue reveal">
+                &#128161; 例：営業チームで「商談先企業リサーチ」Spaceを作成 &#8594; メンバーの調査結果がチームのナレッジに
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>9 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10: ADOPTION TIPS (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="tips">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">TIPS</span>
+            <h2 class="reveal">導入のコツ：まず1日3回使ってみる</h2>
+            <div class="step-list">
+                <div class="step-item reveal">
+                    <div class="step-num">1</div>
+                    <div class="step-text"><strong>既存業務の置き換え</strong>から。Google検索の代わりにPerplexityを使う</div>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">2</div>
+                    <div class="step-text"><strong>1日3回</strong>意識的に使う（朝：ニュース / 昼：調べもの / 夕：翌日準備）</div>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">3</div>
+                    <div class="step-text"><strong>週次で振り返り</strong>：「Perplexityで解決できた業務」をメモする</div>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128170; 2週間続ければ習慣化。小さな成功体験の積み重ねがカギ
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>10 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11: SUMMARY (Yellow tab)
+         ============================================ -->
+    <section class="slide slide-page tab-yellow" data-section="summary">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">SUMMARY</span>
+            <h2 class="reveal">まとめ — Perplexity研修 全5回の振り返り</h2>
+            <div class="summary-list">
+                <div class="summary-item reveal">
+                    <span class="summary-label">P-01</span>
+                    <span class="summary-text"><strong>なぜ今Perplexityなのか</strong>（AI検索の価値）</span>
+                </div>
+                <div class="summary-item reveal">
+                    <span class="summary-label">P-02</span>
+                    <span class="summary-text"><strong>基本操作</strong>（検索・対話・出典確認）</span>
+                </div>
+                <div class="summary-item reveal">
+                    <span class="summary-label">P-03</span>
+                    <span class="summary-text"><strong>高度な検索テクニック</strong>（Focus・Pro Search）</span>
+                </div>
+                <div class="summary-item reveal">
+                    <span class="summary-label">P-04</span>
+                    <span class="summary-text"><strong>Google検索との使い分け</strong></span>
+                </div>
+                <div class="summary-item reveal">
+                    <span class="summary-label">P-05</span>
+                    <span class="summary-text"><strong>業務での実践活用</strong>（&#8592; 今日）</span>
+                </div>
+            </div>
+            <div class="callout blue reveal">
+                &#128221; 確認テスト：5問中4問正解で修了
+            </div>
+            <div class="slide-footer">
+                <span>P-05</span>
+                <span>11 / 12</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12: END (Navy)
+         ============================================ -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#127891;</div>
+            <h2 class="reveal">Perplexity研修 完了！</h2>
+            <div class="reveal" style="width: clamp(60px, 15vw, 180px); height: 2px; background: #93C5FD; margin: 0 auto;"></div>
+            <p class="reveal" style="margin-top: clamp(0.5rem, 1.5vh, 1rem);">AI検索を武器に、業務をもっと効率的に</p>
+            <p class="reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem); color: #9CA3AF; font-size: clamp(0.7rem, 1vw, 0.85rem);">全5回修了おめでとうございます</p>
+        </div>
+        <div class="slide-footer">
+            <span>P-05</span>
+            <span>12 / 12</span>
+        </div>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupMouseWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) {
+                                this.currentSlide = index;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.slides.length - 1);
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => {
+                    this.touchStartY = e.touches[0].clientY;
+                    this.touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                    const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                        if (deltaY > 0) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            setupMouseWheelNav() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isAnimating) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) {
+                            this.goToSlide(this.currentSlide + 1);
+                        } else if (e.deltaY < -30) {
+                            this.goToSlide(this.currentSlide - 1);
+                        }
+                    }, 50);
+                }, { passive: true });
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+                setTimeout(() => { this.isAnimating = false; }, 600);
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (!this.progressBar) return;
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return;
+                container.innerHTML = '';
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    const isPage = slide.classList.contains('slide-page');
+                    dot.className = 'nav-dot' + (isPage ? ' page-dot' : '') + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    container.appendChild(dot);
+                });
+            }
+
+            updateNavDots() {
+                const dots = document.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

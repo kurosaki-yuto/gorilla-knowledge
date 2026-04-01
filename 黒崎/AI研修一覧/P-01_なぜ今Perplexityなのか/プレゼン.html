@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-01: なぜ今Perplexityなのか？〜AI検索の新時代</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        /* === CSS CUSTOM PROPERTIES — Notebook Tabs Theme === */
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+            --navy: #1B2A4A;
+            --navy-light: #2D4A7A;
+        }
+
+        /* === BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* --- viewport-base.css (inlined) --- */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-outer);
+            color: var(--text-primary);
+        }
+
+        /* === PROGRESS BAR === */
+        #progress {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: var(--accent); z-index: 9999;
+            transition: width 0.3s ease;
+        }
+
+        /* === SLIDE TYPES === */
+        .slide--navy {
+            background: var(--navy);
+            color: #fff;
+        }
+        .slide--notebook {
+            background: var(--bg-page);
+            color: var(--text-primary);
+        }
+
+        /* === NOTEBOOK TAB DECORATION === */
+        .slide--notebook::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 5px;
+        }
+        .slide--notebook:nth-child(2)::before,
+        .slide--notebook:nth-child(3)::before { background: var(--tab-1); }
+        .slide--notebook:nth-child(4)::before,
+        .slide--notebook:nth-child(5)::before { background: var(--tab-2); }
+        .slide--notebook:nth-child(6)::before,
+        .slide--notebook:nth-child(7)::before { background: var(--tab-3); }
+        .slide--notebook:nth-child(8)::before,
+        .slide--notebook:nth-child(9)::before { background: var(--tab-4); }
+        .slide--notebook:nth-child(10)::before { background: var(--tab-5); }
+
+        /* === TYPOGRAPHY === */
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.5em;
+        }
+        .slide-subtitle {
+            font-family: var(--font-body);
+            font-size: var(--h2-size);
+            font-weight: 400;
+            opacity: 0.85;
+        }
+        .slide-h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            margin-bottom: 0.8em;
+            color: var(--text-primary);
+        }
+        .slide-body {
+            font-size: var(--body-size);
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.2em 0.8em;
+            border-radius: 4px;
+            background: rgba(37,99,235,0.12);
+            color: var(--accent);
+            margin-bottom: 0.6em;
+        }
+
+        /* === FOOTER === */
+        .slide-footer {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem var(--slide-padding);
+            font-size: 0.7rem; opacity: 0.5;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+        .slide--navy .slide-footer { border-top-color: rgba(255,255,255,0.15); color: #fff; }
+
+        /* === CARD GRID === */
+        .card-grid {
+            display: grid;
+            gap: clamp(0.6rem, 1.5vw, 1.2rem);
+            margin-top: 1rem;
+        }
+        .card-grid--3 { grid-template-columns: repeat(3, 1fr); }
+        .card-grid--2 { grid-template-columns: repeat(2, 1fr); }
+        .info-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: clamp(0.8rem, 2vw, 1.4rem);
+            display: flex; flex-direction: column; gap: 0.4em;
+        }
+        .info-card .card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.2em;
+        }
+        .info-card .card-label {
+            font-weight: 700;
+            font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+            color: var(--text-primary);
+        }
+        .info-card .card-desc {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .info-card--accent {
+            background: rgba(37,99,235,0.06);
+            border-color: rgba(37,99,235,0.2);
+        }
+        .info-card--green {
+            background: rgba(5,150,105,0.06);
+            border-color: rgba(5,150,105,0.2);
+        }
+        .info-card--amber {
+            background: rgba(217,119,6,0.06);
+            border-color: rgba(217,119,6,0.2);
+        }
+        .info-card--red {
+            background: rgba(220,38,38,0.06);
+            border-color: rgba(220,38,38,0.2);
+        }
+
+        /* === STAT BADGE === */
+        .stat-row {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+        .stat-badge {
+            display: flex; align-items: center; gap: 0.5em;
+            background: rgba(37,99,235,0.08);
+            padding: 0.4em 1em;
+            border-radius: 20px;
+            font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* === COMPARISON TABLE === */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            font-size: var(--body-size);
+        }
+        .compare-table th, .compare-table td {
+            padding: clamp(0.4rem, 1vh, 0.7rem) clamp(0.6rem, 1.5vw, 1rem);
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .compare-table th {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+        .compare-table th:last-child {
+            color: var(--accent);
+        }
+        .compare-table td:first-child {
+            font-weight: 600;
+            background: #fafbfc;
+        }
+
+        /* === GOAL LIST === */
+        .goal-list {
+            list-style: none;
+            display: flex; flex-direction: column;
+            gap: clamp(0.8rem, 2vh, 1.5rem);
+            margin-top: 1rem;
+        }
+        .goal-item {
+            display: flex; align-items: flex-start; gap: 1em;
+        }
+        .goal-num {
+            flex-shrink: 0;
+            width: 2.2em; height: 2.2em;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+        }
+        .goal-text {
+            font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+            line-height: 1.5;
+            padding-top: 0.3em;
+        }
+
+        /* === SUMMARY LIST (navy) === */
+        .summary-list {
+            list-style: none;
+            display: flex; flex-direction: column;
+            gap: clamp(0.8rem, 2vh, 1.5rem);
+            margin-top: 1.5rem;
+        }
+        .summary-item {
+            display: flex; align-items: flex-start; gap: 1em;
+        }
+        .summary-num {
+            flex-shrink: 0;
+            width: 2em; height: 2em;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: rgba(147,197,253,0.3);
+            color: #93C5FD;
+            font-weight: 700;
+        }
+        .summary-text {
+            font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+            line-height: 1.5;
+            padding-top: 0.2em;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* === INSIGHT BOX === */
+        .insight-box {
+            margin-top: auto;
+            padding: 0.6em 1em;
+            background: rgba(37,99,235,0.06);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 6px 6px 0;
+            font-size: clamp(0.75rem, 1.1vw, 0.88rem);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* === REVEAL ANIMATION === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* === NAVY SLIDE CENTER === */
+        .navy-center {
+            text-align: center;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .navy-center .slide-title { color: #fff; }
+        .navy-center .slide-subtitle { color: #93C5FD; }
+        .navy-divider {
+            width: 80px; height: 2px;
+            background: #93C5FD;
+            margin: 0.8em auto;
+        }
+        .navy-meta {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 1.5em;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .card-grid--3 { grid-template-columns: 1fr; }
+            .card-grid--2 { grid-template-columns: 1fr; }
+            .stat-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress" style="width:0%"></div>
+
+<!-- ===== SLIDE 1: TITLE (Navy) ===== -->
+<section class="slide slide--navy" id="slide-1">
+    <div class="slide-content navy-center">
+        <div class="reveal">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2" style="margin-bottom:0.8em"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h1 class="slide-title reveal reveal-delay-1">なぜ今Perplexityなのか？</h1>
+        <div class="navy-divider reveal reveal-delay-2"></div>
+        <p class="slide-subtitle reveal reveal-delay-2">AI検索の新時代</p>
+        <p class="navy-meta reveal reveal-delay-3">P-01 &nbsp;|&nbsp; 全社員向け &nbsp;|&nbsp; 12分</p>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>1 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 2: GOALS ===== -->
+<section class="slide slide--notebook" id="slide-2">
+    <div class="slide-content">
+        <div class="tag reveal">GOALS</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">今日のゴール</h2>
+        <ul class="goal-list">
+            <li class="goal-item reveal reveal-delay-1">
+                <span class="goal-num">1</span>
+                <span class="goal-text">Perplexityが従来の検索と根本的に異なる点を説明できる</span>
+            </li>
+            <li class="goal-item reveal reveal-delay-2">
+                <span class="goal-num">2</span>
+                <span class="goal-text">AI検索が爆発的に普及している背景を理解する</span>
+            </li>
+            <li class="goal-item reveal reveal-delay-3">
+                <span class="goal-num">3</span>
+                <span class="goal-text">Perplexityの主要機能（出典付き回答・Spaces・Computer）を挙げられる</span>
+            </li>
+        </ul>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>2 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 3: GOOGLING NOT ENOUGH ===== -->
+<section class="slide slide--notebook" id="slide-3">
+    <div class="slide-content">
+        <div class="tag reveal">BACKGROUND</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">「ググる」だけでは足りない時代</h2>
+        <div class="card-grid card-grid--3">
+            <div class="info-card info-card--accent reveal reveal-delay-1">
+                <span class="card-icon">&#128200;</span>
+                <span class="card-label">毎日85億件+</span>
+                <span class="card-desc">世界中のGoogle検索回数。情報は増え続けている</span>
+            </div>
+            <div class="info-card info-card--red reveal reveal-delay-2">
+                <span class="card-icon">&#128683;</span>
+                <span class="card-label">SEO汚染</span>
+                <span class="card-desc">上位は広告とSEO記事だらけ。中身の薄いコピー記事が量産</span>
+            </div>
+            <div class="info-card info-card--amber reveal reveal-delay-3">
+                <span class="card-icon">&#128566;</span>
+                <span class="card-label">答えが見つからない</span>
+                <span class="card-desc">何ページも読み比べて、やっと結論がわかる非効率</span>
+            </div>
+        </div>
+        <div class="insight-box reveal reveal-delay-4">情報が増えるほど「本当に欲しい答え」にたどり着くのが難しくなっている</div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>3 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 4: AI SEARCH ===== -->
+<section class="slide slide--notebook" id="slide-4">
+    <div class="slide-content">
+        <div class="tag reveal">NEW APPROACH</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">AI検索という新しい答え</h2>
+        <div class="card-grid card-grid--2">
+            <div class="info-card info-card--red reveal reveal-delay-1">
+                <span class="card-icon">&#128279;</span>
+                <span class="card-label">従来の検索（Google）</span>
+                <span class="card-desc">「リンクの一覧」を返す。自分で何本も記事を読み比べて情報を統合する必要がある</span>
+            </div>
+            <div class="info-card info-card--accent reveal reveal-delay-2">
+                <span class="card-icon">&#9989;</span>
+                <span class="card-label">AI検索（Perplexity）</span>
+                <span class="card-desc">「出典付きの回答」を直接返す。AIが複数のWebページを読み、統合してまとめてくれる</span>
+            </div>
+        </div>
+        <div class="insight-box reveal reveal-delay-3">質問するだけでAIが代わりに調べてまとめてくれる。しかも情報源のリンク付き</div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>4 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 5: WHAT IS PERPLEXITY ===== -->
+<section class="slide slide--notebook" id="slide-5">
+    <div class="slide-content">
+        <div class="tag reveal">PERPLEXITY</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">Perplexityとは</h2>
+        <div class="card-grid card-grid--3">
+            <div class="info-card reveal reveal-delay-1">
+                <span class="card-icon">&#128640;</span>
+                <span class="card-label">2022年8月創業</span>
+                <span class="card-desc">CEO: Aravind Srinivas（元Google・OpenAI研究者）</span>
+            </div>
+            <div class="info-card reveal reveal-delay-2">
+                <span class="card-icon">&#128176;</span>
+                <span class="card-label">評価額226億ドル</span>
+                <span class="card-desc">2026年1月時点。総調達額17.2億ドル、ARR 2億ドル</span>
+            </div>
+            <div class="info-card reveal reveal-delay-3">
+                <span class="card-icon">&#128101;</span>
+                <span class="card-label">月間4,500万ユーザー</span>
+                <span class="card-desc">月間訪問者1.7億人、1日3,000万クエリ処理</span>
+            </div>
+        </div>
+        <div class="stat-row reveal reveal-delay-4">
+            <span class="stat-badge">&#127919; AI検索特化</span>
+            <span class="stat-badge">&#127758; リアルタイムWeb検索</span>
+            <span class="stat-badge">&#128218; 出典付き回答</span>
+        </div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>5 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 6: FEATURE 1 — CITATIONS ===== -->
+<section class="slide slide--notebook" id="slide-6">
+    <div class="slide-content">
+        <div class="tag reveal">FEATURE 1</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">特徴(1) 出典付き回答（Citation）</h2>
+        <div class="info-card info-card--accent reveal reveal-delay-1" style="margin-bottom:1rem">
+            <span class="card-label" style="font-size:clamp(0.95rem,1.6vw,1.2rem)">すべての回答に [1][2] の番号 &mdash; クリックで元ソースへ</span>
+            <span class="card-desc">例: 「Perplexityの評価額は226億ドルです[1]」<br>どの情報がどのWebページから来たか一目瞭然</span>
+        </div>
+        <div class="card-grid card-grid--3">
+            <div class="info-card info-card--green reveal reveal-delay-2">
+                <span class="card-icon">&#9989;</span>
+                <span class="card-label">情報源を確認</span>
+                <span class="card-desc">元のWebページに飛んで自分で検証可能</span>
+            </div>
+            <div class="info-card info-card--green reveal reveal-delay-3">
+                <span class="card-icon">&#128737;</span>
+                <span class="card-label">ハルシネーション対策</span>
+                <span class="card-desc">出典があるから嘘を見抜ける</span>
+            </div>
+            <div class="info-card info-card--green reveal reveal-delay-4">
+                <span class="card-icon">&#128188;</span>
+                <span class="card-label">ビジネス利用に安心</span>
+                <span class="card-desc">ChatGPTにはない、根拠の可視化</span>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>6 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 7: FEATURE 2 — PRO SEARCH / DEEP RESEARCH ===== -->
+<section class="slide slide--notebook" id="slide-7">
+    <div class="slide-content">
+        <div class="tag reveal">FEATURE 2</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">特徴(2) 対話型検索 + Pro Search / Deep Research</h2>
+        <div class="card-grid card-grid--3">
+            <div class="info-card reveal reveal-delay-1">
+                <span class="card-icon">&#128172;</span>
+                <span class="card-label">フォローアップ質問</span>
+                <span class="card-desc">「もう少し詳しく」「初心者向けに」と続けて深掘りできる</span>
+            </div>
+            <div class="info-card info-card--accent reveal reveal-delay-2">
+                <span class="card-icon">&#128269;</span>
+                <span class="card-label">Pro Search</span>
+                <span class="card-desc">質問を段階的に分解して徹底調査。無料版1日5回</span>
+            </div>
+            <div class="info-card info-card--amber reveal reveal-delay-3">
+                <span class="card-icon">&#128214;</span>
+                <span class="card-label">Deep Research</span>
+                <span class="card-desc">レポート級の本格分析を自動生成。無料版1日5回</span>
+            </div>
+        </div>
+        <div class="insight-box reveal reveal-delay-4">Pro版（$20/月）なら Pro Search / Deep Research が無制限に</div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>7 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 8: FEATURE 3 — SPACES / PAGES ===== -->
+<section class="slide slide--notebook" id="slide-8">
+    <div class="slide-content">
+        <div class="tag reveal">FEATURE 3</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">特徴(3) Spaces・Pages・ファイル対応</h2>
+        <div class="card-grid card-grid--3">
+            <div class="info-card info-card--accent reveal reveal-delay-1">
+                <span class="card-icon">&#128218;</span>
+                <span class="card-label">Spaces</span>
+                <span class="card-desc">自分専用のナレッジベース。PDF・URLをアップロードして優先参照。チーム共有も可能</span>
+            </div>
+            <div class="info-card info-card--green reveal reveal-delay-2">
+                <span class="card-icon">&#128196;</span>
+                <span class="card-label">Pages</span>
+                <span class="card-desc">調査結果をレポート形式にまとめて公開。プレゼン資料の自動生成も</span>
+            </div>
+            <div class="info-card info-card--amber reveal reveal-delay-3">
+                <span class="card-icon">&#128206;</span>
+                <span class="card-label">ファイル対応</span>
+                <span class="card-desc">PDF・画像アップロード対応。文書要約や画像についての質問が可能</span>
+            </div>
+        </div>
+        <div class="insight-box reveal reveal-delay-4">社内資料をSpacesにアップロードすれば、自社ナレッジに基づいた回答が得られる</div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>8 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 9: LATEST — COMPUTER & COMET ===== -->
+<section class="slide slide--notebook" id="slide-9">
+    <div class="slide-content">
+        <div class="tag reveal">LATEST 2026</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">最新の進化: Perplexity Computer &amp; Comet</h2>
+        <div class="card-grid card-grid--3">
+            <div class="info-card info-card--accent reveal reveal-delay-1">
+                <span class="card-icon">&#129302;</span>
+                <span class="card-label">Perplexity Computer</span>
+                <span class="card-desc">19モデル統合AIエージェント（2026年2月）。リサーチ→コーディング→画像→動画を一つの指示で実行</span>
+            </div>
+            <div class="info-card info-card--green reveal reveal-delay-2">
+                <span class="card-icon">&#127760;</span>
+                <span class="card-label">Comet（AIブラウザ）</span>
+                <span class="card-desc">2025年10月に全ユーザー無料開放。ページ要約・フォーム自動入力・音声モード対応</span>
+            </div>
+            <div class="info-card info-card--amber reveal reveal-delay-3">
+                <span class="card-icon">&#128247;</span>
+                <span class="card-label">Snapchat連携</span>
+                <span class="card-desc">2026年初に開始。10億ユーザーにPerplexityのAI検索をリーチ</span>
+            </div>
+        </div>
+        <div class="stat-row reveal reveal-delay-4">
+            <span class="stat-badge">Max版 $200/月: Computer + 全機能</span>
+        </div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>9 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 10: COMPARISON TABLE ===== -->
+<section class="slide slide--notebook" id="slide-10">
+    <div class="slide-content">
+        <div class="tag reveal">COMPARISON</div>
+        <h2 class="slide-h2 reveal reveal-delay-1">従来検索 vs Perplexity 比較表</h2>
+        <div class="reveal reveal-delay-2" style="overflow-x:auto">
+            <table class="compare-table">
+                <thead>
+                    <tr><th></th><th>Google検索</th><th>Perplexity</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>入力方法</td><td>キーワードの組み合わせ</td><td>自然な文章で質問</td></tr>
+                    <tr><td>結果の形式</td><td>リンク一覧</td><td>出典付きの要約回答</td></tr>
+                    <tr><td>出典</td><td>リンク先を自分で読む</td><td>回答内に番号付きで埋め込み</td></tr>
+                    <tr><td>深掘り</td><td>キーワード変更で再検索</td><td>同じスレッドで追加質問</td></tr>
+                    <tr><td>得意</td><td>ローカル情報・EC・速報</td><td>複雑な質問・比較・調査・要約</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="insight-box reveal reveal-delay-3">どちらが優れているかではなく、場面に応じて使い分けることが大切</div>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>10 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 11: SUMMARY (Navy) ===== -->
+<section class="slide slide--navy" id="slide-11">
+    <div class="slide-content" style="align-items:center">
+        <h2 class="slide-title reveal" style="font-size:var(--h2-size);color:#fff;margin-bottom:0.5em">まとめ</h2>
+        <ul class="summary-list" style="max-width:700px">
+            <li class="summary-item reveal reveal-delay-1">
+                <span class="summary-num">1</span>
+                <span class="summary-text">情報爆発とSEO汚染により従来の検索だけでは限界がある時代</span>
+            </li>
+            <li class="summary-item reveal reveal-delay-2">
+                <span class="summary-num">2</span>
+                <span class="summary-text">Perplexityの3大機能: 出典付き回答・Spaces・Computer</span>
+            </li>
+            <li class="summary-item reveal reveal-delay-3">
+                <span class="summary-num">3</span>
+                <span class="summary-text">AI検索は従来検索の代替ではなく、使い分けで情報収集の質が飛躍的に向上</span>
+            </li>
+        </ul>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>11 / 12</span></div>
+</section>
+
+<!-- ===== SLIDE 12: END (Navy) ===== -->
+<section class="slide slide--navy" id="slide-12">
+    <div class="slide-content navy-center">
+        <div class="reveal">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2" style="margin-bottom:0.8em"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h1 class="slide-title reveal reveal-delay-1">P-01 修了</h1>
+        <div class="navy-divider reveal reveal-delay-2"></div>
+        <p class="slide-subtitle reveal reveal-delay-2">AI検索の新時代、ここから始めよう</p>
+        <p class="navy-meta reveal reveal-delay-3">NEXT &rarr; P-02 Perplexityの基本操作</p>
+    </div>
+    <div class="slide-footer"><span>P-01</span><span>12 / 12</span></div>
+</section>
+
+<script>
+    // === Progress bar ===
+    const progress = document.getElementById('progress');
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    function updateProgress() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+        progress.style.width = pct + '%';
+    }
+
+    // === Reveal animation via IntersectionObserver ===
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // === Keyboard navigation ===
+    let currentSlide = 0;
+    function goToSlide(n) {
+        n = Math.max(0, Math.min(n, totalSlides - 1));
+        currentSlide = n;
+        slides[n].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+        }
+    });
+
+    // === Track current slide on scroll ===
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const idx = Array.from(slides).indexOf(entry.target);
+                if (idx >= 0) currentSlide = idx;
+            }
+        });
+    }, { threshold: 0.5 });
+
+    slides.forEach(s => slideObserver.observe(s));
+
+    // === Touch support ===
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        const diff = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diff) > 50) {
+            goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+        }
+    }, { passive: true });
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+</script>
+
+</body>
+</html>
