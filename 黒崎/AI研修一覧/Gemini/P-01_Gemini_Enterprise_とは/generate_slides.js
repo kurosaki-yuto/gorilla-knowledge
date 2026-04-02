@@ -12,10 +12,11 @@ const C = {
   red: "DC2626", redBg: "FEE2E2", border: "E5E7EB"
 };
 
-const F = { sans: "Calibri", size: { hero: 44, h1: 32, h2: 22, h3: 18, body: 16, label: 13, caption: 11 } };
-const L = { W: 10, H: 5.625, mx: 0.75, my: 0.5, gap: 0.3, cardPad: 0.3 };
+const F = { sans: "Calibri", size: { hero: 40, h1: 24, h2: 20, h3: 16, body: 14, label: 12, caption: 10 } };
+const L = { W: 10, H: 5.625, mx: 0.75, my: 0.5, gap: 0.3 };
 
 let pres;
+const T = 12;
 
 function addTopBar(slide) {
   slide.addShape(pres.shapes.RECTANGLE, {
@@ -23,12 +24,12 @@ function addTopBar(slide) {
   });
 }
 
-function addFooter(slide, num, total) {
+function addFooter(slide, num) {
   slide.addShape(pres.shapes.LINE, {
     x: L.mx, y: L.H - 0.4, w: L.W - L.mx * 2, h: 0,
     line: { color: C.border, width: 0.5 }
   });
-  slide.addText(`${num} / ${total}`, {
+  slide.addText(`${num} / ${T}`, {
     x: L.W - 1.5, y: L.H - 0.38, w: 1.2, h: 0.3,
     fontSize: F.size.caption, fontFace: F.sans,
     color: C.textMuted, align: "right", shrinkText: true
@@ -40,209 +41,454 @@ function addFooter(slide, num, total) {
   });
 }
 
-function addSectionTitle(slide, title, tag) {
+function addTitle(slide, title, tag) {
   if (tag) {
-    const tagW = 0.6;
+    const tagW = tag.length * 0.12 + 0.4;
     slide.addShape(pres.shapes.RECTANGLE, {
-      x: L.mx, y: 0.35, w: tagW, h: 0.28,
+      x: L.mx, y: 0.15, w: tagW, h: 0.28,
       fill: { color: C.accentLight }, rectRadius: 0.05
     });
     slide.addText(tag, {
-      x: L.mx, y: 0.35, w: tagW, h: 0.28,
-      fontSize: 10, fontFace: F.sans, bold: true,
-      color: C.accent, align: "center", valign: "middle"
-    });
-    slide.addText(title, {
-      x: L.mx + tagW + 0.2, y: 0.35, w: 8.5 - tagW - 0.2, h: 0.55,
-      fontSize: F.size.h1, fontFace: F.sans, bold: true,
-      color: C.textDark, shrinkText: true
-    });
-  } else {
-    slide.addText(title, {
-      x: L.mx, y: 0.35, w: 8.5, h: 0.55,
-      fontSize: F.size.h1, fontFace: F.sans, bold: true,
-      color: C.textDark, shrinkText: true
+      x: L.mx, y: 0.15, w: tagW, h: 0.28,
+      fontSize: F.size.caption, fontFace: F.sans, bold: true,
+      color: C.accent, align: "center", valign: "middle", shrinkText: true
     });
   }
+  slide.addText(title, {
+    x: L.mx, y: tag ? 0.5 : 0.15, w: 8.5, h: 0.45,
+    fontSize: F.size.h1, fontFace: F.sans, bold: true,
+    color: C.textDark, shrinkText: true
+  });
 }
 
-const T = 22; // total slides
+function addCards(slide, cards, y, cardW, cardH) {
+  const cardGap = 0.3;
+  const totalW = cardW * cards.length + cardGap * (cards.length - 1);
+  const startX = (L.W - totalW) / 2;
+  cards.forEach((c, i) => {
+    const x = startX + i * (cardW + cardGap);
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x, y, w: cardW, h: cardH,
+      fill: { color: c.bg || C.offWhite }, line: { color: c.borderColor || C.border, width: c.borderColor ? 1 : 0.5 }, rectRadius: 0.05
+    });
+    slide.addText(c.label, {
+      x, y: y + 0.25, w: cardW, h: 0.35,
+      fontSize: F.size.h3, fontFace: F.sans, bold: true,
+      color: c.color || C.textDark, align: "center", shrinkText: true
+    });
+    slide.addText(c.desc, {
+      x: x + 0.15, y: y + 0.65, w: cardW - 0.3, h: cardH - 0.85,
+      fontSize: F.size.body, fontFace: F.sans,
+      color: C.textBody, align: "center", lineSpacingMultiple: 1.3, shrinkText: true
+    });
+  });
+}
+
+function addInsight(slide, text, y) {
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: L.mx, y, w: L.W - L.mx * 2, h: 0.4,
+    fill: { color: C.accentLight }, rectRadius: 0.04
+  });
+  slide.addText(text, {
+    x: L.mx + 0.15, y, w: L.W - L.mx * 2 - 0.3, h: 0.4,
+    fontSize: F.size.label, fontFace: F.sans, italic: true,
+    color: C.textLight, valign: "middle", shrinkText: true
+  });
+}
 
 async function main() {
   pres = new pptxgen();
   pres.layout = "LAYOUT_16x9";
   pres.author = "Gorilla Knowledge";
-  pres.title = "P-01: Gemini Enterprise とは？";
+  pres.title = "P-01: Gemini Enterprise とは？ -- 企業向けAIの最新トレンド";
 
-  // =====================================================
-  // スライド1: タイトルスライド
-  // =====================================================
-  let s = pres.addSlide();
-  addTopBar(s);
-  s.background = { color: C.white };
-
-  s.addText("P-01", {
-    x: L.mx, y: 0.4, w: 8.5, h: 0.35,
-    fontSize: F.size.label, fontFace: F.sans, bold: true,
-    color: C.accent, align: "left"
-  });
-
-  s.addText("Gemini Enterprise とは？", {
-    x: L.mx, y: 0.9, w: 8.5, h: 0.8,
-    fontSize: F.size.hero, fontFace: F.sans, bold: true,
-    color: C.navy, align: "left", valign: "top", wrap: true
-  });
-
-  s.addText("企業向けAIの最新トレンド", {
-    x: L.mx, y: 1.75, w: 8.5, h: 0.5,
-    fontSize: F.size.h2, fontFace: F.sans,
-    color: C.textBody, align: "left", valign: "top"
-  });
-
-  s.addShape(pres.shapes.RECTANGLE, {
-    x: L.mx, y: 2.4, w: 8.5, h: 0.05, fill: { color: C.accent }
-  });
-
-  s.addText("スライド説明のみ（12分）", {
-    x: L.mx, y: 2.6, w: 8.5, h: 0.3,
-    fontSize: F.size.body, fontFace: F.sans,
-    color: C.textLight, align: "left"
-  });
-
-  addFooter(s, 1, T);
-
-  // =====================================================
-  // スライド2-22: コンテンツスライド（トップバーとフッター）
-  // =====================================================
-
-  // スライド2
-  s = pres.addSlide();
-  addTopBar(s);
-  s.background = { color: C.white };
-  addSectionTitle(s, "AIの競争激化時代", "1.1");
-
-  s.addText("2022年11月: ChatGPT 登場 → 生成AI市場が急速に成長", {
-    x: L.mx, y: 1.1, w: 8.5, h: 0.4,
-    fontSize: F.size.body, fontFace: F.sans,
-    color: C.textBody, align: "left", valign: "top"
-  });
-
-  const tools = [
-    { name: "ChatGPT", desc: "汎用性・ユーザビリティ" },
-    { name: "Claude", desc: "セキュリティ・信頼性" },
-    { name: "Gemini", desc: "統合度・企業対応" }
-  ];
-
-  let x = L.mx;
-  tools.forEach((tool) => {
-    s.addShape(pres.shapes.RECTANGLE, {
-      x: x, y: 1.7, w: 2.7, h: 1.3,
-      fill: { color: C.offWhite }, line: { color: C.border, width: 1 }
+  // ========== SLIDE 1: TITLE (Navy) ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.navy };
+    s.addText("Gemini Enterprise とは？", {
+      x: 0.5, y: 1.5, w: 9, h: 0.8,
+      fontSize: F.size.hero, fontFace: F.sans, bold: true,
+      color: C.white, align: "center", shrinkText: true
     });
-    s.addText(tool.name, {
-      x: x + 0.15, y: 2.15, w: 2.4, h: 0.3,
-      fontSize: F.size.h3, fontFace: F.sans, bold: true,
-      color: C.textDark, align: "center", shrinkText: true
+    s.addShape(pres.shapes.LINE, {
+      x: 3.5, y: 2.45, w: 3, h: 0,
+      line: { color: C.accentMid, width: 1.5 }
     });
-    s.addText(tool.desc, {
-      x: x + 0.15, y: 2.55, w: 2.4, h: 0.4,
+    s.addText("企業向けAIの最新トレンド", {
+      x: 0.5, y: 2.65, w: 9, h: 0.45,
+      fontSize: F.size.h2, fontFace: F.sans,
+      color: C.accentMid, align: "center", shrinkText: true
+    });
+    s.addText("P-01  |  全社員向け  |  12分", {
+      x: 0.5, y: 3.8, w: 9, h: 0.35,
       fontSize: F.size.label, fontFace: F.sans,
-      color: C.textBody, align: "center", valign: "top", wrap: true
+      color: C.textMuted, align: "center", shrinkText: true
     });
-    x += 2.9;
-  });
+  }
 
-  s.addText("企業導入では：セキュリティ・カスタマイズ・統合が求められる", {
-    x: L.mx, y: 3.2, w: 8.5, h: 0.5,
-    fontSize: F.size.body, fontFace: F.sans,
-    color: C.green, align: "left", valign: "top", bold: true, wrap: true
-  });
-
-  addFooter(s, 2, T);
-
-  // スライド3
-  s = pres.addSlide();
-  addTopBar(s);
-  s.background = { color: C.white };
-  addSectionTitle(s, "Google が Gemini を作った理由", "1.2");
-
-  s.addText("★ Google Workspace に AI を統合", {
-    x: L.mx, y: 1.1, w: 8.5, h: 0.3,
-    fontSize: F.size.h3, fontFace: F.sans, bold: true,
-    color: C.navy, align: "left"
-  });
-
-  const timeline = [
-    { date: "2025年1月15日", event: "Gemini が Google Workspace に標準搭載" },
-    { date: "2025年3月17日", event: "新規・更新契約に新料金が適用" },
-    { date: "2025年10月9日", event: "Gemini Enterprise 発表" },
-    { date: "2026年3月4日", event: "Gemini アプリの共有機能が拡張" }
-  ];
-
-  let ty = 1.6;
-  timeline.forEach((t) => {
-    s.addShape(pres.shapes.RECTANGLE, {
-      x: L.mx, y: ty, w: 2.1, h: 0.32,
-      fill: { color: C.accentLight }, rectRadius: 0.05
-    });
-    s.addText(t.date, {
-      x: L.mx + 0.1, y: ty + 0.06, w: 1.9, h: 0.2,
-      fontSize: F.size.label, fontFace: F.sans, bold: true,
-      color: C.accent, align: "center"
-    });
-    s.addText(t.event, {
-      x: L.mx + 2.3, y: ty, w: 6.2, h: 0.32,
-      fontSize: F.size.body, fontFace: F.sans,
-      color: C.textBody, align: "left", valign: "middle", wrap: true
-    });
-    ty += 0.5;
-  });
-
-  addFooter(s, 3, T);
-
-  // スライド4-22: 残りのスライドを簡潔に作成
-  const slideSections = [
-    { title: "主要AIツール比較", tag: "2.1", content: "ChatGPT: 汎用性で最普及\nClaude: セキュリティ・プライバシー重視\nGemini: Google Workspace 統合が強み" },
-    { title: "統合度の違い", tag: "2.2", content: "ChatGPT/Claude: 独立ツール → コピペ作業必要\nGemini: Workspace に埋め込み → 統合度が圧倒的" },
-    { title: "信頼性・精度の比較", tag: "2.3", content: "2026年現在：精度差はほぼなし\n各ツール得意分野で選択することが重要" },
-    { title: "統合されたサービス一覧", tag: "3.1", content: "Gmail / ドキュメント / スプレッドシート\nスライド / Meet / カレンダー / Drive" },
-    { title: "Gmail × Gemini の活用例", tag: "3.2", content: "従来: 受け取る → 読む → 考える → 返信（5～10分）\nGemini: 受け取る → 提案確認 → 送信（3～5分）\n営業チーム全体: 月間数十時間削減" },
-    { title: "ドキュメント × Gemini の活用例", tag: "3.3", content: "従来: 調査 → 作成 → 推敲 → 修正\nGemini: 調査 → 初稿生成 → 最終調整\n定型文書作成: 最大80%削減" },
-    { title: "画像生成機能（2026年3月搭載）", tag: "4.1", content: "プレゼン資料の図表自動生成\nマーケティング素材の草案作成\n提案書のイラスト自動作成" },
-    { title: "動画生成機能（2026年3月搭載）", tag: "4.2", content: "営業研修の教材動画\n製品紹介動画の自動骨組み\n社内通知ビデオ\n制作時間が大幅削減" },
-    { title: "Deep Research 機能", tag: "4.3", content: "特定テーマの深掘り調査を自動実行\n戦略立案・市場調査・競合分析に活躍\n調査時間を最大70%削減" },
-    { title: "企業導入の実績", tag: "5.1", content: "J:COM: 月1,500時間削減\nnote: 月3～4時間削減\n日本特殊陶業: 週3.1時間削減（全社展開へ）" },
-    { title: "業務別の効率化実績", tag: "5.2", content: "メール返信: 60-70%削減\n資料作成: 70-80%削減\n情報整理: 50-60%削減\nデータ分析: 60-75%削減\n→全社平均: 年間200時間削減" },
-    { title: "企業導入のプロセス", tag: "5.3", content: "1. パイロット導入（10～50名）→ ユースケース確認\n2. 部分導入（部門単位）→ 業務改善を検証\n3. 全社展開 → 標準ツール化\n多くの企業は3～6ヶ月で全社展開に到達" },
-    { title: "企業向けセキュリティ機能", tag: "6.1", content: "VPC Service Controls / CMEK / EKM・HSM\nDLP（機密情報の流出を自動検知・遮断）\nRBAC（ロールベースアクセス管理）" },
-    { title: "業界別コンプライアンス対応", tag: "6.2", content: "HIPAA（医療） / FedRAMP（米国政府）\nISO 27001/27018 / SOC 2 Type II\nPCI DSS（金融・決済）\n金融・医療・公共セクターでも安心" },
-    { title: "データの所在地対応", tag: "6.3", content: "EU企業: EU リージョンでの処理\nUS企業: US リージョンでの処理\n日本企業: 日本・アジアリージョンでの処理\n地域規制に完全対応" },
-    { title: "無料版 vs Enterprise", tag: "7.1", content: "無料版: 基本チャット・Web検索のみ\nWorkspace+Gemini: 統合機能・画像生成あり\nEnterprise: 管理画面・セキュリティ機能フル" },
-    { title: "Gemini のポジション（2026年現在）", tag: "8.1", content: "ChatGPT: 汎用性で選ばれている\nClaude: 信頼性で選ばれている\nGemini: 統合度 × セキュリティで選ばれている" },
-    { title: "Gemini を成功させるポイント", tag: "8.2", content: "1. パイロット導入から始める\n2. ユースケースを集める\n3. 従業員教育を並行実施\n4. セキュリティルールを明確化" },
-    { title: "次のステップ", tag: "8.3", content: "1. 自社で使えそうな業務を探す\n2. 小規模から試す（10～20名）\n3. 効果を数値化する\n4. 部門横断で共有する\n年間200時間の削減 = 1人分の雇用価値" }
-  ];
-
-  slideSections.forEach((section, idx) => {
-    s = pres.addSlide();
-    addTopBar(s);
+  // ========== SLIDE 2: GOALS ==========
+  {
+    const s = pres.addSlide();
     s.background = { color: C.white };
-    addSectionTitle(s, section.title, section.tag);
+    addTopBar(s);
+    addTitle(s, "今日のゴール");
+    addFooter(s, 2);
 
-    s.addText(section.content, {
-      x: L.mx, y: 1.15, w: 8.5, h: 3.8,
+    const goals = [
+      "Gemini Enterprise が従来のAIツールと何が違うかを説明できる",
+      "Google Workspace 統合によるビジネス価値を理解する",
+      "実企業での導入効果（年200時間削減など）を具体的に説明できる",
+    ];
+    goals.forEach((g, i) => {
+      const y = 1.0 + i * 1.15;
+      s.addText(String(i + 1), {
+        x: L.mx, y: y + 0.05, w: 0.5, h: 0.5,
+        fontSize: F.size.h2, fontFace: F.sans, bold: true,
+        color: C.white, align: "center", valign: "middle",
+        fill: { color: C.accent }, shape: pres.shapes.OVAL, shrinkText: true
+      });
+      s.addText(g, {
+        x: L.mx + 0.7, y, w: 7.5, h: 0.6,
+        fontSize: F.size.h3, fontFace: F.sans,
+        color: C.textDark, valign: "middle", shrinkText: true
+      });
+      if (i < 2) {
+        s.addShape(pres.shapes.LINE, {
+          x: L.mx, y: y + 0.8, w: L.W - L.mx * 2, h: 0,
+          line: { color: C.border, width: 0.5 }
+        });
+      }
+    });
+  }
+
+  // ========== SLIDE 3: AI COMPETITION ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "生成AI競争の激化（2022-2026）", "BACKGROUND");
+    addFooter(s, 3);
+
+    addCards(s, [
+      { label: "ChatGPT", desc: "OpenAI\n最も普及している\n汎用AI", color: C.textDark, bg: C.lightGray, borderColor: null },
+      { label: "Claude", desc: "Anthropic\nセキュリティ重視\n長文処理に強い", color: C.textDark, bg: C.lightGray, borderColor: null },
+      { label: "Gemini", desc: "Google\nWorkspace統合\nセキュリティ完備", color: C.accent, bg: C.accentLight, borderColor: C.accent },
+    ], 1.0, 2.5, 2.0);
+
+    addInsight(s, "企業が求めるのはもはや『高性能』だけではなく『統合』『セキュリティ』『カスタマイズ性』", 3.5);
+  }
+
+  // ========== SLIDE 4: WORKSPACE INTEGRATION ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "Google Workspace との統合が強み", "KEY POINT");
+    addFooter(s, 4);
+
+    // 左: 従来のツール
+    s.addShape(pres.shapes.RECTANGLE, {
+      x: L.mx, y: 1.0, w: 4.0, h: 2.5,
+      fill: { color: C.redBg }, line: { color: C.red, width: 1 }, rectRadius: 0.05
+    });
+    s.addText("従来のAI（ChatGPT等）", {
+      x: L.mx, y: 1.15, w: 4.0, h: 0.35,
+      fontSize: F.size.h3, fontFace: F.sans, bold: true,
+      color: C.red, align: "center", shrinkText: true
+    });
+    s.addText("独立したツール\n\nデータをコピペで\n移動させる必要あり\n業務が煩雑", {
+      x: L.mx + 0.2, y: 1.6, w: 3.6, h: 1.6,
       fontSize: F.size.body, fontFace: F.sans,
-      color: C.textBody, align: "left", valign: "top", wrap: true
+      color: C.textBody, align: "center", lineSpacingMultiple: 1.4, shrinkText: true
     });
 
-    addFooter(s, idx + 4, T);
-  });
+    // 右: Gemini Enterprise
+    s.addShape(pres.shapes.RECTANGLE, {
+      x: L.W - L.mx - 4.0, y: 1.0, w: 4.0, h: 2.5,
+      fill: { color: C.accentLight }, line: { color: C.accent, width: 1 }, rectRadius: 0.05
+    });
+    s.addText("Gemini Enterprise", {
+      x: L.W - L.mx - 4.0, y: 1.15, w: 4.0, h: 0.35,
+      fontSize: F.size.h3, fontFace: F.sans, bold: true,
+      color: C.accent, align: "center", shrinkText: true
+    });
+    s.addText("Gmail・Drive・Docsに直接統合\n\nAIがそのまま\nメール・ドキュメント内で\n動作する", {
+      x: L.W - L.mx - 3.8, y: 1.6, w: 3.6, h: 1.6,
+      fontSize: F.size.body, fontFace: F.sans,
+      color: C.textBody, align: "center", lineSpacingMultiple: 1.4, shrinkText: true
+    });
 
-  // =====================================================
-  // Save presentation
-  // =====================================================
-  await pres.writeFile({ fileName: "/Users/kurosakiyuto/Downloads/開発/gorilla-knowledge/黒崎/AI研修一覧/Gemini/P-01_Gemini_Enterprise_とは/スライド.pptx" });
-  console.log("✓ スライド.pptx を生成しました。");
+    // Arrow
+    s.addText("→", {
+      x: 4.5, y: 1.8, w: 1.0, h: 0.6,
+      fontSize: F.size.h1, fontFace: F.sans, bold: true,
+      color: C.accent, align: "center", valign: "middle", shrinkText: true
+    });
+
+    addInsight(s, "統合度が高いほど業務効率化の効果も大きい", 3.8);
+  }
+
+  // ========== SLIDE 5: WORKSPACE FEATURES ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "Google Workspace 統合機能", "FEATURES");
+    addFooter(s, 5);
+
+    const features = [
+      { label: "Gmail", desc: "メール返信案の自動生成・分類・優先度付け" },
+      { label: "ドキュメント", desc: "文書作成支援・文法チェック・スタイル提案" },
+      { label: "スプレッドシート", desc: "データ分析・グラフ生成・計算式作成" },
+      { label: "Meet・カレンダー", desc: "文字起こし・議事録生成・スケジュール最適化" },
+    ];
+    features.forEach((f, i) => {
+      const y = 0.95 + i * 1.0;
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: L.mx, y, w: L.W - L.mx * 2, h: 0.8,
+        fill: { color: C.offWhite }, line: { color: C.border, width: 0.5 }, rectRadius: 0.05
+      });
+      s.addText(f.label, {
+        x: L.mx + 0.3, y: y + 0.08, w: 2, h: 0.3,
+        fontSize: F.size.h3, fontFace: F.sans, bold: true,
+        color: C.accent, shrinkText: true
+      });
+      s.addText(f.desc, {
+        x: L.mx + 2.5, y: y + 0.12, w: 6.2, h: 0.5,
+        fontSize: F.size.body, fontFace: F.sans,
+        color: C.textBody, valign: "middle", shrinkText: true
+      });
+    });
+  }
+
+  // ========== SLIDE 6: 2026 LATEST FEATURES ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "2026年最新機能", "LATEST");
+    addFooter(s, 6);
+
+    addCards(s, [
+      { label: "画像生成", desc: "プレゼン資料の図表・マーケティング素材\n自動生成", color: C.accent, bg: C.accentLight, borderColor: C.accent },
+      { label: "動画生成", desc: "テキストから短編動画\n自動作成機能", color: C.green, bg: C.greenBg, borderColor: C.green },
+      { label: "Deep Research", desc: "テーマについて\n深掘り調査・レポート化", color: C.amber, bg: C.amberBg, borderColor: C.amber },
+    ], 1.0, 2.5, 2.2);
+
+    addInsight(s, "これらが Workspace に統合され、資料作成からプレゼンまで AI が一気通貫サポート", 3.8);
+  }
+
+  // ========== SLIDE 7: ENTERPRISE BENEFITS ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "企業導入のメリット", "BENEFITS");
+    addFooter(s, 7);
+
+    const benefits = [
+      { label: "年200時間削減", desc: "1名あたり平均値\n月16時間、日当たり30分の効率化" },
+      { label: "資料作成70-80%削減", desc: "提案書・分析レポート\nの作成時間が大幅短縮" },
+      { label: "メール対応60-70%削減", desc: "返信ドラフト自動生成\n優先度付けで処理効率化" },
+    ];
+    benefits.forEach((b, i) => {
+      const y = 0.95 + i * 1.3;
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: L.mx, y, w: L.W - L.mx * 2, h: 1.05,
+        fill: { color: C.greenBg }, line: { color: C.green, width: 1 }, rectRadius: 0.05
+      });
+      s.addText(b.label, {
+        x: L.mx + 0.3, y: y + 0.08, w: 3, h: 0.3,
+        fontSize: F.size.h3, fontFace: F.sans, bold: true,
+        color: C.green, shrinkText: true
+      });
+      s.addText(b.desc, {
+        x: L.mx + 0.3, y: y + 0.42, w: 8.4, h: 0.5,
+        fontSize: F.size.body, fontFace: F.sans,
+        color: C.textBody, lineSpacingMultiple: 1.2, shrinkText: true
+      });
+    });
+  }
+
+  // ========== SLIDE 8: CASE STUDIES ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "実企業の導入事例", "CASE STUDIES");
+    addFooter(s, 8);
+
+    const cases = [
+      { label: "J:COM", metrics: "月1,500時間削減" },
+      { label: "note", metrics: "月3～4時間削減（1名）" },
+      { label: "日本特殊陶業", metrics: "週3.1時間削減" },
+    ];
+    cases.forEach((c, i) => {
+      const y = 1.0 + i * 1.25;
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: L.mx, y, w: L.W - L.mx * 2, h: 1.0,
+        fill: { color: C.offWhite }, line: { color: C.border, width: 0.5 }, rectRadius: 0.05
+      });
+      s.addText(c.label, {
+        x: L.mx + 0.3, y: y + 0.15, w: 2, h: 0.3,
+        fontSize: F.size.h2, fontFace: F.sans, bold: true,
+        color: C.textDark, shrinkText: true
+      });
+      s.addText(c.metrics, {
+        x: L.mx + 2.5, y: y + 0.2, w: 6, h: 0.5,
+        fontSize: F.size.h3, fontFace: F.sans,
+        color: C.accent, bold: true, valign: "middle", shrinkText: true
+      });
+    });
+
+    addInsight(s, "業種・規模を問わず、全社で確実な業務削減を実現", 3.9);
+  }
+
+  // ========== SLIDE 9: SECURITY & COMPLIANCE ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "セキュリティ・コンプライアンス対応", "SECURITY");
+    addFooter(s, 9);
+
+    addCards(s, [
+      { label: "HIPAA・FedRAMP", desc: "医療・政府機関\nレベルのセキュリティ", color: C.green, bg: C.greenBg, borderColor: C.green },
+      { label: "ISO 27001", desc: "情報セキュリティ\n国際標準に完全対応", color: C.green, bg: C.greenBg, borderColor: C.green },
+      { label: "CMEK・DLP", desc: "暗号化キー管理\nデータ損失防止機能", color: C.green, bg: C.greenBg, borderColor: C.green },
+    ], 1.0, 2.5, 2.0);
+
+    addInsight(s, "金融・医療・公共セクターでも安心して導入できるセキュリティレベル", 3.5);
+  }
+
+  // ========== SLIDE 10: COMPARISON TABLE ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.white };
+    addTopBar(s);
+    addTitle(s, "ChatGPT vs Gemini vs Claude 比較", "COMPARISON");
+    addFooter(s, 10);
+
+    const headers = ["", "ChatGPT", "Gemini", "Claude"];
+    const rows = [
+      ["Workspace統合", "✗", "✓", "✗"],
+      ["セキュリティ機能", "基本的", "フル", "充実"],
+      ["企業導入向け", "△", "✓", "△"],
+      ["既存ツール連携", "△", "✓", "✗"],
+      ["データ地域対応", "△", "✓", "△"],
+    ];
+
+    const colW = [2.0, 2.0, 2.0, 2.0];
+    const startX = (L.W - colW.reduce((a, b) => a + b, 0)) / 2;
+    const rowH = 0.45;
+    const startY = 1.0;
+
+    let cx = startX;
+    headers.forEach((h, i) => {
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: cx, y: startY, w: colW[i], h: rowH,
+        fill: { color: C.lightGray }, line: { color: C.border, width: 0.5 }
+      });
+      s.addText(h, {
+        x: cx, y: startY, w: colW[i], h: rowH,
+        fontSize: F.size.body, fontFace: F.sans, bold: true,
+        color: i === 2 ? C.accent : C.textDark, align: "center", valign: "middle", shrinkText: true
+      });
+      cx += colW[i];
+    });
+
+    rows.forEach((row, ri) => {
+      cx = startX;
+      const y = startY + rowH + ri * rowH;
+      row.forEach((cell, ci) => {
+        s.addShape(pres.shapes.RECTANGLE, {
+          x: cx, y, w: colW[ci], h: rowH,
+          fill: { color: C.white }, line: { color: C.border, width: 0.5 }
+        });
+        s.addText(cell, {
+          x: cx + 0.1, y, w: colW[ci] - 0.2, h: rowH,
+          fontSize: F.size.body, fontFace: F.sans,
+          bold: ci === 0,
+          color: ci === 0 ? C.textDark : C.textBody,
+          align: ci === 0 ? "left" : "center", valign: "middle", shrinkText: true
+        });
+        cx += colW[ci];
+      });
+    });
+
+    addInsight(s, "Workspace ユーザーなら、Gemini の統合度は圧倒的に有利", 3.9);
+  }
+
+  // ========== SLIDE 11: SUMMARY (Navy) ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.navy };
+
+    s.addText("まとめ", {
+      x: 0.5, y: 0.5, w: 9, h: 0.6,
+      fontSize: F.size.h1, fontFace: F.sans, bold: true,
+      color: C.white, align: "center", shrinkText: true
+    });
+
+    const summaries = [
+      "Gemini は Workspace 統合により、AI の価値を最大限引き出せる",
+      "実企業で年200時間の削減を実現。ROI は圧倒的",
+      "HIPAA・FedRAMP 対応で、金融・医療でも安全に使える",
+    ];
+    summaries.forEach((text, i) => {
+      const y = 1.5 + i * 1.0;
+      s.addText(String(i + 1), {
+        x: 2.5, y, w: 0.5, h: 0.5,
+        fontSize: F.size.h2, fontFace: F.sans, bold: true,
+        color: C.navy, align: "center", valign: "middle",
+        fill: { color: C.accentMid }, shape: pres.shapes.OVAL, shrinkText: true
+      });
+      s.addText(text, {
+        x: 3.2, y, w: 5, h: 0.5,
+        fontSize: F.size.h3, fontFace: F.sans,
+        color: C.white, valign: "middle", shrinkText: true
+      });
+    });
+
+    addFooter(s, 11);
+    // Override footer for navy
+    s.addText("P-01", {
+      x: L.mx, y: L.H - 0.38, w: 2, h: 0.3,
+      fontSize: F.size.caption, fontFace: F.sans,
+      color: C.textMuted, align: "left", shrinkText: true
+    });
+  }
+
+  // ========== SLIDE 12: END (Navy) ==========
+  {
+    const s = pres.addSlide();
+    s.background = { color: C.navy };
+    s.addText("P-01 修了", {
+      x: 0.5, y: 1.8, w: 9, h: 0.7,
+      fontSize: F.size.hero, fontFace: F.sans, bold: true,
+      color: C.white, align: "center", shrinkText: true
+    });
+    s.addShape(pres.shapes.LINE, {
+      x: 3.5, y: 2.65, w: 3, h: 0,
+      line: { color: C.accentMid, width: 1.5 }
+    });
+    s.addText("企業向けAIの新時代、ここから始めよう", {
+      x: 0.5, y: 2.8, w: 9, h: 0.45,
+      fontSize: F.size.h2, fontFace: F.sans,
+      color: C.accentMid, align: "center", shrinkText: true
+    });
+    s.addText("NEXT → P-02 Google Workspace 統合実演", {
+      x: 0.5, y: 3.8, w: 9, h: 0.35,
+      fontSize: F.size.label, fontFace: F.sans,
+      color: C.textMuted, align: "center", shrinkText: true
+    });
+  }
+
+  // ========== WRITE FILE ==========
+  const outPath = __dirname + "/スライド.pptx";
+  await pres.writeFile({ fileName: outPath });
+  console.log("Created: " + outPath);
 }
 
-main().catch(console.error);
+main().catch(err => { console.error(err); process.exit(1); });
