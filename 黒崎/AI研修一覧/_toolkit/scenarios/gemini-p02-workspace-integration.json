@@ -1,0 +1,28 @@
+{
+  "service": "gemini",
+  "url": "https://gemini.google.com",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "_comment": "ページ完全読み込み待ち" },
+    { "action": "wait", "ms": 1000, "_comment": "画面が安定してから録画に入る" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "入力欄をクリック" },
+    { "action": "wait", "ms": 500 },
+    { "action": "type", "text": "以下の営業案件について、顧客へのフォローアップメールのドラフトを作成してください。\n\n【案件情報】\n顧客: ABC マーケティング株式会社\n案件: クラウド分析ツール導入検討\n前回の商談: 3月15日（ニーズヒアリング完了）\n今回の提案: 実装スケジュール＆見積もり提示\n\nメールはビジネス的でありながら、親しみやすいトーンでお願いします。", "delay": 65, "_comment": "営業メール作成をリクエスト" },
+    { "action": "wait", "ms": 1500, "_comment": "入力内容を見せる間" },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000, "_comment": "送信直後の反応を見せる" },
+    { "action": "waitForAI", "timeout": 50000, "stableMs": 3000 },
+    { "action": "wait", "ms": 4000, "_comment": "回答全体を見せる間" },
+    { "action": "scroll", "direction": "down", "amount": 300, "_comment": "ドラフト内容を確認" },
+    { "action": "wait", "ms": 2000, "_comment": "スクロール後の表示確認" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "次の入力準備" },
+    { "action": "type", "text": "このメールを、Google ドライブに保存されている『顧客ABC_2026年度目標.xlsx』の内容を踏まえて、さらにカスタマイズしてもらえますか？\n\n特に、顧客の2026年度の重点施策に合わせた提案内容にしてください。", "delay": 65, "_comment": "ドライブ情報を活用したカスタマイズをリクエスト" },
+    { "action": "wait", "ms": 1500, "_comment": "フォローアップ入力を見せる間" },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "waitForAI", "timeout": 50000, "stableMs": 3000 },
+    { "action": "wait", "ms": 3000, "_comment": "カスタマイズ版メール表示確認" },
+    { "action": "scroll", "direction": "up", "amount": 300, "_comment": "回答全体を見やすく" },
+    { "action": "wait", "ms": 3000 }
+  ]
+}

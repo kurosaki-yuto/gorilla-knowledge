@@ -1,0 +1,28 @@
+{
+  "service": "gemini",
+  "url": "https://gemini.google.com",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "_comment": "ページ完全読み込み待ち" },
+    { "action": "wait", "ms": 1000, "_comment": "画面が安定してから録画に入る" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "入力欄をクリック" },
+    { "action": "wait", "ms": 500 },
+    { "action": "type", "text": "以下の営業データを基に、テック系スタートアップ企業『TechFlow Inc.』向けの提案書を作成してください。\n\n【顧客プロフィール】\n・社員数: 50-100名\n・事業: AI を用いた業務自動化ツール開発\n・現在の課題: 営業効率化、ドキュメント管理の自動化\n・予算: 月額 30-50万円\n\n【提案内容】\nGoogle Workspace + Gemini Enterprise を導入した業務効率化パッケージ\n\n【期待効果】\n・営業資料作成時間を 60% 削減\n・会議議事録の自動作成\n・顧客対応メールの自動ドラフト生成\n\n提案書は、Executive Summary から始まり、ROI試算までを含めてください。", "delay": 65, "_comment": "提案書自動生成をリクエスト" },
+    { "action": "wait", "ms": 1500, "_comment": "入力内容を見せる間" },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000, "_comment": "送信直後の反応を見せる" },
+    { "action": "waitForAI", "timeout": 60000, "stableMs": 3000 },
+    { "action": "wait", "ms": 5000, "_comment": "提案書内容表示確認" },
+    { "action": "scroll", "direction": "down", "amount": 500, "_comment": "提案書内容の詳細確認" },
+    { "action": "wait", "ms": 3000, "_comment": "スクロール後の表示確認" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "次の入力準備" },
+    { "action": "type", "text": "提案書を JSON 形式で出力してもらえますか？Google Sheets に自動取り込みする予定です。\n\n構成: {\n  \"executiveSummary\": \"...\",\n  \"proposedSolution\": {...},\n  \"roiCalculation\": {...},\n  \"implementationTimeline\": [...]\n}", "delay": 65, "_comment": "JSON形式での出力をリクエスト" },
+    { "action": "wait", "ms": 1500 },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "waitForAI", "timeout": 45000, "stableMs": 3000 },
+    { "action": "wait", "ms": 3000, "_comment": "JSON形式の出力確認" },
+    { "action": "scroll", "direction": "down", "amount": 300, "_comment": "JSON内容を表示" },
+    { "action": "wait", "ms": 3000 }
+  ]
+}

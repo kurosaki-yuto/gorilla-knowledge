@@ -1,0 +1,30 @@
+{
+  "service": "gemini",
+  "url": "https://gemini.google.com",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "_comment": "ページ完全読み込み待ち" },
+    { "action": "wait", "ms": 1000, "_comment": "画面が安定してから録画に入る" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "入力欄をクリック" },
+    { "action": "wait", "ms": 500 },
+    { "action": "type", "text": "営業チーム（20名）が Gemini Enterprise を導入して、3ヶ月後、半年後、1年後にどんな風に仕事が変わっていくか、具体的に教えてください。\n\n現在:\n・営業資料作成: 1日2時間かかる\n・顧客メール対応: 返信に30分～1時間\n・提案書作成: 1案件あたり3～4時間\n・議事録作成: 商談後1時間以上\n\n導入後、チーム全体としてどんな効率化が起きるか、数字と具体例で見せてもらえますか？", "delay": 65, "_comment": "導入事例・未来予測をリクエスト" },
+    { "action": "wait", "ms": 1500, "_comment": "入力内容を見せる間" },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000, "_comment": "送信直後の反応を見せる" },
+    { "action": "waitForAI", "timeout": 60000, "stableMs": 3000 },
+    { "action": "wait", "ms": 5000, "_comment": "導入後の変化を表示確認" },
+    { "action": "scroll", "direction": "down", "amount": 500, "_comment": "時系列での効果を見ていく" },
+    { "action": "wait", "ms": 3000, "_comment": "スクロール後の確認" },
+    { "action": "click", "selector": "textarea, [role='textbox'][contenteditable='true']", "_comment": "次の入力準備" },
+    { "action": "type", "text": "それでは、Gemini Enterprise を使うための『最初の3つのステップ』を簡潔に教えてもらえますか？\n\n・何から始めるのか\n・最初に試してみるべき業務は何か\n・最初の1週間で達成できることは何か\n\nシンプルに、誰でも実行できる形でお願いします。", "delay": 65, "_comment": "実装のファーストステップをリクエスト" },
+    { "action": "wait", "ms": 1500 },
+    { "action": "press", "key": "Enter" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "waitForAI", "timeout": 45000, "stableMs": 3000 },
+    { "action": "wait", "ms": 3000, "_comment": "ステップ表示確認" },
+    { "action": "scroll", "direction": "down", "amount": 300, "_comment": "具体的なステップを表示" },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "up", "amount": 300, "_comment": "全体ビュー" },
+    { "action": "wait", "ms": 3000 }
+  ]
+}
