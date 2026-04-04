@@ -143,7 +143,7 @@ async function main() {
       s.addText(String(i + 1), { x: 2.5, y, w: 0.5, h: 0.5, fontSize: F.size.h2, fontFace: F.sans, bold: true, color: C.navy, align: "center", valign: "middle", fill: { color: C.accentMid }, shape: pres.shapes.OVAL, shrinkText: true });
       s.addText(text, { x: 3.2, y, w: 5, h: 0.5, fontSize: F.size.h3, fontFace: F.sans, color: C.white, valign: "middle", shrinkText: true });
     });
-    addFooter(s, 11); s.addText("P-02", { x: L.mx, y: L.H - 0.38, w: 2, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, align: "left", shrinkText: true });
+    addFooter(s, 11);
   }
 
   // ========== SLIDE 12: END ==========

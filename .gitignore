@@ -2,3 +2,8 @@
 node_modules/
 .claude/projects/
 **/_temp_video/
+
+# GitHub 100MB 制限超の取得元・中間ファイル（ローカルのみ保持）
+黒崎/AI研修一覧/GPT講座/original.mp4
+黒崎/AI研修一覧/GPT講座/original.fhls-raw-1500.mp4
+黒崎/AI研修一覧/GPT講座/original.fhls-raw-audio-audio.mp4.part

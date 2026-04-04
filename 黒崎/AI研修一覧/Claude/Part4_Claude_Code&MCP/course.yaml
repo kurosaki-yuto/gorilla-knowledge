@@ -1,0 +1,246 @@
+course:
+  id: "Claude-P4"
+  title: "Claude Code & MCP"
+  subtitle: "AIエージェント開発入門"
+  level: "実践"
+  target: "全社員"
+  duration: "20分"
+  category: "Claude実践"
+
+chapters:
+  - id: "Claude-P4"
+    title: "Claude Code & MCP — AIエージェント開発入門"
+    learning_goals:
+      - "Claude Codeのインストールと基本操作を理解する"
+      - "CLAUDE.mdでプロジェクト設定ができる"
+      - "MCPの仕組みと代表的なサーバーを説明できる"
+      - "他のAIコーディングツールとの違いを判断できる"
+    slides:
+      - type: "title"
+        title: "Claude Code & MCP"
+        subtitle: "AIエージェント開発入門"
+
+      - type: "goals"
+        title: "今日のゴール"
+        items:
+          - "Claude Codeのインストールと基本操作を理解する"
+          - "CLAUDE.mdでプロジェクト設定ができる"
+          - "MCPの仕組みと代表的サーバーを説明できる"
+          - "他のAI開発ツールとの違いを判断できる"
+
+      - type: "definition"
+        title: "Claude Codeとは？"
+        definition: "ターミナルからAIにコーディングを委任するCLIツール（Pro以上）"
+        comparison:
+          left:
+            label: "従来のコーディング"
+            steps: ["人間がコードを書く", "エラーを自分で調べる", "ファイルを1つずつ修正"]
+          right:
+            label: "Claude Code"
+            steps: ["自然言語で指示", "AIが自律的にコード編集", "複数ファイル同時修正"]
+        footnote: "インストール: curl -fsSL https://claude.ai/install.sh | bash → claude で起動"
+
+      - type: "cards"
+        title: "Claude Code — 6つの主要機能"
+        cards:
+          - icon: "code"
+            label: "ファイル読み書き"
+            desc: "AIが自律的にコード編集"
+            color: "accent"
+          - icon: "sync"
+            label: "git操作"
+            desc: "コミット・PR・レビュー"
+            color: "green"
+          - icon: "check"
+            label: "テスト実行"
+            desc: "テスト→失敗→自動修正"
+            color: "amber"
+
+      - type: "cards"
+        title: "Claude Code — 6つの主要機能（続き）"
+        cards:
+          - icon: "layer"
+            label: "マルチファイル"
+            desc: "40以上のファイルを同時編集"
+            color: "accent"
+          - icon: "sitemap"
+            label: "Plan mode"
+            desc: "設計→確認→実装"
+            color: "green"
+          - icon: "desktop"
+            label: "IDE連携"
+            desc: "VS Code・JetBrains"
+            color: "amber"
+
+      - type: "definition"
+        title: "CLAUDE.md — プロジェクトの「取扱説明書」"
+        definition: "プロジェクトルートに置くAIへの指示ファイル。毎回説明不要に"
+        comparison:
+          left:
+            label: "CLAUDE.mdなし"
+            steps: ["毎回プロジェクト構成を説明", "コーディング規約を伝達", "ツール名や手順を指示"]
+          right:
+            label: "CLAUDE.mdあり"
+            steps: ["AIが最初から構成を理解", "規約に沿ったコードを生成", "デプロイ手順も把握済み"]
+        footnote: "CLAUDE.mdはMarkdown形式。ビルドコマンド、構成、規約、注意点を記載"
+
+      - type: "examples"
+        title: "実演① 機能追加"
+        subtitle: "「このプロジェクトにログイン機能を追加して」"
+        badge: "DEMO"
+        flow: ["指示を入力", "構造確認", "コード生成", "テスト"]
+        examples:
+          - label: "AIの動作"
+            desc: "ファイル構造を読み取り→必要なファイルを特定→コード生成→テスト実行"
+          - label: "人間の作業"
+            desc: "自然言語で指示を出すだけ。コードを書く必要なし"
+          - label: "所要時間"
+            desc: "数分で完了。手作業なら数時間〜1日"
+        insight: "人間は「何を作りたいか」を伝え、AIが「どう作るか」を実行する"
+
+      - type: "examples"
+        title: "実演② バグ修正"
+        subtitle: "「テストが落ちてるので修正して」→ AIが自律的に修正"
+        badge: "DEMO"
+        flow: ["エラー確認", "原因分析", "コード修正", "テスト再実行"]
+        examples:
+          - label: "エラー読取"
+            desc: "テスト出力からエラー内容と原因箇所を自動特定"
+          - label: "修正提案"
+            desc: "Plan modeで修正方針を提示→承認後に実装"
+          - label: "自動検証"
+            desc: "修正後にテストを再実行して通過を確認"
+
+      - type: "table"
+        title: "AIコーディングツール比較"
+        headers: ["", "Claude Code", "Copilot", "Cursor"]
+        header_colors: ["offWhite", "accent", "green", "amber"]
+        rows:
+          - ["タイプ", "ターミナルCLI", "エディタ拡張", "AI搭載エディタ"]
+          - ["自律実行", "◎", "△", "○"]
+          - ["大規模コード", "◎（40+ファイル）", "○", "○"]
+          - ["git連携", "◎（PR作成まで）", "△", "△"]
+          - ["学習コスト", "やや高", "低", "低〜中"]
+          - ["月額", "$20（Pro）", "$10", "$20"]
+
+      - type: "definition"
+        title: "MCP（Model Context Protocol）とは？"
+        definition: "AIを外部ツールに接続するオープン標準プロトコル（AIのUSB-C）"
+        comparison:
+          left:
+            label: "MCP以前"
+            steps: ["ツールごとに専用連携を開発", "ChatGPTプラグインはAPI固有", "互換性なし"]
+          right:
+            label: "MCP以後"
+            steps: ["1つの標準で全ツール接続", "サーバーを追加するだけ", "Claude/Cursor/VS Code共通"]
+        footnote: "Anthropicが策定。オープンソース。5,000以上のサーバーが公開中"
+
+      - type: "examples"
+        title: "MCPアーキテクチャ"
+        subtitle: "ホスト → クライアント → MCPサーバー → 外部ツール"
+        flow: ["ホスト（Claude）", "クライアント", "MCPサーバー", "外部ツール"]
+        examples:
+          - label: "ツール（Tools）"
+            desc: "操作を実行：ファイル作成、メッセージ送信、SQL実行"
+          - label: "リソース（Resources）"
+            desc: "データを読取：ファイル内容、DB行、カレンダー予定"
+          - label: "プロンプト（Prompts）"
+            desc: "再利用可能なプロンプトテンプレートを提供"
+
+      - type: "grid"
+        title: "代表的なMCPサーバー"
+        items:
+          - icon: "file"
+            label: "ファイルシステム"
+            desc: "ローカルファイルの読み書き・検索"
+          - icon: "code"
+            label: "GitHub"
+            desc: "PR・Issue操作、コード検索"
+          - icon: "comments"
+            label: "Slack"
+            desc: "メッセージ送受信、チャンネル要約"
+          - icon: "database"
+            label: "データベース"
+            desc: "自然言語→SQLクエリ実行"
+        key_message: "Google系（Drive/Calendar/Gmail）、ブラウザ操作（Playwright）なども対応"
+
+      - type: "grid"
+        title: "MCP活用の実務シナリオ"
+        items:
+          - icon: "comments"
+            label: "Slack要約"
+            desc: "チャンネルの未読を要約→Notionに保存"
+          - icon: "code"
+            label: "PR自動レビュー"
+            desc: "GitHub PRを自動レビュー→コメント投稿"
+          - icon: "database"
+            label: "自然言語DB分析"
+            desc: "「今月の売上TOP10は？」→SQL実行→結果分析"
+          - icon: "globe"
+            label: "Web自動操作"
+            desc: "Playwrightでブラウザ操作を自動化"
+
+      - type: "summary"
+        title: "Part4 まとめ"
+        items:
+          - label: "Claude Code"
+            text: "ターミナルベースの自律AI。自然言語で指示→コード生成→テスト"
+            color: "accent"
+          - label: "CLAUDE.md"
+            text: "プロジェクト知識を永続化。毎回の説明が不要に"
+            color: "green"
+          - label: "MCP"
+            text: "AIを外部ツールに接続する標準プロトコル。5000+サーバー"
+            color: "amber"
+          - label: "使い分け"
+            text: "Claude Code=大規模自律、Copilot=補完、Cursor=バランス"
+            color: "red"
+
+      - type: "end"
+        test_count: 5
+        pass_rate: 80
+        next: "Part5 Claude Co-work & 実践ワークショップ"
+
+    test:
+      pass_rate: 80
+      questions:
+        - question: "Claude Codeの説明として正しいものは？"
+          choices:
+            - "A. ブラウザで動くコードエディタ"
+            - "B. ターミナルからAIにコーディングを委任するCLIツール"
+            - "C. AIが自動でWebサイトを作るサービス"
+            - "D. コード補完に特化したエディタ拡張"
+          answer: "B"
+          explanation: "Claude Codeはターミナルベースの自律型AIコーディングツール。"
+        - question: "CLAUDE.mdの主な役割は？"
+          choices:
+            - "A. AIのソースコードを格納する"
+            - "B. プロジェクトの構成・規約をAIに伝える指示ファイル"
+            - "C. テスト結果を記録するログファイル"
+            - "D. ユーザーの個人設定を保存する"
+          answer: "B"
+          explanation: "CLAUDE.mdはプロジェクトルートに置く指示ファイル。構成、規約、コマンドを記載。"
+        - question: "MCPを一言で表すと？"
+          choices:
+            - "A. Claudeのプログラミング言語"
+            - "B. AIを外部ツールに接続するオープン標準プロトコル"
+            - "C. Anthropicの社内チャットツール"
+            - "D. コードのバージョン管理システム"
+          answer: "B"
+          explanation: "MCP=Model Context Protocol。AIのUSB-Cのような共通接続規格。"
+        - question: "MCPで接続できないものは？"
+          choices:
+            - "A. GitHub（PR・Issue操作）"
+            - "B. Slack（メッセージ送受信）"
+            - "C. AIの学習データの直接編集"
+            - "D. データベース（SQLクエリ実行）"
+          answer: "C"
+          explanation: "MCPは外部ツール接続用。AIの内部学習データを編集する機能ではない。"
+        - question: "Claude Code / Copilot / Cursorの違いとして正しいのは？"
+          choices:
+            - "A. 全て同じ機能で価格だけが違う"
+            - "B. Claude Code=自律実行が最も強い、Copilot=補完メイン、Cursor=バランス"
+            - "C. Cursorが最も自律実行に優れている"
+            - "D. Copilotだけがgit連携に対応"
+          answer: "B"
+          explanation: "Claude Code=大規模自律コーディング、Copilot=コード補完中心、Cursor=チャット+補完。"

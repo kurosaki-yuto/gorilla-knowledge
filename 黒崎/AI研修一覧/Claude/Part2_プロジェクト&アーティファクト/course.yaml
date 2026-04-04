@@ -1,0 +1,242 @@
+course:
+  id: "Claude-P2"
+  title: "プロジェクト & アーティファクト活用"
+  subtitle: "業務専用AIアシスタントを構築する"
+  level: "実践"
+  target: "全社員"
+  duration: "20分"
+  category: "Claude実践"
+
+chapters:
+  - id: "Claude-P2"
+    title: "プロジェクト & アーティファクト活用 — 業務専用AIアシスタントを構築する"
+    learning_goals:
+      - "プロジェクト機能で業務専用ナレッジベースを構築できる"
+      - "アーティファクトでHTML/Mermaid/Reactを即時生成できる"
+      - "ChatGPT Canvas vs Claude Artifactsの違いを説明できる"
+    slides:
+      - type: "title"
+        title: "プロジェクト & アーティファクト活用"
+        subtitle: "業務専用AIアシスタントを構築する"
+
+      - type: "goals"
+        title: "今日のゴール"
+        items:
+          - "プロジェクト機能で業務専用ナレッジベースを構築できる"
+          - "アーティファクトでHTML/Mermaid/Reactを即時生成できる"
+          - "ChatGPT Canvas vs Claude Artifactsの違いを説明できる"
+
+      - type: "definition"
+        title: "プロジェクトとは？"
+        definition: "自分専用の業務AIアシスタントを作る機能（Pro以上）"
+        comparison:
+          left:
+            label: "通常のチャット"
+            steps: ["毎回ゼロから説明", "文脈が引き継がれない", "汎用的な回答"]
+          right:
+            label: "プロジェクト"
+            steps: ["業務資料を事前にUP", "カスタム指示で精度UP", "業務特化の回答"]
+        footnote: "ナレッジベース（ファイルUP）+ カスタム指示 + 専用チャット = 業務専用AI"
+
+      - type: "examples"
+        title: "プロジェクト作成の4ステップ"
+        subtitle: "1回設定すれば、以後すべての会話で業務知識が反映される"
+        flow: ["名前を設定", "カスタム指示を記入", "ファイルをUP", "テスト実行"]
+        examples:
+          - label: "名前"
+            desc: "具体的に。「提案書作成AI」「契約レビューAI」など"
+          - label: "指示"
+            desc: "出力形式・参照ファイルの使い方・制約条件を明記"
+          - label: "ナレッジ"
+            desc: "PDF/DOCX/CSV等。テンプレ、過去事例、規約など"
+        insight: "ファイルはキャッシュされ、会話をまたいで再利用。毎回UPし直す必要なし"
+
+      - type: "grid"
+        title: "業種別プロジェクト活用パターン"
+        items:
+          - icon: "briefcase"
+            label: "営業"
+            desc: "提案書テンプレ+事例+料金表で提案書自動生成"
+          - icon: "balance"
+            label: "法務"
+            desc: "契約書テンプレ+チェックリストでレビュー自動化"
+          - icon: "users"
+            label: "人事"
+            desc: "JD+評価基準で面接質問を自動生成"
+          - icon: "chart"
+            label: "経営企画"
+            desc: "KPIデータ+目標値で月次レポート自動作成"
+        key_message: "どの部門でも「テンプレ + 過去データ + 指示」で業務特化AIが作れる"
+
+      - type: "caution"
+        title: "カスタム指示の書き方 — 5つの要素"
+        items:
+          - icon: "users"
+            title: "役割（Role）"
+            desc: "「あなたはBtoB向け提案書の専門家です」と明示"
+            color: "accent"
+          - icon: "file"
+            title: "参照（Reference）"
+            desc: "「ナレッジの料金表を参照してプランを推薦」"
+            color: "green"
+          - icon: "tasks"
+            title: "形式（Format）"
+            desc: "「課題→提案→効果→料金→次のステップの順で構成」"
+            color: "amber"
+
+      - type: "definition"
+        title: "アーティファクトとは？"
+        definition: "リアルタイムで成果物を生成・プレビューする機能"
+        comparison:
+          left:
+            label: "通常の回答"
+            steps: ["テキストで表示", "コピペして使う", "見た目の確認は別途"]
+          right:
+            label: "アーティファクト"
+            steps: ["HTML/Reactをプレビュー", "その場で動作確認", "バージョン管理・共有可"]
+        footnote: "テキスト・HTML・SVG・Mermaid図・Reactコンポーネント・コードに対応"
+
+      - type: "table"
+        title: "Canvas vs Artifacts"
+        headers: ["", "Claude Artifacts", "ChatGPT Canvas"]
+        header_colors: ["offWhite", "accent", "amber"]
+        rows:
+          - ["対応形式", "テキスト・HTML・SVG・Mermaid・React", "テキスト・コード"]
+          - ["プレビュー", "◎ HTML/SVGをその場表示", "△ テキスト中心"]
+          - ["インタラクティブ", "◎ Reactが動作", "△"]
+          - ["バージョン管理", "○", "○"]
+          - ["公開・共有", "◎ URL発行で誰でも閲覧", "△"]
+
+      - type: "examples"
+        title: "実演① HTMLレポート"
+        subtitle: "競合分析レポートをHTML形式で自動生成"
+        badge: "DEMO"
+        examples:
+          - label: "入力"
+            desc: "自社・競合A・競合Bの基本情報（月額、導入数、強み）"
+          - label: "出力"
+            desc: "見やすい表+グラフ付きのHTML競合分析レポート"
+          - label: "所要時間"
+            desc: "約30秒で完成。手作業なら半日以上"
+        insight: "「HTML形式で、表とグラフを含めて」と指示するだけでプロ品質のレポート"
+
+      - type: "examples"
+        title: "実演② Mermaid図"
+        subtitle: "業務フローを自然言語からフロー図に変換"
+        badge: "DEMO"
+        examples:
+          - label: "フローチャート"
+            desc: "業務プロセスの可視化（受注→製造→出荷→請求）"
+          - label: "シーケンス図"
+            desc: "システム間連携の流れ（API→DB→レスポンス）"
+          - label: "ガントチャート"
+            desc: "プロジェクトスケジュールの可視化"
+          - label: "マインドマップ"
+            desc: "ブレインストーミングのアイデア整理"
+        insight: "テキストで業務フローを書くだけで、きれいな図が即生成される"
+
+      - type: "examples"
+        title: "実演③ Reactダッシュボード"
+        subtitle: "KPIデータからインタラクティブなダッシュボードを生成"
+        badge: "DEMO"
+        examples:
+          - label: "入力データ"
+            desc: "月次KPI（リード数、CVR、広告費、ROI）6か月分"
+          - label: "出力"
+            desc: "Recharts使用のグラフ付きダッシュボード。フィルタ機能付き"
+          - label: "衝撃ポイント"
+            desc: "Reactコンポーネントがその場で実行される"
+        insight: "プログラミング不要でインタラクティブなダッシュボードが作れる"
+
+      - type: "examples"
+        title: "バージョン管理と共有"
+        subtitle: "作って終わりではない — 継続的に改善・共有できる"
+        flow: ["初版生成", "フィードバック", "改善版", "公開・共有"]
+        examples:
+          - label: "バージョン履歴"
+            desc: "過去のバージョンをワンクリックで復元可能"
+          - label: "公開機能"
+            desc: "URLを発行して社内外に共有。Claudeアカウント不要で閲覧可"
+          - label: "リミックス"
+            desc: "他の人がURLから自分用コピーを作成して改変できる"
+
+      - type: "grid"
+        title: "業種別アーティファクト活用マップ"
+        items:
+          - icon: "chart"
+            label: "マーケティング"
+            desc: "HTMLレポート、LP、メールテンプレート"
+          - icon: "clipboard"
+            label: "経理"
+            desc: "予算ダッシュボード、分析レポート"
+          - icon: "code"
+            label: "開発"
+            desc: "API仕様書、アーキテクチャ図"
+          - icon: "briefcase"
+            label: "経営"
+            desc: "競合分析、戦略資料、KPIボード"
+
+      - type: "summary"
+        title: "Part2 まとめ"
+        items:
+          - label: "プロジェクト"
+            text: "ナレッジ+指示で業務特化AIを構築。1回設定で以後ずっと有効"
+            color: "accent"
+          - label: "アーティファクト"
+            text: "HTML/Mermaid/Reactをリアルタイム生成・プレビュー"
+            color: "green"
+          - label: "Canvas比較"
+            text: "Artifacts = プレビュー実行+公開共有+React動作で圧倒的に多機能"
+            color: "amber"
+          - label: "運用"
+            text: "バージョン管理で継続改善、URL共有で社内展開"
+            color: "red"
+
+      - type: "end"
+        test_count: 5
+        pass_rate: 80
+        next: "Part3 100万トークン長文処理 & Web検索活用"
+
+    test:
+      pass_rate: 80
+      questions:
+        - question: "Claudeプロジェクト機能の説明として正しいものは？"
+          choices:
+            - "A. AIが自動でプロジェクト管理をするツール"
+            - "B. 業務ファイルとカスタム指示で専用AIを構築する機能"
+            - "C. チーム全員の会話履歴を共有する機能"
+            - "D. AIがコードを自動生成するプロジェクト"
+          answer: "B"
+          explanation: "プロジェクトはナレッジベース（ファイルUP）+カスタム指示で業務特化AIを作る機能。"
+        - question: "アーティファクトで生成できないものは？"
+          choices:
+            - "A. HTMLレポート"
+            - "B. Mermaidフロー図"
+            - "C. AI生成画像（写真やイラスト）"
+            - "D. Reactダッシュボード"
+          answer: "C"
+          explanation: "アーティファクトはHTML/SVG/Mermaid/React/コードに対応。画像生成はChatGPTの領域。"
+        - question: "Claude ArtifactsとChatGPT Canvasの最大の違いは？"
+          choices:
+            - "A. Canvasの方が多機能"
+            - "B. ArtifactsはReactが実行でき、URL共有で誰でも閲覧可能"
+            - "C. Canvasの方がバージョン管理が優れている"
+            - "D. 機能的に違いはない"
+          answer: "B"
+          explanation: "ArtifactsはReactコンポーネントの実行、HTML/SVGのプレビュー、URL公開が可能。"
+        - question: "プロジェクトのカスタム指示に含めるべき要素は？"
+          choices:
+            - "A. AIのソースコード"
+            - "B. 役割・参照ファイルの使い方・出力形式"
+            - "C. 自分のパスワード"
+            - "D. 競合他社の機密情報"
+          answer: "B"
+          explanation: "役割（Role）、参照ファイルの使い方、出力形式・制約を明記するのが効果的。"
+        - question: "アーティファクトの共有機能について正しいものは？"
+          choices:
+            - "A. 共有はTeamプラン以上でのみ可能"
+            - "B. URLを発行して誰でも閲覧可能。アカウント不要"
+            - "C. PDFでの共有のみ可能"
+            - "D. 共有機能は存在しない"
+          answer: "B"
+          explanation: "Publishで公開URLを発行。Claudeアカウントなしで閲覧・操作でき、リミックスも可能。"

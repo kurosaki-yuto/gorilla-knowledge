@@ -1,0 +1,241 @@
+course:
+  id: "Claude-P3"
+  title: "100万トークン長文処理 & Web検索活用"
+  subtitle: "分厚い資料を一気に分析する"
+  level: "実践"
+  target: "全社員"
+  duration: "20分"
+  category: "Claude実践"
+
+chapters:
+  - id: "Claude-P3"
+    title: "100万トークン長文処理 & Web検索活用 — 分厚い資料を一気に分析する"
+    learning_goals:
+      - "100万トークンの具体的な活用シーンを理解する"
+      - "長文PDFを効率的に分析するプロンプトを書ける"
+      - "Web検索を使ったリサーチ手法を実践できる"
+    slides:
+      - type: "title"
+        title: "100万トークン長文処理 & Web検索活用"
+        subtitle: "分厚い資料を一気に分析する"
+
+      - type: "goals"
+        title: "今日のゴール"
+        items:
+          - "100万トークンの具体的な活用シーンを理解する"
+          - "長文PDFを効率的に分析するプロンプトを書ける"
+          - "Web検索を使ったリサーチ手法を実践できる"
+
+      - type: "table"
+        title: "100万トークン — どれくらい？"
+        headers: ["", "Claude", "ChatGPT Plus", "ChatGPT Pro"]
+        header_colors: ["offWhite", "accent", "amber", "amber"]
+        rows:
+          - ["トークン数", "1,000,000", "256,000", "400,000"]
+          - ["書籍換算", "約8冊", "約2冊", "約3冊"]
+          - ["PDFページ", "400ページ超", "約100ページ", "約160ページ"]
+          - ["月額料金", "$20（Pro）", "$20（Plus）", "$200（Pro）"]
+
+      - type: "table"
+        title: "時間削減インパクト"
+        headers: ["タスク", "手作業", "Claude", "削減率"]
+        header_colors: ["offWhite", "accent", "green", "green"]
+        rows:
+          - ["100ページPDF要約", "4〜8時間", "約30秒", "99%"]
+          - ["複数文書の比較分析", "1〜2日", "約1分", "99%"]
+          - ["レポートへの構造化", "3〜5時間", "追加1プロンプト", "95%"]
+          - ["議事録からアクション抽出", "30分〜1時間", "約15秒", "97%"]
+
+      - type: "examples"
+        title: "実演① PDF一括分析"
+        subtitle: "100ページのPDFを丸ごとアップロードして30秒で分析"
+        badge: "DEMO"
+        flow: ["PDFアップロード", "分析プロンプト", "30秒で完了"]
+        examples:
+          - label: "エグゼクティブサマリー"
+            desc: "経営層が30秒で把握できる3行要約"
+          - label: "主要データポイント"
+            desc: "数値データを時系列の表形式で整理"
+          - label: "重要な示唆TOP5"
+            desc: "各項目に自社への影響度（高/中/低）を付与"
+
+      - type: "examples"
+        title: "実演② 複数文書の比較分析"
+        subtitle: "競合3社の決算資料を同時に投入して横断分析"
+        badge: "DEMO"
+        examples:
+          - label: "比較表の自動生成"
+            desc: "売上・利益率・成長率を企業横断で一覧化"
+          - label: "差異分析"
+            desc: "各社の戦略方針の違いと背景を整理"
+          - label: "自社への示唆"
+            desc: "競合の動きを踏まえた自社の打ち手を提言"
+        insight: "3社分の資料を同時に読み込める = 人間には不可能な横断分析"
+
+      - type: "examples"
+        title: "実演③ 議事録の構造化"
+        subtitle: "90分の会議議事録を投入→アクションアイテムを自動抽出"
+        badge: "DEMO"
+        examples:
+          - label: "決定事項"
+            desc: "会議で確定した内容を箇条書きで整理"
+          - label: "アクションアイテム"
+            desc: "担当者・期限付きのToDoリストを自動生成"
+          - label: "未解決課題"
+            desc: "結論が出なかった議題と次回への持越し事項"
+          - label: "次回議題案"
+            desc: "未解決課題をもとに次回のアジェンダを提案"
+
+      - type: "caution"
+        title: "効果的な長文分析の3つのコツ"
+        items:
+          - icon: "target"
+            title: "分析の観点を明確に指定する"
+            desc: "「コスト面で」「リスク面で」「技術的に」など視点を限定すると精度UP"
+            color: "accent"
+          - icon: "tasks"
+            title: "出力フォーマットを指定する"
+            desc: "「表形式で」「箇条書きで」「スコア付きで」と形式を指定"
+            color: "green"
+          - icon: "search"
+            title: "段階的に深掘りする"
+            desc: "まず要約→気になる点を詳細分析。一度に全てを聞かない"
+            color: "amber"
+
+      - type: "caution"
+        title: "長文処理の注意点"
+        items:
+          - icon: "warning"
+            title: "ハルシネーション（幻覚）"
+            desc: "重要なデータは必ず原文と照合。Claudeは正直だが完璧ではない"
+            color: "amber"
+          - icon: "lock"
+            title: "機密情報の取り扱い"
+            desc: "社外秘文書のアップロード前に社内ポリシーを必ず確認"
+            color: "red"
+          - icon: "eye"
+            title: "文書中盤の精度"
+            desc: "非常に長い文書では中盤の情報が見落とされる可能性あり。分割して確認"
+            color: "amber"
+
+      - type: "definition"
+        title: "Web検索機能"
+        definition: "リアルタイム情報にアクセスし、引用URL付きで分析的に回答"
+        comparison:
+          left:
+            label: "ChatGPTの検索"
+            steps: ["検索結果をきれいに要約", "主要ソースを網羅", "読みやすさ重視"]
+          right:
+            label: "Claudeの検索"
+            steps: ["複数ソースを突き合わせ", "情報の矛盾や差異を指摘", "分析的に統合"]
+        footnote: "どちらも引用URL付き。用途に応じて使い分け。"
+
+      - type: "grid"
+        title: "Web検索の実践例"
+        items:
+          - icon: "chart"
+            label: "業界動向リサーチ"
+            desc: "「半導体市場2026年展望を主要アナリスト比較」"
+          - icon: "search"
+            label: "競合分析"
+            desc: "「A社の最新プレスリリースと決算から戦略分析」"
+          - icon: "code"
+            label: "技術トレンド"
+            desc: "「生成AIの最新動向を3カテゴリで整理」"
+          - icon: "globe"
+            label: "規制動向"
+            desc: "「EU AI規制の最新状況と日本企業への影響」"
+
+      - type: "examples"
+        title: "応用：長文 + Web検索の組み合わせ"
+        subtitle: "社内資料（長文）+ 最新市場データ（Web検索）= 統合分析"
+        flow: ["社内資料をUP", "Web検索で最新データ取得", "統合分析レポート"]
+        examples:
+          - label: "事業計画の妥当性検証"
+            desc: "自社事業計画PDF + 最新市場データ → 前提条件の妥当性を検証"
+          - label: "競合比較の最新化"
+            desc: "過去の競合分析 + 最新ニュース → 変化点を洗い出し"
+          - label: "技術選定の判断"
+            desc: "社内技術資料 + 最新ベンチマーク → 採用判断の根拠を作成"
+        insight: "「社内の知識」×「最新の外部情報」= 最強の分析レポート"
+
+      - type: "grid"
+        title: "演習：手元の資料でClaude分析を体験"
+        items:
+          - icon: "file"
+            label: "ステップ1"
+            desc: "手元のPDFや長文テキストをClaudeにUP"
+          - icon: "pencil"
+            label: "ステップ2"
+            desc: "分析プロンプトを作成（観点+形式を指定）"
+          - icon: "search"
+            label: "ステップ3"
+            desc: "結果を確認し、気になる点を深掘り質問"
+          - icon: "globe"
+            label: "ステップ4"
+            desc: "Web検索も組み合わせて最新情報と統合"
+
+      - type: "summary"
+        title: "Part3 まとめ"
+        items:
+          - label: "100万トークン"
+            text: "書籍8冊分。100ページPDFを30秒で分析。追加料金なし"
+            color: "accent"
+          - label: "Web検索"
+            text: "リアルタイム情報を分析的に統合。引用URL付き"
+            color: "green"
+          - label: "組み合わせ"
+            text: "社内資料 + 最新市場データで高度な統合分析が可能"
+            color: "amber"
+          - label: "注意"
+            text: "ハルシネーション確認・機密情報ポリシー・中盤精度に留意"
+            color: "red"
+
+      - type: "end"
+        test_count: 5
+        pass_rate: 80
+        next: "Part4 Claude Code & MCP — AIエージェント開発入門"
+
+    test:
+      pass_rate: 80
+      questions:
+        - question: "Claudeの100万トークンは書籍何冊分に相当する？"
+          choices:
+            - "A. 約2冊"
+            - "B. 約8冊"
+            - "C. 約20冊"
+            - "D. 約50冊"
+          answer: "B"
+          explanation: "新書1冊≒12万トークン。100万÷12万≒8冊分。"
+        - question: "長文PDFを効率的に分析するプロンプトの書き方は？"
+          choices:
+            - "A. 「この資料を読んでください」とだけ指示"
+            - "B. 「何か面白いことがあれば教えて」と聞く"
+            - "C. 分析の観点と出力フォーマットを明確に指定する"
+            - "D. PDFを1ページずつ分割してアップロード"
+          answer: "C"
+          explanation: "「コスト面で」「表形式で」など観点と形式を指定すると精度が大幅に向上。"
+        - question: "ChatGPTの検索とClaudeの検索の違いは？"
+          choices:
+            - "A. ChatGPTは検索できないがClaudeはできる"
+            - "B. Claude=分析的に統合、ChatGPT=きれいに要約"
+            - "C. どちらも全く同じ品質"
+            - "D. ChatGPTの方が分析的"
+          answer: "B"
+          explanation: "Claudeは複数ソースを突き合わせて分析的に統合。ChatGPTはきれいに要約する傾向。"
+        - question: "長文+Web検索の組み合わせ活用例として適切なのは？"
+          choices:
+            - "A. 社内資料だけで分析する"
+            - "B. 社内事業計画PDF + 最新市場データで計画の妥当性を検証"
+            - "C. Web検索だけで社内資料の代わりにする"
+            - "D. 組み合わせると精度が下がるので避ける"
+          answer: "B"
+          explanation: "社内資料（長文）+ 最新データ（Web検索）の統合分析がClaudeの真骨頂。"
+        - question: "長文処理時のハルシネーション対策として正しいのは？"
+          choices:
+            - "A. Claudeは嘘をつかないのでチェック不要"
+            - "B. 全ての回答を無視する"
+            - "C. 重要なデータは必ず原文と照合して確認"
+            - "D. 短い文章にすれば完全に防げる"
+          answer: "C"
+          explanation: "Claudeは正直だが完璧ではない。重要なデータは原文と照合してファクトチェック。"

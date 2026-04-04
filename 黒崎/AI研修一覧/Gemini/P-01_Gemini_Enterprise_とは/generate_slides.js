@@ -452,12 +452,6 @@ async function main() {
     });
 
     addFooter(s, 11);
-    // Override footer for navy
-    s.addText("P-01", {
-      x: L.mx, y: L.H - 0.38, w: 2, h: 0.3,
-      fontSize: F.size.caption, fontFace: F.sans,
-      color: C.textMuted, align: "left", shrinkText: true
-    });
   }
 
   // ========== SLIDE 12: END (Navy) ==========

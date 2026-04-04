@@ -1,0 +1,257 @@
+course:
+  id: "Claude-P5"
+  title: "Claude Co-work & 実践ワークショップ"
+  subtitle: "バックグラウンドAIと全体総まとめ"
+  level: "実践"
+  target: "全社員"
+  duration: "20分"
+  category: "Claude実践"
+
+chapters:
+  - id: "Claude-P5"
+    title: "Claude Co-work & 実践ワークショップ — バックグラウンドAIと全体総まとめ"
+    learning_goals:
+      - "Co-work（バックグラウンドエージェント）の仕組みと活用法を理解する"
+      - "Google/外部サービス連携の全体像を把握する"
+      - "全5回の学習を統合し、自分の業務活用プランを作成できる"
+    slides:
+      - type: "title"
+        title: "Claude Co-work & 実践ワークショップ"
+        subtitle: "バックグラウンドAIと全体総まとめ"
+
+      - type: "goals"
+        title: "今日のゴール"
+        items:
+          - "Co-work（バックグラウンドエージェント）の仕組みを理解する"
+          - "Google/外部サービス連携の全体像を把握する"
+          - "全5回の学習を統合し、業務活用プランを作成できる"
+
+      - type: "definition"
+        title: "Co-workとは？"
+        definition: "Claudeがバックグラウンドで自律的にタスクを実行する機能（Max $100〜）"
+        comparison:
+          left:
+            label: "通常のチャット"
+            steps: ["1回質問→1回回答", "人間が常に操作", "シンプルなタスク向き"]
+          right:
+            label: "Co-work"
+            steps: ["タスクを指示→放置OK", "AIが自律的に複数ステップ実行", "完了後に通知"]
+        footnote: "指示を出したら、Claudeが「別室で作業」してくれるイメージ"
+
+      - type: "cards"
+        title: "Co-workでできること"
+        cards:
+          - icon: "code"
+            label: "コード作成"
+            desc: "GitHubでコード作成\nPR提出まで自律"
+            color: "accent"
+          - icon: "search"
+            label: "リサーチ"
+            desc: "Web調査→分析\nレポート自動生成"
+            color: "green"
+          - icon: "chart"
+            label: "データ分析"
+            desc: "データ分析・可視化\n自動実行"
+            color: "amber"
+
+      - type: "examples"
+        title: "Co-workの使い方"
+        subtitle: "タスク指示 → バックグラウンド実行 → 完了通知 → レビュー"
+        flow: ["タスク指示", "バックグラウンド実行", "完了通知", "レビュー"]
+        examples:
+          - label: "途中確認"
+            desc: "実行中いつでも進捗を確認可能"
+          - label: "並行実行"
+            desc: "複数タスクを同時に走らせられる"
+          - label: "Dispatch"
+            desc: "スマホから指示→PCのClaudeが実行（Max向け機能）"
+        insight: "あなたが会議中でも、Claudeがバックグラウンドで作業を進めてくれる"
+
+      - type: "examples"
+        title: "Co-work実践例"
+        subtitle: "実際のビジネスシーンでの活用"
+        badge: "DEMO"
+        examples:
+          - label: "競合調査"
+            desc: "「競合3社の最新動向を調査してレポートに」→ Web検索→分析→レポート"
+          - label: "README更新"
+            desc: "「このリポジトリのREADMEを更新して」→ コード読取→更新→PR作成"
+          - label: "朝のブリーフィング"
+            desc: "毎朝9時にSlack/メールの要約を自動生成（スケジュール機能）"
+        insight: "定型的な調査・分析・文書作成はCo-workに任せて、人間は判断に集中"
+
+      - type: "grid"
+        title: "外部サービス連携"
+        items:
+          - icon: "envelope"
+            label: "Gmail"
+            desc: "メール検索・要約・返信ドラフト"
+          - icon: "clock"
+            label: "Google Calendar"
+            desc: "予定確認・登録・空き時間検索"
+          - icon: "file"
+            label: "Google Docs"
+            desc: "文書の読取・編集"
+          - icon: "comments"
+            label: "Slack / Notion"
+            desc: "チャンネル要約・ページ読み書き"
+        key_message: "MCP + Co-workで外部ツールと自律連携。Google Workspace完全対応"
+
+      - type: "caution"
+        title: "Co-work活用の3つのコツ"
+        items:
+          - icon: "target"
+            title: "明確なゴールと成果物を指定"
+            desc: "「レポートを作って」→「比較表+要約+提言の3パートで5ページ以内」"
+            color: "accent"
+          - icon: "eye"
+            title: "途中チェックポイントを設ける"
+            desc: "長時間タスクは途中で方向性を確認。軌道修正が容易に"
+            color: "green"
+          - icon: "check"
+            title: "最終成果物は必ず人間がレビュー"
+            desc: "AIの自律実行は便利だが、最終判断と責任は人間が持つ"
+            color: "amber"
+
+      - type: "cards"
+        title: "全5回の振り返り"
+        cards:
+          - icon: "brain"
+            label: "Part1"
+            desc: "Claudeとは\nモデル・特徴・使い分け"
+            color: "accent"
+          - icon: "project"
+            label: "Part2"
+            desc: "プロジェクト\nアーティファクト"
+            color: "green"
+          - icon: "file"
+            label: "Part3"
+            desc: "100万トークン\nWeb検索"
+            color: "amber"
+
+      - type: "cards"
+        title: "全5回の振り返り（続き）"
+        cards:
+          - icon: "code"
+            label: "Part4"
+            desc: "Claude Code\nMCP"
+            color: "accent"
+          - icon: "robot"
+            label: "Part5"
+            desc: "Co-work\n実践ワークショップ"
+            color: "green"
+          - icon: "star"
+            label: "全体"
+            desc: "深く考える\n分析パートナー"
+            color: "amber"
+
+      - type: "table"
+        title: "年間時間削減シミュレーション"
+        headers: ["業務", "従来", "Claude活用後", "年間削減"]
+        header_colors: ["offWhite", "amber", "green", "accent"]
+        rows:
+          - ["報告書作成", "週3時間", "週0.5時間", "130時間"]
+          - ["データ分析", "週2時間", "週0.3時間", "88時間"]
+          - ["情報収集", "週2時間", "週0.5時間", "78時間"]
+          - ["メール対応", "週1.5時間", "週0.5時間", "52時間"]
+          - ["合計", "", "", "約350時間/年"]
+
+      - type: "grid"
+        title: "ワークショップ：業務活用プランを作ろう"
+        items:
+          - icon: "clipboard"
+            label: "Step 1"
+            desc: "自分の業務タスクTOP3を書き出す"
+          - icon: "sitemap"
+            label: "Step 2"
+            desc: "各タスクに最適なClaude機能を割り当て"
+          - icon: "play"
+            label: "Step 3"
+            desc: "1つ選んで実際にClaudeで実行してみる"
+          - icon: "users"
+            label: "Step 4"
+            desc: "結果を共有・フィードバック"
+
+      - type: "caution"
+        title: "明日からやる4つのこと"
+        items:
+          - icon: "key"
+            title: "Pro/Maxプランに登録する"
+            desc: "月$20から。全機能にアクセス可能。まず1ヶ月試す"
+            color: "accent"
+          - icon: "project"
+            title: "業務プロジェクトを1つ作る"
+            desc: "主業務の資料を3つ以上UPし、カスタム指示を設定"
+            color: "green"
+          - icon: "file"
+            title: "長文PDFを1つ分析する"
+            desc: "社内レポートや業界資料をUPし、エグゼクティブサマリーを生成"
+            color: "amber"
+          - icon: "code"
+            title: "Claude Codeを試す（開発者向け）"
+            desc: "インストールして小さなプロジェクトで体験する"
+            color: "red"
+
+      - type: "summary"
+        title: "最終まとめ"
+        items:
+          - label: "Claude"
+            text: "深く考える分析パートナー。100万トークン×コード力×誠実さ"
+            color: "accent"
+          - label: "使い分け"
+            text: "画像/動画→ChatGPT、分析/長文/コード→Claude、迷ったらClaude"
+            color: "green"
+          - label: "武器"
+            text: "プロジェクト、アーティファクト、Claude Code、MCP、Co-work"
+            color: "amber"
+          - label: "年間効果"
+            text: "約350時間/年の削減。1日1.5時間の余裕が生まれる"
+            color: "red"
+
+      - type: "end"
+        test_count: 5
+        pass_rate: 80
+
+    test:
+      pass_rate: 80
+      questions:
+        - question: "Claude Co-workの説明として正しいものは？"
+          choices:
+            - "A. チームメンバーとリアルタイムで共同編集する機能"
+            - "B. Claudeがバックグラウンドで自律的にタスクを実行する機能"
+            - "C. AIが人間の代わりに会議に参加する機能"
+            - "D. 複数のAIモデルを同時に比較する機能"
+          answer: "B"
+          explanation: "Co-workはClaudeがバックグラウンドで自律的に作業する機能。Max以上で利用可能。"
+        - question: "Co-workで最も重要な注意点は？"
+          choices:
+            - "A. 常にPCの前にいなければならない"
+            - "B. 1タスクしか同時に実行できない"
+            - "C. 最終成果物は必ず人間がレビューする"
+            - "D. Web検索は使えない"
+          answer: "C"
+          explanation: "AIの自律実行は便利だが、最終判断と責任は人間が持つ。必ずレビューすること。"
+        - question: "Claudeの全5回講座で学んだ機能の組み合わせとして正しいのは？"
+          choices:
+            - "A. プロジェクト、アーティファクト、100万トークン、Claude Code、MCP"
+            - "B. DALL-E、Sora、Canvas、GPTs、プラグイン"
+            - "C. Gemini、Bard、Google AI、PaLM、Vertex"
+            - "D. Copilot、Cursor、Windsurf、Devin、Bolt"
+          answer: "A"
+          explanation: "Claude5大機能: プロジェクト、アーティファクト、100万トークン、Claude Code、MCP"
+        - question: "Claude活用で期待できる年間時間削減は？"
+          choices:
+            - "A. 約50時間/年"
+            - "B. 約150時間/年"
+            - "C. 約350時間/年"
+            - "D. 約1000時間/年"
+          answer: "C"
+          explanation: "報告書130h+分析88h+情報収集78h+メール52h=約350時間/年の削減効果。"
+        - question: "明日から始めるべき最初のアクションは？"
+          choices:
+            - "A. すぐにMax 20xプラン（$200）に登録"
+            - "B. Pro/Maxに登録し、業務プロジェクトを1つ作る"
+            - "C. 全社員にClaudeアカウントを配布する"
+            - "D. ChatGPTの契約を解約する"
+          answer: "B"
+          explanation: "まずPro（$20）で1ヶ月試し、業務資料をUPしてプロジェクトを1つ作るのが最初の一歩。"

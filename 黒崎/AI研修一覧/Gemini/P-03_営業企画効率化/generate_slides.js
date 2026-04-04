@@ -96,7 +96,7 @@ async function main() {
     s.addText("まとめ", { x: 0.5, y: 0.5, w: 9, h: 0.6, fontSize: F.size.h1, fontFace: F.sans, bold: true, color: C.white, align: "center", shrinkText: true });
     const summaries = ["提案書作成が 3 日 → 数分に短縮。営業が顧客対応に時間を使える", "テンプレート品質が高いほど、AI の提案精度が向上", "同じ営業人数で 2.5 倍の提案件数を作成可能 → 売上 15% 向上"];
     summaries.forEach((text, i) => { const y = 1.5 + i * 1.0; s.addText(String(i + 1), { x: 2.5, y, w: 0.5, h: 0.5, fontSize: F.size.h2, fontFace: F.sans, bold: true, color: C.navy, align: "center", valign: "middle", fill: { color: C.accentMid }, shape: pres.shapes.OVAL, shrinkText: true }); s.addText(text, { x: 3.2, y, w: 5, h: 0.5, fontSize: F.size.h3, fontFace: F.sans, color: C.white, valign: "middle", shrinkText: true }); });
-    addFooter(s, 11); s.addText("P-03", { x: L.mx, y: L.H - 0.38, w: 2, h: 0.3, fontSize: F.size.caption, fontFace: F.sans, color: C.textMuted, align: "left", shrinkText: true });
+    addFooter(s, 11);
   }
 
   // ========== SLIDE 12: END ==========

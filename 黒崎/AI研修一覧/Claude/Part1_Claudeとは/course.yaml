@@ -1,0 +1,270 @@
+course:
+  id: "Claude-P1"
+  title: "Claudeとは何か？"
+  subtitle: "ChatGPTとの違いから最新機能まで"
+  level: "実践"
+  target: "全社員"
+  duration: "20分"
+  category: "Claude実践"
+
+chapters:
+  - id: "Claude-P1"
+    title: "Claudeとは何か？ — ChatGPTとの違いから最新機能まで"
+    learning_goals:
+      - "Anthropicと「Constitutional AI」の理念を理解する"
+      - "Opus / Sonnet / Haiku の使い分けができる"
+      - "ChatGPTとの根本的な違いを説明できる"
+      - "業務でClaude/ChatGPTどちらを使うか判断できる"
+    slides:
+      # Slide 1: Title
+      - type: "title"
+        title: "Claudeとは何か？"
+        subtitle: "ChatGPTとの違いから最新機能まで"
+
+      # Slide 2: Goals
+      - type: "goals"
+        title: "今日のゴール"
+        items:
+          - "Anthropicと「Constitutional AI」の理念を理解する"
+          - "3つのモデル（Opus / Sonnet / Haiku）を使い分けできる"
+          - "ChatGPTとの根本的な違いを説明できる"
+          - "業務でClaude / ChatGPTどちらを使うか判断できる"
+
+      # Slide 3: Anthropic
+      - type: "definition"
+        title: "Anthropicとは？"
+        definition: "AI安全性に特化した企業 — 元OpenAI幹部が2021年に設立"
+        comparison:
+          left:
+            label: "OpenAI（ChatGPT）"
+            steps: ["幅広いAI製品開発", "マルチモーダル重視", "規模と速度で勝負"]
+          right:
+            label: "Anthropic（Claude）"
+            steps: ["AI安全性研究が中核", "Constitutional AI", "深い分析で差別化"]
+        footnote: "Google・Amazonから100億ドル超を調達。AI安全性をDNAに持つ企業。"
+
+      # Slide 4: Constitutional AI
+      - type: "examples"
+        title: "Constitutional AI"
+        subtitle: "Claudeの「憲法」— 行動原則に基づく自己改善"
+        flow: ["行動原則を設定", "AI自身が自己評価", "回答を改善"]
+        examples:
+          - label: "嘘をつかない"
+            desc: "不確かなことは「確信が持てません」と正直に回答"
+          - label: "有害な出力を避ける"
+            desc: "危険な情報の提供を自主的に拒否"
+          - label: "説明可能性"
+            desc: "なぜその回答に至ったか、根拠を示す"
+        insight: "ChatGPTが自信満々に答えがちなのに対し、Claudeは正直に「わからない」と言える"
+
+      # Slide 5: Model Lineup
+      - type: "cards"
+        title: "3つのモデル — 用途で選ぶ"
+        cards:
+          - icon: "brain"
+            label: "Opus 4.6"
+            desc: "最高知能・深い推論\n複雑な分析・大規模コード"
+            color: "accent"
+          - icon: "bolt"
+            label: "Sonnet 4.6"
+            desc: "高速・コスパ最強\n日常業務・チャット全般"
+            color: "green"
+          - icon: "clock"
+            label: "Haiku 4.5"
+            desc: "超高速・低コスト\n大量処理・分類・要約"
+            color: "amber"
+
+      # Slide 6: Context Window
+      - type: "table"
+        title: "100万トークンの衝撃"
+        headers: ["", "Claude", "ChatGPT Plus", "ChatGPT Pro"]
+        header_colors: ["offWhite", "accent", "amber", "amber"]
+        rows:
+          - ["コンテキスト", "100万トークン", "256Kトークン", "400Kトークン"]
+          - ["書籍換算", "約8冊分", "約2冊分", "約3冊分"]
+          - ["追加料金", "なし（Pro $20）", "なし（$20）", "なし（$200）"]
+          - ["長文精度", "◎ 業界トップ", "○", "○"]
+
+      # Slide 7: Comparison
+      - type: "table"
+        title: "ChatGPT vs Claude — 根本的な違い"
+        headers: ["比較軸", "ChatGPT", "Claude"]
+        header_colors: ["offWhite", "amber", "accent"]
+        rows:
+          - ["得意分野", "万能・マルチモーダル", "分析・長文・コード"]
+          - ["画像生成", "○（DALL-E）", "×"]
+          - ["動画生成", "○（Sora）", "×"]
+          - ["コード", "○", "◎ 業界トップ"]
+          - ["カスタムBot", "GPTs", "プロジェクト"]
+          - ["成果物", "Canvas", "アーティファクト"]
+
+      # Slide 8: Demo
+      - type: "definition"
+        title: "実演：同じプロンプトで比較"
+        definition: "「中小製造業（50名）のDX推進3カ年計画。予算年間500万円。」"
+        comparison:
+          left:
+            label: "ChatGPT"
+            steps: ["即座にきれいな計画が出力", "読みやすく全体像を把握", "期待通りの回答"]
+          right:
+            label: "Claude"
+            steps: ["現実的な制約をまず指摘", "リスクや不確実性に言及", "逆質問で精度を上げる"]
+        footnote: "ChatGPT=「期待通りの回答」、Claude=「期待以上の分析」"
+
+      # Slide 9: Pricing
+      - type: "table"
+        title: "Claude料金プラン（2026年4月時点）"
+        headers: ["プラン", "月額", "モデル", "主要機能"]
+        header_colors: ["offWhite", "accent", "accent", "accent"]
+        rows:
+          - ["Free", "$0", "Sonnet 4.6", "基本チャット"]
+          - ["Pro", "$20", "全モデル", "プロジェクト・100万トークン・Claude Code"]
+          - ["Max 5x", "$100", "全モデル", "5倍使用量・Co-work"]
+          - ["Max 20x", "$200", "全モデル", "20倍使用量"]
+          - ["Team", "$25〜/人", "全モデル", "SSO・管理・共有"]
+
+      # Slide 10: Extended Thinking
+      - type: "examples"
+        title: "拡張思考（Extended Thinking）"
+        subtitle: "回答前に「考え込む」モード — 複雑な問題で精度が劇的に向上"
+        flow: ["質問を受ける", "段階的に推論", "精度の高い回答"]
+        examples:
+          - label: "数学的推論"
+            desc: "複雑な計算や証明で論理の飛躍を防ぐ"
+          - label: "コード設計"
+            desc: "大規模システムのアーキテクチャ設計を段階的に検討"
+          - label: "多角的分析"
+            desc: "経営判断に必要な複数の観点を順番にチェック"
+        insight: "シンプルな質問には不要。深い分析が必要な場面で使うのが効果的"
+
+      # Slide 11: Web Search
+      - type: "definition"
+        title: "Web検索機能"
+        definition: "リアルタイム情報にアクセスし、引用URL付きで分析的に回答"
+        comparison:
+          left:
+            label: "ChatGPTの検索"
+            steps: ["検索結果をきれいに要約", "主要ソースの情報をまとめる", "読みやすい回答"]
+          right:
+            label: "Claudeの検索"
+            steps: ["複数ソースを突き合わせ", "情報の矛盾や差異を指摘", "分析的に統合"]
+        footnote: "両方対応済み。検索スタイルの違いを理解して使い分けるのがコツ。"
+
+      # Slide 12: Decision Framework
+      - type: "grid"
+        title: "使い分けフレームワーク"
+        items:
+          - icon: "image"
+            label: "画像・動画 → ChatGPT"
+            desc: "DALL-E / Soraで画像・動画生成"
+          - icon: "file"
+            label: "100P超の文書 → Claude"
+            desc: "100万トークンで長文一括分析"
+          - icon: "code"
+            label: "大規模コード → Claude"
+            desc: "SWE-bench業界首位の実力"
+          - icon: "bolt"
+            label: "素早い回答 → ChatGPT"
+            desc: "応答速度が速くテンポ良い"
+        key_message: "迷ったら Claude — 分析の深さで後悔しにくい"
+
+      # Slide 13: Exercise
+      - type: "grid"
+        title: "演習：あなたの業務タスクを分類しよう"
+        items:
+          - icon: "clipboard"
+            label: "ステップ1"
+            desc: "普段の業務タスクを3つ書き出す"
+          - icon: "sitemap"
+            label: "ステップ2"
+            desc: "ChatGPT向き / Claude向きに分類"
+          - icon: "play"
+            label: "ステップ3"
+            desc: "迷うタスクは両方に同じプロンプトを投げて比較"
+          - icon: "check"
+            label: "ステップ4"
+            desc: "体感の違いを記録して使い分け基準を固める"
+
+      # Slide 14: Tips
+      - type: "caution"
+        title: "Claude活用 — 3つのコツ"
+        items:
+          - icon: "tasks"
+            title: "構造化した指示を出す"
+            desc: "箇条書き・表形式で依頼。Claudeは構造を理解するのが得意。"
+            color: "accent"
+          - icon: "comments"
+            title: "逆質問を歓迎する"
+            desc: "「必要な情報があれば聞いてください」を添えると精度向上。"
+            color: "green"
+          - icon: "file"
+            title: "長文を恐れない"
+            desc: "関連情報を多く渡すほど回答精度が上がる。100万トークンを活用。"
+            color: "amber"
+
+      # Slide 15: Summary
+      - type: "summary"
+        title: "Part1 まとめ"
+        items:
+          - label: "Anthropic"
+            text: "AI安全性を最優先。Constitutional AIで誠実な応答を実現"
+            color: "accent"
+          - label: "3モデル"
+            text: "Opus（最高知能）/ Sonnet（バランス）/ Haiku（高速）"
+            color: "green"
+          - label: "使い分け"
+            text: "ChatGPT=万能、Claude=深い分析。画像はChatGPT、長文はClaude"
+            color: "amber"
+          - label: "コツ"
+            text: "構造化した指示 × 逆質問歓迎 × 長文を恐れない"
+            color: "red"
+
+      # Slide 16: End
+      - type: "end"
+        test_count: 5
+        pass_rate: 80
+        next: "Part2 プロジェクト & アーティファクト活用"
+
+    test:
+      pass_rate: 80
+      questions:
+        - question: "Claudeを開発しているAnthropic社について、正しい説明は？"
+          choices:
+            - "A. Google社のAI部門から独立した企業"
+            - "B. 元OpenAI研究者がAI安全性を重視して設立"
+            - "C. Meta社と共同でオープンソースAIを開発"
+            - "D. 日本のソフトバンクが設立したAI企業"
+          answer: "B"
+          explanation: "Anthropicは2021年、元OpenAI幹部がAI安全性のアプローチの違いから独立して設立。"
+        - question: "Constitutional AIの最も適切な説明は？"
+          choices:
+            - "A. AIが自分で法律を作る技術"
+            - "B. AIに行動原則を与え自己改善させる訓練手法"
+            - "C. AIの回答を全て人間がチェックする手法"
+            - "D. AIに政治的中立性を保たせる技術"
+          answer: "B"
+          explanation: "行動原則を与えてAI自身が回答を改善するプロセス。誠実な応答スタイルの源。"
+        - question: "Claudeモデルの正しい組み合わせは？"
+          choices:
+            - "A. Opus=最高速、Sonnet=バランス、Haiku=最高知能"
+            - "B. Opus=最高知能、Sonnet=バランス、Haiku=最高速"
+            - "C. Opus=低コスト、Sonnet=最高知能、Haiku=バランス"
+            - "D. Opus=バランス、Sonnet=最高速、Haiku=最高知能"
+          answer: "B"
+          explanation: "Opus=最高知能で複雑な分析向き、Sonnet=バランス、Haiku=超高速低コスト。"
+        - question: "ChatGPTと比較したClaudeの最大の強みは？"
+          choices:
+            - "A. 画像・動画の生成能力"
+            - "B. 応答速度の速さ"
+            - "C. 100万トークンの長文処理と深い分析力"
+            - "D. 音声会話機能の充実"
+          answer: "C"
+          explanation: "Claudeの最大の強みは100万トークン（書籍約8冊分）と深い分析・推論能力。"
+        - question: "Claudeが最も適している業務タスクは？"
+          choices:
+            - "A. SNS投稿画像を10枚生成"
+            - "B. 100ページの契約書を分析してリスク抽出"
+            - "C. 30秒のプロモーション動画作成"
+            - "D. 簡単な挨拶メールテンプレ作成"
+          answer: "B"
+          explanation: "100ページの長文分析はClaude得意分野。100万トークンで全文を一度に分析可能。"
