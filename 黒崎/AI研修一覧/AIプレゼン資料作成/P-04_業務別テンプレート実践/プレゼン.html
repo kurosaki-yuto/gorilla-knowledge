@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-04: 業務別テンプレート実践</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        body { background: var(--bg-outer); font-family: var(--font-body); color: var(--text-primary); }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 1000; transition: width 0.3s ease; }
+
+        .nav-dots { position: fixed; right: clamp(0.5rem, 1.5vw, 1.5rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+        .nav-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); background: transparent; cursor: pointer; transition: all 0.3s ease; }
+        .nav-dot.active { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+        .nav-dot.page-dot { border-color: rgba(0,0,0,0.2); }
+        .nav-dot.page-dot.active { background: var(--accent); border-color: var(--accent); }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-normal) var(--ease-out-expo); }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+        .reveal:nth-child(7) { transition-delay: 0.7s; }
+
+        .slide-footer { position: absolute; bottom: clamp(0.5rem, 1.5vh, 1rem); left: var(--slide-padding); right: var(--slide-padding); display: flex; justify-content: space-between; font-size: clamp(0.6rem, 0.9vw, 0.75rem); color: var(--text-secondary); font-family: var(--font-body); opacity: 0.6; }
+
+        /* Title / End slides */
+        .slide-title, .slide-end { background: #1B2A4A; color: #fff; justify-content: center; align-items: center; text-align: center; }
+        .slide-title .slide-content, .slide-end .slide-content { align-items: center; text-align: center; }
+        .slide-title h1 { font-family: var(--font-display); font-size: var(--title-size); font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+        .slide-title .subtitle { font-family: var(--font-body); font-size: clamp(0.9rem, 1.8vw, 1.3rem); color: #93C5FD; margin-top: clamp(0.5rem, 1.5vh, 1rem); }
+        .slide-title .meta { font-family: var(--font-body); font-size: clamp(0.7rem, 1vw, 0.85rem); color: #9CA3AF; margin-top: clamp(1rem, 3vh, 2rem); letter-spacing: 0.1em; }
+        .slide-title .divider-line { width: clamp(60px, 15vw, 180px); height: 2px; background: #93C5FD; margin: clamp(0.5rem, 1.5vh, 1rem) auto; }
+        .slide-end h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.8rem); margin-bottom: clamp(0.5rem, 1.5vh, 1rem); }
+        .slide-end p { color: #93C5FD; font-size: var(--body-size); }
+        .slide-title .slide-footer, .slide-end .slide-footer { color: rgba(255,255,255,0.3); }
+
+        /* Content slides */
+        .slide-page { background: var(--bg-outer); }
+        .slide-page .slide-content { background: var(--bg-page); margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem); border-radius: 4px; box-shadow: 0 2px 20px rgba(0,0,0,0.15); padding: var(--slide-padding); position: relative; }
+        .slide-page h2 { font-family: var(--font-display); font-size: var(--h2-size); color: var(--text-primary); margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem); font-weight: 700; }
+        .slide-page .tag { display: inline-block; font-family: var(--font-body); font-size: clamp(0.6rem, 0.8vw, 0.7rem); font-weight: 700; padding: 3px 12px; border-radius: 20px; margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem); letter-spacing: 0.05em; text-transform: uppercase; }
+        .slide-page .slide-footer { position: absolute; bottom: clamp(0.3rem, 0.8vh, 0.6rem); }
+        .slide-page .slide-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; border-radius: 4px 4px 0 0; }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        /* Goal list */
+        .goal-list { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.5vh, 1.2rem); }
+        .goal-item { display: flex; align-items: center; gap: clamp(0.5rem, 1.2vw, 1rem); }
+        .goal-num { flex-shrink: 0; width: clamp(2rem, 3.5vw, 2.8rem); height: clamp(2rem, 3.5vw, 2.8rem); background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: clamp(0.9rem, 1.5vw, 1.3rem); font-weight: 700; }
+        .goal-text { font-size: clamp(0.8rem, 1.3vw, 1.05rem); color: var(--text-primary); font-weight: 500; }
+
+        /* Prompt box */
+        .prompt-box { background: #1B2A4A; border-radius: 8px; padding: clamp(0.8rem, 1.5vw, 1.2rem); margin-bottom: clamp(0.4rem, 1vh, 0.8rem); position: relative; overflow: hidden; }
+        .prompt-box::before { content: 'PROMPT'; position: absolute; top: 8px; right: 12px; font-size: clamp(0.5rem, 0.7vw, 0.6rem); color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 0.1em; }
+        .prompt-box pre { font-family: 'DM Sans', monospace; font-size: clamp(0.6rem, 1vw, 0.82rem); color: #e2e8f0; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+        .prompt-box .var { color: #93C5FD; font-weight: 600; }
+
+        /* Flow steps */
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.5vw, 0.4rem); flex-wrap: wrap; margin: clamp(0.3rem, 0.8vh, 0.6rem) 0; }
+        .flow-step { background: #DBEAFE; color: var(--accent); font-size: clamp(0.6rem, 0.9vw, 0.78rem); font-weight: 600; padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(0.5rem, 1vw, 0.8rem); border-radius: 6px; text-align: center; }
+        .flow-step.active { background: var(--accent); color: #fff; }
+        .flow-arrow { color: var(--text-secondary); font-size: clamp(0.7rem, 1vw, 0.9rem); }
+
+        /* Cards */
+        .card-row { display: grid; gap: clamp(0.5rem, 1.2vw, 1rem); }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 700px) { .card-row.cols-3, .card-row.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+        .card-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.6rem, 1.2vw, 1.2rem); display: flex; flex-direction: column; gap: clamp(0.2rem, 0.5vh, 0.4rem); }
+        .card-item .card-icon { font-size: clamp(1.2rem, 2.5vw, 2rem); }
+        .card-item h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.2vw, 0.95rem); font-weight: 700; color: var(--text-primary); }
+        .card-item p { font-size: clamp(0.65rem, 1vw, 0.82rem); color: var(--text-secondary); line-height: 1.4; }
+        .card-item.accent-border { border-left: 3px solid var(--accent); }
+
+        /* Callout */
+        .callout { background: #FEF3C7; border-radius: 8px; padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem); font-size: clamp(0.7rem, 1vw, 0.85rem); color: #92400E; font-weight: 500; margin-top: clamp(0.4rem, 1vh, 0.8rem); display: flex; align-items: center; gap: 8px; }
+
+        /* Customize slide */
+        .customize-item { display: flex; align-items: flex-start; gap: clamp(0.5rem, 1vw, 0.8rem); padding: clamp(0.4rem, 0.8vh, 0.6rem) 0; }
+        .customize-num { flex-shrink: 0; width: clamp(1.6rem, 2.5vw, 2.2rem); height: clamp(1.6rem, 2.5vw, 2.2rem); background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: clamp(0.7rem, 1vw, 0.85rem); font-weight: 700; }
+        .customize-text h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.2vw, 0.95rem); font-weight: 700; color: var(--text-primary); }
+        .customize-text p { font-size: clamp(0.65rem, 1vw, 0.82rem); color: var(--text-secondary); margin-top: 2px; }
+
+        /* Before/After */
+        .ba-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: clamp(0.3rem, 0.8vw, 0.6rem); align-items: center; margin-top: clamp(0.4rem, 1vh, 0.8rem); }
+        .ba-box { border-radius: 8px; padding: clamp(0.5rem, 1vw, 0.8rem); font-family: 'DM Sans', monospace; font-size: clamp(0.6rem, 0.9vw, 0.78rem); line-height: 1.5; }
+        .ba-before { background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; }
+        .ba-after { background: #D1FAE5; color: #059669; border: 1px solid #A7F3D0; }
+        .ba-arrow { font-size: clamp(1rem, 1.5vw, 1.3rem); color: var(--text-secondary); text-align: center; }
+
+        /* Demo slide */
+        .slide-demo { background: #1B2A4A; color: #fff; justify-content: center; align-items: center; text-align: center; }
+        .slide-demo .slide-content { align-items: center; text-align: center; }
+        .demo-play { width: clamp(4rem, 8vw, 6rem); height: clamp(4rem, 8vw, 6rem); background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: clamp(1.5rem, 3vw, 2.5rem); margin-bottom: clamp(0.8rem, 2vh, 1.5rem); box-shadow: 0 4px 20px rgba(37,99,235,0.4); }
+        .slide-demo h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.8rem); }
+        .slide-demo .demo-sub { color: #93C5FD; font-size: clamp(0.8rem, 1.3vw, 1rem); margin-top: clamp(0.3rem, 0.8vh, 0.5rem); }
+        .slide-demo .demo-detail { color: #9CA3AF; font-size: clamp(0.65rem, 0.9vw, 0.78rem); margin-top: clamp(0.8rem, 2vh, 1.2rem); }
+        .slide-demo .slide-footer { color: rgba(255,255,255,0.3); }
+
+        /* Tips cards */
+        .tip-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+        .tip-header { padding: clamp(0.5rem, 1vw, 0.8rem); text-align: center; }
+        .tip-header .tip-icon { font-size: clamp(1.2rem, 2vw, 1.8rem); }
+        .tip-body { padding: clamp(0.5rem, 1vw, 0.8rem); }
+        .tip-body h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.2vw, 0.95rem); font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: clamp(0.2rem, 0.5vh, 0.4rem); }
+        .tip-body p { font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: var(--text-secondary); line-height: 1.5; }
+        .tip-green .tip-header { background: #D1FAE5; }
+        .tip-blue .tip-header { background: #DBEAFE; }
+        .tip-amber .tip-header { background: #FEF3C7; }
+
+        /* Report tip items */
+        .report-tip { display: flex; gap: clamp(0.5rem, 1vw, 0.8rem); background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.5rem, 1vw, 0.8rem); align-items: flex-start; }
+        .report-tip-num { flex-shrink: 0; font-family: var(--font-display); font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--accent); line-height: 1; }
+        .report-tip-text h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.1vw, 0.92rem); font-weight: 700; color: var(--text-primary); }
+        .report-tip-text p { font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: var(--text-secondary); line-height: 1.4; margin-top: 2px; }
+
+        /* Summary */
+        .summary-list { display: flex; flex-direction: column; gap: clamp(0.5rem, 1vh, 0.8rem); }
+        .summary-item { display: flex; align-items: flex-start; gap: clamp(0.4rem, 0.8vw, 0.7rem); padding: clamp(0.4rem, 0.8vh, 0.7rem) 0; border-bottom: 1px solid #e5e7eb; }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-icon { flex-shrink: 0; font-size: clamp(1rem, 1.8vw, 1.4rem); }
+        .summary-text { font-size: clamp(0.75rem, 1.2vw, 0.95rem); color: var(--text-primary); line-height: 1.5; }
+        .summary-text strong { color: var(--accent); }
+
+        .test-badge { display: inline-flex; align-items: center; gap: 8px; background: #DBEAFE; color: var(--accent); font-weight: 600; font-size: clamp(0.7rem, 1vw, 0.85rem); padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.5vw, 1.2rem); border-radius: 8px; margin-top: clamp(0.5rem, 1vh, 0.8rem); }
+
+        @media (max-width: 700px) { .card-row.cols-3 { grid-template-columns: 1fr; } .ba-row { grid-template-columns: 1fr; } .ba-arrow { transform: rotate(90deg); } }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide slide-title">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#128203;</div>
+            <h1 class="reveal">業務別テンプレート実践</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">コピペで使えるClaudeプロンプト集</p>
+            <p class="meta reveal">P-04 &nbsp;|&nbsp; AIプレゼン資料作成 &nbsp;|&nbsp; 12分</p>
+        </div>
+        <div class="slide-footer"><span>P-04</span><span>1 / 12</span></div>
+    </section>
+
+    <!-- SLIDE 2: GOALS -->
+    <section class="slide slide-page tab-green">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">4つの業務別テンプレートをコピペで使える</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">テンプレートを自分の業務にカスタマイズできる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <span class="goal-text">営業資料・報告書それぞれのコツを理解する</span>
+                </div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>2 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: TEMPLATE 1 - Client Proposal -->
+    <section class="slide slide-page tab-green">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">TEMPLATE 1</span>
+            <h2 class="reveal">テンプレート&#9312; クライアント提案書</h2>
+            <div class="prompt-box reveal">
+                <pre>あなたはコンサルタントです。以下の情報をもとに、
+クライアント向け提案書を作成してください。
+
+構成: 課題の整理 → 提案3つ → ROI試算
+      → スケジュール → 次のステップ
+
+<span class="var">【業界】</span>: [業界名]
+<span class="var">【課題】</span>: [解決したい課題]
+<span class="var">【予算規模】</span>: [予算]
+<span class="var">【期間】</span>: [プロジェクト期間]</pre>
+            </div>
+            <div class="flow-row reveal">
+                <div class="flow-step active">課題整理</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">提案3つ</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">ROI試算</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">スケジュール</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">次のステップ</div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>3 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: TEMPLATE 2 - Internal Proposal -->
+    <section class="slide slide-page tab-purple">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">TEMPLATE 2</span>
+            <h2 class="reveal">テンプレート&#9313; 社内企画書</h2>
+            <div class="prompt-box reveal">
+                <pre>社内向けの企画書を作成してください。
+
+構成: 背景 → 目的 → 施策内容 → 予算
+      → KPI → スケジュール
+
+<span class="var">【企画名】</span>: [企画名]
+<span class="var">【背景・課題】</span>: [なぜこの企画が必要か]
+<span class="var">【ターゲット】</span>: [対象部署・対象者]
+<span class="var">【期待効果】</span>: [定量的な目標]</pre>
+            </div>
+            <div class="callout reveal">
+                &#128161; ポイント: 「背景」と「KPI」が企画書を通すカギ。期待効果は必ず定量的に！
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>4 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: TEMPLATE 3 - Monthly Report -->
+    <section class="slide slide-page tab-purple">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">TEMPLATE 3</span>
+            <h2 class="reveal">テンプレート&#9314; 月次報告書</h2>
+            <div class="prompt-box reveal">
+                <pre>月次報告のスライド構成を作成してください。
+
+構成: 実績サマリー → 目標比較
+      → 要因分析 → 来月のアクション
+
+<span class="var">【報告月】</span>: [対象月]
+<span class="var">【主要KPI】</span>: [売上/利益/件数など]
+<span class="var">【実績値】</span>: [今月の実績数値]
+<span class="var">【目標値】</span>: [今月の目標数値]</pre>
+            </div>
+            <div class="card-row cols-4 reveal">
+                <div class="card-item" style="text-align:center;border-top:3px solid #059669;">
+                    <div class="card-icon">&#128200;</div>
+                    <h3>実績サマリー</h3>
+                </div>
+                <div class="card-item" style="text-align:center;border-top:3px solid #2563EB;">
+                    <div class="card-icon">&#128260;</div>
+                    <h3>目標比較</h3>
+                </div>
+                <div class="card-item" style="text-align:center;border-top:3px solid #D97706;">
+                    <div class="card-icon">&#128161;</div>
+                    <h3>要因分析</h3>
+                </div>
+                <div class="card-item" style="text-align:center;border-top:3px solid #2563EB;">
+                    <div class="card-icon">&#128640;</div>
+                    <h3>来月アクション</h3>
+                </div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>5 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: TEMPLATE 4 - Training Material -->
+    <section class="slide slide-page tab-pink">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">TEMPLATE 4</span>
+            <h2 class="reveal">テンプレート&#9315; 研修資料</h2>
+            <div class="prompt-box reveal">
+                <pre>研修資料を作成してください。
+12スライド構成。1スライド1メッセージ。
+専門用語は平易な言葉に言い換えてください。
+
+<span class="var">【研修テーマ】</span>: [テーマ]
+<span class="var">【対象者】</span>: [受講者のレベル]
+<span class="var">【研修時間】</span>: [所要時間]
+<span class="var">【到達目標】</span>: [研修後にできるようになること]</pre>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item" style="text-align:center;">
+                    <div class="card-icon">&#128203;</div>
+                    <h3>12スライド構成</h3>
+                    <p>15〜20分の研修に最適</p>
+                </div>
+                <div class="card-item" style="text-align:center;">
+                    <div class="card-icon">&#127919;</div>
+                    <h3>1スライド1メッセージ</h3>
+                    <p>情報過多を防止</p>
+                </div>
+                <div class="card-item" style="text-align:center;">
+                    <div class="card-icon">&#128214;</div>
+                    <h3>専門用語は平易に</h3>
+                    <p>理解しやすさ優先</p>
+                </div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>6 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: CUSTOMIZATION -->
+    <section class="slide slide-page tab-pink">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">CUSTOMIZE</span>
+            <h2 class="reveal">テンプレートのカスタマイズ方法</h2>
+            <div style="display:flex;flex-direction:column;gap:clamp(0.4rem,1vh,0.6rem);">
+                <div class="customize-item reveal">
+                    <div class="customize-num">1</div>
+                    <div class="customize-text">
+                        <h3>[ ] を自分の内容に差し替え</h3>
+                        <p>具体的な情報ほど出力品質がアップ</p>
+                    </div>
+                </div>
+                <div class="customize-item reveal">
+                    <div class="customize-num">2</div>
+                    <div class="customize-text">
+                        <h3>構成セクションの追加・削除</h3>
+                        <p>「競合比較」を追加、「予算」を削除など自由にアレンジ</p>
+                    </div>
+                </div>
+                <div class="customize-item reveal">
+                    <div class="customize-num">3</div>
+                    <div class="customize-text">
+                        <h3>業界用語・社内ルールを追記</h3>
+                        <p>「数値は万円単位で記載」「冒頭にサマリーを入れる」など</p>
+                    </div>
+                </div>
+            </div>
+            <div class="ba-row reveal">
+                <div class="ba-box ba-before">
+                    <strong>Before</strong><br>
+                    【業界】: [業界名]
+                </div>
+                <div class="ba-arrow">&#10132;</div>
+                <div class="ba-box ba-after">
+                    <strong>After</strong><br>
+                    【業界】: 自動車部品製造業（従業員300名）
+                </div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>7 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: DEMO -->
+    <section class="slide slide-demo">
+        <div class="slide-content">
+            <div class="demo-play reveal">&#9654;</div>
+            <h2 class="reveal">テンプレートで提案書を生成</h2>
+            <p class="demo-sub reveal">クライアント提案書テンプレートをClaudeで実行</p>
+            <p class="demo-detail reveal">小売業 / EC売上の伸び悩み / 予算300万円 / 期間3ヶ月</p>
+        </div>
+        <div class="slide-footer"><span>P-04</span><span>8 / 12</span></div>
+    </section>
+
+    <!-- SLIDE 9: SALES TIPS -->
+    <section class="slide slide-page tab-blue">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">SALES TIPS</span>
+            <h2 class="reveal">営業資料のコツ</h2>
+            <div class="card-row cols-3 reveal">
+                <div class="tip-card tip-green">
+                    <div class="tip-header"><div class="tip-icon">&#128178;</div></div>
+                    <div class="tip-body">
+                        <h3>数字で語る</h3>
+                        <p>「大幅に改善」<br>&#8595;<br>「30%改善」<br><br>曖昧な表現を具体的な数値に変換する</p>
+                    </div>
+                </div>
+                <div class="tip-card tip-blue">
+                    <div class="tip-header"><div class="tip-icon">&#128202;</div></div>
+                    <div class="tip-body">
+                        <h3>比較表で説得</h3>
+                        <p>自社 vs 競合の機能比較<br>プランA vs プランBの比較<br><br>人間は比較があると判断しやすい</p>
+                    </div>
+                </div>
+                <div class="tip-card tip-amber">
+                    <div class="tip-header"><div class="tip-icon">&#128260;</div></div>
+                    <div class="tip-body">
+                        <h3>Before / After</h3>
+                        <p>導入前: 手作業で3時間<br>導入後: 自動化で15分<br><br>最も直感的に効果を伝えられる</p>
+                    </div>
+                </div>
+            </div>
+            <div class="callout reveal">
+                &#128161; テンプレート出力後に「比較表を追加して」と追加指示するのも効果的
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>9 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: REPORT TIPS -->
+    <section class="slide slide-page tab-blue">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">REPORT TIPS</span>
+            <h2 class="reveal">報告書のコツ</h2>
+            <div style="display:flex;flex-direction:column;gap:clamp(0.5rem,1vh,0.8rem);">
+                <div class="report-tip reveal">
+                    <div class="report-tip-num">1</div>
+                    <div class="report-tip-text">
+                        <h3>&#128640; 結論ファースト</h3>
+                        <p>最初の1行で結論を述べる。「今月の売上は目標比105%で達成」のように、読んだ瞬間に状況がわかるように。</p>
+                    </div>
+                </div>
+                <div class="report-tip reveal">
+                    <div class="report-tip-num">2</div>
+                    <div class="report-tip-text">
+                        <h3>&#128202; グラフの代わりにテーブル</h3>
+                        <p>AIはグラフ生成が苦手だが、テーブルは正確に作れる。グラフが必要ならテーブルデータをExcelに貼り付け。</p>
+                    </div>
+                </div>
+                <div class="report-tip reveal">
+                    <div class="report-tip-num">3</div>
+                    <div class="report-tip-text">
+                        <h3>&#127919; 1ページ1メッセージ</h3>
+                        <p>情報を詰め込まない。「このページで伝えたいことは何か」を1つに絞ることが最も重要。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer"><span>P-04</span><span>10 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: SUMMARY -->
+    <section class="slide slide-page tab-yellow">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">SUMMARY</span>
+            <h2 class="reveal">まとめ</h2>
+            <div class="summary-list">
+                <div class="summary-item reveal">
+                    <div class="summary-icon">&#128203;</div>
+                    <div class="summary-text"><strong>4つのテンプレート:</strong> 提案書 / 企画書 / 報告書 / 研修資料</div>
+                </div>
+                <div class="summary-item reveal">
+                    <div class="summary-icon">&#9881;&#65039;</div>
+                    <div class="summary-text"><strong>カスタマイズ:</strong> [ ]差し替え + 構成の追加・削除 + 社内ルール追記</div>
+                </div>
+                <div class="summary-item reveal">
+                    <div class="summary-icon">&#128178;</div>
+                    <div class="summary-text"><strong>営業資料:</strong> 数字で語る / 比較表で説得 / Before/After</div>
+                </div>
+                <div class="summary-item reveal">
+                    <div class="summary-icon">&#128202;</div>
+                    <div class="summary-text"><strong>報告書:</strong> 結論ファースト / テーブル活用 / 1ページ1メッセージ</div>
+                </div>
+            </div>
+            <div class="test-badge reveal">&#9989; 確認テスト: 5問 / 80%合格</div>
+            <div class="slide-footer"><span>P-04</span><span>11 / 12</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: END -->
+    <section class="slide slide-end">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#9989;</div>
+            <h2 class="reveal">P-04 修了</h2>
+            <div class="divider-line reveal" style="width:clamp(60px,15vw,180px);height:2px;background:#93C5FD;margin:clamp(0.5rem,1.5vh,1rem) auto;"></div>
+            <p class="reveal">テンプレートを使って、資料作成を加速しよう</p>
+            <p class="reveal" style="color:#9CA3AF;font-size:clamp(0.7rem,1vw,0.85rem);margin-top:clamp(1rem,3vh,2rem);letter-spacing:0.1em;">次のステップ &#10132; P-05 最強ワークフローと総まとめ</p>
+        </div>
+        <div class="slide-footer"><span>P-04</span><span>12 / 12</span></div>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupMouseWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) { this.currentSlide = index; this.updateProgressBar(); this.updateNavDots(); }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown': case 'ArrowRight': case ' ': case 'PageDown':
+                            e.preventDefault(); this.goToSlide(this.currentSlide + 1); break;
+                        case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
+                            e.preventDefault(); this.goToSlide(this.currentSlide - 1); break;
+                        case 'Home': e.preventDefault(); this.goToSlide(0); break;
+                        case 'End': e.preventDefault(); this.goToSlide(this.slides.length - 1); break;
+                    }
+                });
+            }
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => { this.touchStartY = e.touches[0].clientY; this.touchStartX = e.touches[0].clientX; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                    const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                        this.goToSlide(this.currentSlide + (deltaY > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+            setupMouseWheelNav() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isAnimating) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) this.goToSlide(this.currentSlide + 1);
+                        else if (e.deltaY < -30) this.goToSlide(this.currentSlide - 1);
+                    }, 50);
+                }, { passive: true });
+            }
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true; this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar(); this.updateNavDots();
+                setTimeout(() => { this.isAnimating = false; }, 600);
+            }
+            setupProgressBar() { this.progressBar = document.getElementById('progressBar'); this.updateProgressBar(); }
+            updateProgressBar() { if (!this.progressBar) return; this.progressBar.style.width = ((this.currentSlide + 1) / this.slides.length) * 100 + '%'; }
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return; container.innerHTML = '';
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    const isPage = slide.classList.contains('slide-page');
+                    dot.className = 'nav-dot' + (isPage ? ' page-dot' : '') + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    container.appendChild(dot);
+                });
+            }
+            updateNavDots() { document.querySelectorAll('.nav-dot').forEach((dot, i) => { dot.classList.toggle('active', i === this.currentSlide); }); }
+        }
+        document.addEventListener('DOMContentLoaded', () => { new SlidePresentation(); });
+    </script>
+</body>
+</html>
