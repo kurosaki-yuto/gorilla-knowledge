@@ -1,0 +1,24 @@
+{
+  "service": "google-ai-studio",
+  "url": "https://aistudio.google.com/prompts/new_chat",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "description": "ページ読み込み完了待ち" },
+    { "action": "click", "selector": "text=Video Generation", "description": "Video Generationカードをクリック" },
+    { "action": "wait", "ms": 3000, "description": "Video Generation画面の読み込み待ち" },
+    { "action": "screenshot", "path": "veo3_ui.png", "description": "Veo3 UI確認" },
+    { "action": "click", "selector": "textarea, [contenteditable='true'], input[type='text']", "description": "プロンプト入力欄をクリック" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "type", "text": "A modern Japanese office with warm natural lighting, camera slowly panning across a clean workspace where a professional reviews documents on a laptop, cherry blossom petals visible through the window, calm and productive atmosphere", "delay": 50, "description": "動画生成プロンプトを入力" },
+    { "action": "wait", "ms": 2000, "description": "入力内容を見せる" },
+    { "action": "screenshot", "path": "veo3_prompt.png", "description": "プロンプト入力後" },
+    { "action": "press", "key": "Enter", "description": "生成開始" },
+    { "action": "wait", "ms": 5000, "description": "生成中の画面を見せる" },
+    { "action": "screenshot", "path": "veo3_generating.png", "description": "生成中画面" },
+    { "action": "waitForAI", "timeout": 120000, "stableMs": 5000, "description": "動画生成完了を待機" },
+    { "action": "wait", "ms": 3000, "description": "完成した動画を見せる" },
+    { "action": "screenshot", "path": "veo3_result.png", "description": "生成結果" },
+    { "action": "scroll", "direction": "down", "amount": 300, "description": "結果をスクロールして確認" },
+    { "action": "wait", "ms": 3000, "description": "結果表示" }
+  ]
+}

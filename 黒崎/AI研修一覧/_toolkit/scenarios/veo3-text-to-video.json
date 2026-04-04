@@ -1,0 +1,9 @@
+{
+  "service": "google-ai-studio",
+  "url": "https://aistudio.google.com/prompts/new_chat",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 4000, "description": "ページ読み込み完了待ち" },
+    { "action": "screenshot", "path": "debug_initial.png", "description": "初期画面確認" }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "service": "elevenlabs",
+  "url": "https://elevenlabs.io/app/speech-synthesis",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 5000, "description": "ページ読み込み完了待ち" },
+    { "action": "screenshot", "path": "elevenlabs_initial.png", "description": "初期画面確認" },
+    { "action": "click", "selector": "textarea, [contenteditable='true'], input[type='text'], .text-input", "description": "テキスト入力欄をクリック" },
+    { "action": "wait", "ms": 1000 },
+    { "action": "type", "text": "AIツールを使いこなすことで、業務効率は劇的に向上します。本日は、その具体的な方法をご紹介します。", "delay": 65, "description": "ナレーション用テキストを入力" },
+    { "action": "wait", "ms": 2000, "description": "入力内容を見せる" },
+    { "action": "screenshot", "path": "elevenlabs_typed.png", "description": "テキスト入力後" },
+    { "action": "wait", "ms": 3000 }
+  ]
+}

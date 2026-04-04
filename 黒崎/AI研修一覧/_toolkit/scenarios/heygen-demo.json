@@ -1,0 +1,15 @@
+{
+  "service": "heygen",
+  "url": "https://app.heygen.com",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 5000, "description": "ダッシュボード読み込み待ち" },
+    { "action": "screenshot", "path": "heygen_dashboard.png", "description": "ダッシュボード確認" },
+    { "action": "scroll", "direction": "down", "amount": 300, "description": "画面を下にスクロール" },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "up", "amount": 300, "description": "画面を上に戻す" },
+    { "action": "wait", "ms": 2000 },
+    { "action": "screenshot", "path": "heygen_features.png", "description": "機能一覧" },
+    { "action": "wait", "ms": 3000 }
+  ]
+}
