@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { VideoPlayer } from "@/components/video-player";
 import { QuizForm } from "@/components/quiz-form";
@@ -48,6 +48,31 @@ export function CourseBrowser({ tree, userName, companyName }: CourseBrowserProp
   const [videoCompletedCourses, setVideoCompletedCourses] = useState<Set<string>>(new Set());
   const [quizPassedCourses, setQuizPassedCourses] = useState<Set<string>>(new Set());
 
+  // マウント時にサーバーから既存の完了データを取得
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/completion");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.completions)) {
+          const completed = new Set<string>();
+          const videoDone = new Set<string>();
+          const quizDone = new Set<string>();
+          for (const c of data.completions) {
+            if (c.videoCompleted) videoDone.add(c.courseId);
+            if (c.quizPassed) quizDone.add(c.courseId);
+            if (c.isCompleted) completed.add(c.courseId);
+          }
+          setVideoCompletedCourses(videoDone);
+          setQuizPassedCourses(quizDone);
+          setCompletedCourses(completed);
+        }
+      } catch {
+        // 取得失敗時は空のまま（セッション内で更新される）
+      }
+    })();
+  }, []);
+
   const toggleCategory = (catId: string) => {
     setCollapsedCats((prev) => {
       const next = new Set(prev);
@@ -58,8 +83,16 @@ export function CourseBrowser({ tree, userName, companyName }: CourseBrowserProp
   };
 
   // 動画視聴完了コールバック
-  const handleCourseComplete = useCallback((courseId: string) => {
+  const handleCourseComplete = useCallback(async (courseId: string) => {
     setVideoCompletedCourses((prev) => new Set(prev).add(courseId));
+    // テストなし講座は動画完了で修了 → サーバーに確認
+    try {
+      const res = await fetch(`/api/completion?courseId=${courseId}`);
+      const data = await res.json();
+      if (data.success && data.status?.isCompleted) {
+        setCompletedCourses((prev) => new Set(prev).add(courseId));
+      }
+    } catch { /* ignore */ }
   }, []);
 
   // テスト合格コールバック

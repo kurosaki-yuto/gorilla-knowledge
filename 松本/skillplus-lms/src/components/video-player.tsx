@@ -145,12 +145,19 @@ function MP4Player({ course, onComplete }: VideoPlayerProps) {
           }),
         });
         const data = await res.json();
+        console.log("[VideoPlayer] saveProgress response:", {
+          courseId: course.id,
+          playSeconds: Math.round(playSeconds),
+          ended,
+          durationSeconds: course.durationSeconds,
+          completion: data.completion,
+        });
         if (data.success && data.completion?.isComplete) {
           setIsComplete(true);
           onComplete?.(course.id);
           toast.success("視聴完了しました");
         } else if (ended) {
-          toast("視聴時間が不足しています。もう一度視聴してください。");
+          toast(`視聴時間が不足しています（${data.completion?.actualSeconds || 0}秒/${data.completion?.requiredSeconds || "?"}秒）。もう一度視聴してください。`);
         }
       } catch {
         toast.error("保存に失敗しました");
@@ -468,12 +475,19 @@ function YouTubePlayer({ course, onComplete }: VideoPlayerProps & { videoId: str
           }),
         });
         const data = await res.json();
+        console.log("[VideoPlayer:YT] saveProgress response:", {
+          courseId: course.id,
+          playSeconds: Math.round(playSeconds),
+          ended,
+          durationSeconds: course.durationSeconds,
+          completion: data.completion,
+        });
         if (data.success && data.completion?.isComplete) {
           setIsComplete(true);
           onComplete?.(course.id);
           toast.success("視聴完了しました");
         } else if (ended) {
-          toast("視聴時間が不足しています。もう一度視聴してください。");
+          toast(`視聴時間が不足しています（${data.completion?.actualSeconds || 0}秒/${data.completion?.requiredSeconds || "?"}秒）。もう一度視聴してください。`);
         }
       } catch {
         toast.error("保存に失敗しました");
@@ -506,6 +520,7 @@ function YouTubePlayer({ course, onComplete }: VideoPlayerProps & { videoId: str
           rel: 0,
           modestbranding: 1,
           disablekb: 1,
+          loop: 0,
         },
         events: {
           onReady: () => {

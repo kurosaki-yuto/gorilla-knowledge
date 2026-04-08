@@ -37,9 +37,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // ユーザーの全修了状況
+    // ユーザーの全修了状況（hasQuiz 付き）
     const completions = await db.getCompletionsByUser(session.id);
-    return NextResponse.json({ success: true, completions });
+    const enriched = await Promise.all(
+      completions.map(async (c) => {
+        const quizzes = await db.getQuizzesByCourse(c.courseId);
+        const hasQuiz = quizzes.length > 0;
+        const isCompleted = hasQuiz ? (c.videoCompleted && c.quizPassed) : c.videoCompleted;
+        return { ...c, hasQuiz, isCompleted };
+      })
+    );
+    return NextResponse.json({ success: true, completions: enriched });
   } catch (error) {
     console.error("Failed to fetch completion:", error);
     return NextResponse.json(

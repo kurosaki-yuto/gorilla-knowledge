@@ -1,0 +1,22 @@
+{
+  "service": "claude",
+  "url": "https://claude.ai",
+  "viewport": { "width": 1920, "height": 1080 },
+  "steps": [
+    { "action": "wait", "ms": 2000 },
+    { "action": "click", "selector": "[contenteditable='true'], .ProseMirror, textarea", "description": "入力欄をクリック" },
+    { "action": "type", "text": "あなたはコンサルタントです。以下の情報をもとに、クライアント向け提案書を作成してください。\n\n構成: 課題の整理 → 提案3つ → ROI試算 → スケジュール → 次のステップ\n\n【業界】: 小売業（EC事業、従業員50名）\n【課題】: EC売上の伸び悩み。直近半年で前年比95%に低下。\n【予算規模】: 300万円\n【期間】: 3ヶ月", "delay": 35 },
+    { "action": "wait", "ms": 1000 },
+    { "action": "press", "key": "Enter" },
+    { "action": "waitForAI", "timeout": 60000, "stableMs": 5000 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "down", "amount": 400 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "down", "amount": 400 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "down", "amount": 400 },
+    { "action": "wait", "ms": 2000 },
+    { "action": "scroll", "direction": "up", "amount": 1200 },
+    { "action": "wait", "ms": 2000 }
+  ]
+}

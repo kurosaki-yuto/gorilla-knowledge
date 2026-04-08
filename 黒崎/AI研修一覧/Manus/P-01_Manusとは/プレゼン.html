@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manus-P1: Manusとは？ ─ 自律型AIエージェントの衝撃</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-outer: #2d2d2d;
+            --bg-page: #f8f6f1;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --accent: #2563EB;
+            --tab-1: #98d4bb;
+            --tab-2: #c7b8ea;
+            --tab-3: #f4b8c5;
+            --tab-4: #a8d8ea;
+            --tab-5: #ffe6a7;
+            --font-display: 'Bodoni Moda', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --title-size: clamp(2rem, 5vw, 3.5rem);
+            --h2-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --slide-padding: clamp(1.5rem, 4vw, 3.5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+        .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+        @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+        @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+        @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+        @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+        body { background: var(--bg-outer); font-family: var(--font-body); color: var(--text-primary); }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 1000; transition: width 0.3s ease; }
+
+        .nav-dots { position: fixed; right: clamp(0.5rem, 1.5vw, 1.5rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+        .nav-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); background: transparent; cursor: pointer; transition: all 0.3s ease; }
+        .nav-dot.active { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+        .nav-dot.page-dot { border-color: rgba(0,0,0,0.2); }
+        .nav-dot.page-dot.active { background: var(--accent); border-color: var(--accent); }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-normal) var(--ease-out-expo); }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        .slide-footer { position: absolute; bottom: clamp(0.5rem, 1.5vh, 1rem); left: var(--slide-padding); right: var(--slide-padding); display: flex; justify-content: space-between; font-size: clamp(0.6rem, 0.9vw, 0.75rem); color: var(--text-secondary); font-family: var(--font-body); opacity: 0.6; }
+
+        .slide-title, .slide-end { background: #1B2A4A; color: #fff; justify-content: center; align-items: center; text-align: center; }
+        .slide-title .slide-content, .slide-end .slide-content { align-items: center; text-align: center; }
+        .slide-title h1 { font-family: var(--font-display); font-size: var(--title-size); font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+        .slide-title .subtitle { font-family: var(--font-body); font-size: clamp(0.9rem, 1.8vw, 1.3rem); color: #93C5FD; margin-top: clamp(0.5rem, 1.5vh, 1rem); }
+        .slide-title .meta { font-family: var(--font-body); font-size: clamp(0.7rem, 1vw, 0.85rem); color: #9CA3AF; margin-top: clamp(1rem, 3vh, 2rem); letter-spacing: 0.1em; }
+        .slide-title .divider-line { width: clamp(60px, 15vw, 180px); height: 2px; background: #93C5FD; margin: clamp(0.5rem, 1.5vh, 1rem) auto; }
+        .slide-end h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.8rem); margin-bottom: clamp(0.5rem, 1.5vh, 1rem); }
+        .slide-end p { color: #93C5FD; font-size: var(--body-size); }
+        .slide-title .slide-footer, .slide-end .slide-footer { color: rgba(255,255,255,0.3); }
+
+        .slide-page { background: var(--bg-outer); }
+        .slide-page .slide-content { background: var(--bg-page); margin: clamp(0.5rem, 1.5vh, 1.5rem) clamp(2rem, 5vw, 5rem); border-radius: 4px; box-shadow: 0 2px 20px rgba(0,0,0,0.15); padding: var(--slide-padding); position: relative; }
+        .slide-page h2 { font-family: var(--font-display); font-size: var(--h2-size); color: var(--text-primary); margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem); font-weight: 700; }
+        .slide-page .tag { display: inline-block; font-family: var(--font-body); font-size: clamp(0.6rem, 0.8vw, 0.7rem); font-weight: 700; padding: 3px 12px; border-radius: 20px; margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem); letter-spacing: 0.05em; text-transform: uppercase; }
+        .slide-page .slide-footer { position: absolute; bottom: clamp(0.3rem, 0.8vh, 0.6rem); }
+        .slide-page .slide-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; border-radius: 4px 4px 0 0; }
+        .tab-green .slide-content::before { background: var(--tab-1); }
+        .tab-purple .slide-content::before { background: var(--tab-2); }
+        .tab-pink .slide-content::before { background: var(--tab-3); }
+        .tab-blue .slide-content::before { background: var(--tab-4); }
+        .tab-yellow .slide-content::before { background: var(--tab-5); }
+
+        .card-row { display: grid; gap: clamp(0.5rem, 1.2vw, 1rem); }
+        .card-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .card-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .card-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 700px) { .card-row.cols-3, .card-row.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+        .card-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.6rem, 1.2vw, 1.2rem); display: flex; flex-direction: column; gap: clamp(0.2rem, 0.5vh, 0.4rem); }
+        .card-item .card-icon { font-size: clamp(1.2rem, 2.5vw, 2rem); }
+        .card-item h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.2vw, 0.95rem); font-weight: 700; color: var(--text-primary); }
+        .card-item p { font-size: clamp(0.65rem, 1vw, 0.82rem); color: var(--text-secondary); line-height: 1.4; }
+        .card-item.accent-border { border-left: 3px solid var(--accent); }
+
+        .goal-list { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.5vh, 1.2rem); }
+        .goal-item { display: flex; align-items: center; gap: clamp(0.5rem, 1.2vw, 1rem); }
+        .goal-num { flex-shrink: 0; width: clamp(2rem, 3.5vw, 2.8rem); height: clamp(2rem, 3.5vw, 2.8rem); background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: clamp(0.9rem, 1.5vw, 1.3rem); font-weight: 700; }
+        .goal-text { font-size: clamp(0.8rem, 1.3vw, 1.05rem); color: var(--text-primary); font-weight: 500; }
+
+        .definition-box { background: #DBEAFE; border-radius: 8px; padding: clamp(0.8rem, 1.5vw, 1.5rem); margin-bottom: clamp(0.5rem, 1.2vh, 1rem); }
+        .definition-box p { font-family: var(--font-display); font-size: clamp(0.95rem, 1.8vw, 1.4rem); color: var(--accent); font-weight: 600; line-height: 1.4; }
+
+        .timeline { display: flex; align-items: stretch; gap: clamp(0.3rem, 0.8vw, 0.6rem); margin: clamp(0.5rem, 1.2vh, 1rem) 0; }
+        .timeline-item { flex: 1; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.5rem, 1vw, 1rem); text-align: center; position: relative; }
+        .timeline-item .era { font-size: clamp(0.55rem, 0.8vw, 0.7rem); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .timeline-item h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.2vw, 1rem); font-weight: 700; color: var(--text-primary); margin: clamp(0.15rem, 0.4vh, 0.3rem) 0; }
+        .timeline-item p { font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: var(--text-secondary); line-height: 1.3; }
+        .timeline-arrow { display: flex; align-items: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 1rem); }
+
+        .comparison-table { width: 100%; border-collapse: collapse; font-size: clamp(0.65rem, 1vw, 0.85rem); }
+        .comparison-table th { background: #f3f4f6; padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem); text-align: left; font-weight: 700; color: var(--text-primary); border-bottom: 2px solid #e5e7eb; }
+        .comparison-table td { padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.4rem, 0.8vw, 0.8rem); border-bottom: 1px solid #e5e7eb; color: var(--text-secondary); }
+        .comparison-table tr td:first-child { font-weight: 600; color: var(--text-primary); }
+
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: clamp(0.3rem, 0.6vw, 0.5rem); margin: clamp(0.5rem, 1vh, 0.8rem) 0; flex-wrap: wrap; }
+        .flow-step { background: var(--accent); color: #fff; padding: clamp(0.3rem, 0.6vh, 0.5rem) clamp(0.6rem, 1.2vw, 1rem); border-radius: 6px; font-size: clamp(0.65rem, 1vw, 0.85rem); font-weight: 600; }
+        .flow-step.green { background: #059669; }
+        .flow-arrow { color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 1rem); }
+
+        .icon-list { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.6rem); }
+        .icon-list-item { display: flex; align-items: flex-start; gap: clamp(0.4rem, 0.8vw, 0.7rem); }
+        .icon-list-item .li-icon { flex-shrink: 0; font-size: clamp(0.9rem, 1.5vw, 1.2rem); }
+        .icon-list-item .li-text { font-size: var(--body-size); color: var(--text-secondary); line-height: 1.5; }
+        .icon-list-item .li-text strong { color: var(--text-primary); }
+
+        .badge-row { display: flex; gap: clamp(0.5rem, 1vw, 1rem); margin-top: clamp(0.4rem, 1vh, 0.8rem); flex-wrap: wrap; }
+        .badge { display: flex; align-items: center; gap: 6px; padding: clamp(0.3rem, 0.5vh, 0.4rem) clamp(0.6rem, 1vw, 1rem); border-radius: 6px; font-size: clamp(0.65rem, 1vw, 0.82rem); font-weight: 600; }
+        .badge.pro { background: #D1FAE5; color: #059669; }
+        .badge.con { background: #FEF3C7; color: #D97706; }
+        .badge.warn { background: #FEE2E2; color: #DC2626; }
+
+        .callout { background: #FEF3C7; border-radius: 8px; padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem); font-size: clamp(0.7rem, 1vw, 0.85rem); color: #92400E; font-weight: 500; margin-top: clamp(0.4rem, 1vh, 0.8rem); display: flex; align-items: center; gap: 8px; }
+
+        .warning-list { display: flex; flex-direction: column; gap: clamp(0.4rem, 1vh, 0.8rem); }
+        .warning-item { display: flex; gap: clamp(0.5rem, 1vw, 0.8rem); background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.5rem, 1vw, 1rem); align-items: flex-start; }
+        .warning-icon { flex-shrink: 0; font-size: clamp(1.2rem, 2vw, 1.6rem); }
+        .warning-text h3 { font-family: var(--font-body); font-size: clamp(0.75rem, 1.1vw, 0.92rem); font-weight: 700; color: var(--text-primary); }
+        .warning-text p { font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: var(--text-secondary); line-height: 1.4; margin-top: 2px; }
+
+        .summary-list { display: flex; flex-direction: column; gap: clamp(0.5rem, 1vh, 0.8rem); }
+        .summary-item { display: flex; align-items: flex-start; gap: clamp(0.4rem, 0.8vw, 0.7rem); padding: clamp(0.4rem, 0.8vh, 0.7rem) 0; border-bottom: 1px solid #e5e7eb; }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-num { flex-shrink: 0; background: var(--accent); color: #fff; width: clamp(1.4rem, 2.5vw, 2rem); height: clamp(1.4rem, 2.5vw, 2rem); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: clamp(0.65rem, 1vw, 0.85rem); font-weight: 700; }
+        .summary-text { font-size: clamp(0.75rem, 1.2vw, 0.95rem); color: var(--text-primary); line-height: 1.5; }
+        .summary-text strong { color: var(--accent); }
+
+        .activity-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(0.4rem, 1vw, 0.8rem); }
+        .activity-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: clamp(0.5rem, 1vw, 1rem); }
+        .activity-card h3 { font-family: var(--font-body); font-size: clamp(0.7rem, 1.1vw, 0.9rem); font-weight: 700; color: var(--text-primary); margin-bottom: clamp(0.15rem, 0.4vh, 0.3rem); }
+        .activity-card p { font-size: clamp(0.6rem, 0.9vw, 0.78rem); color: var(--text-secondary); line-height: 1.4; }
+
+        .gear-row { display: flex; justify-content: center; gap: clamp(1rem, 3vw, 2.5rem); margin: clamp(0.5rem, 1.5vh, 1.2rem) 0; }
+        .gear-item { display: flex; flex-direction: column; align-items: center; gap: clamp(0.2rem, 0.5vh, 0.4rem); }
+        .gear-circle { width: clamp(3rem, 6vw, 5rem); height: clamp(3rem, 6vw, 5rem); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: clamp(1.2rem, 2.5vw, 2rem); }
+        .gear-label { font-size: clamp(0.6rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+        .gear-sub { font-size: clamp(0.55rem, 0.8vw, 0.7rem); color: var(--text-secondary); text-align: center; }
+
+        @media (max-width: 700px) {
+            .activity-grid { grid-template-columns: 1fr; }
+            .timeline { flex-direction: column; }
+            .timeline-arrow { transform: rotate(90deg); justify-content: center; }
+            .card-row.cols-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide slide-title" data-section="intro">
+        <div class="slide-content">
+            <div class="reveal" style="font-size: clamp(2rem, 4vw, 3.5rem);">&#129302;</div>
+            <h1 class="reveal">Manusとは？</h1>
+            <div class="divider-line reveal"></div>
+            <p class="subtitle reveal">自律型AIエージェントで業務を丸ごと自動化</p>
+            <p class="meta reveal">Manus-P1 &nbsp;|&nbsp; 全社員向け &nbsp;|&nbsp; 13分</p>
+        </div>
+        <div class="slide-footer"><span>Manus-P1</span><span>1 / 14</span></div>
+    </section>
+
+    <!-- SLIDE 2: GOALS -->
+    <section class="slide slide-page tab-green" data-section="intro">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">GOALS</span>
+            <h2 class="reveal">今日のゴール</h2>
+            <div class="goal-list">
+                <div class="goal-item reveal">
+                    <div class="goal-num">1</div>
+                    <span class="goal-text">「AIエージェント」の意味を一文で説明できる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">2</div>
+                    <span class="goal-text">ChatGPT/Claudeとの根本的な違いを理解する</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">3</div>
+                    <span class="goal-text">Manusの仕組み（計画→実行→検証）を説明できる</span>
+                </div>
+                <div class="goal-item reveal">
+                    <div class="goal-num">4</div>
+                    <span class="goal-text">Manusが得意な業務タイプを3つ挙げられる</span>
+                </div>
+            </div>
+            <div class="slide-footer"><span>Manus-P1</span><span>2 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: 会話AI vs 実行AI -->
+    <section class="slide slide-page tab-green" data-section="concept">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">CONCEPT</span>
+            <h2 class="reveal">「会話AI」と「実行AI」— 2つの世界</h2>
+            <div class="card-row cols-2 reveal">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128172;</div>
+                    <h3>会話AI</h3>
+                    <p>「○○について教えて」→ テキストで回答<br>あなたが指示し続ける必要がある</p>
+                    <p style="font-size: clamp(0.6rem, 0.85vw, 0.72rem); color: #9CA3AF; margin-top: 4px;">ChatGPT, Claude, Gemini</p>
+                </div>
+                <div class="card-item" style="text-align: center; border: 2px solid var(--accent);">
+                    <div class="card-icon">&#127939;</div>
+                    <h3>実行AI（エージェント）</h3>
+                    <p>「○○をやって」→ 完成品を納品<br>自分で計画→実行→検証→完了</p>
+                    <p style="font-size: clamp(0.6rem, 0.85vw, 0.72rem); color: #9CA3AF; margin-top: 4px;">Manus, Devin</p>
+                </div>
+            </div>
+            <div class="callout reveal">&#128161; Manusは「AIアシスタント」ではなく「AIワーカー」。仕事を任せて放置できる</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>3 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: Manusとは -->
+    <section class="slide slide-page tab-green" data-section="concept">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-1); color: #1a1a1a;">WHAT IS MANUS</span>
+            <h2 class="reveal">Manus = ラテン語で「手」</h2>
+            <div class="icon-list">
+                <div class="icon-list-item reveal">
+                    <span class="li-icon">&#127970;</span>
+                    <span class="li-text"><strong>開発:</strong> Butterfly Effect社（シンガポール）→ 2025年12月にMetaが約20億ドル（約3,000億円）で買収</span>
+                </div>
+                <div class="icon-list-item reveal">
+                    <span class="li-icon">&#128197;</span>
+                    <span class="li-text"><strong>ローンチ:</strong> 2025年3月。2ヶ月で100万ユーザー突破、ARR1億ドル達成</span>
+                </div>
+                <div class="icon-list-item reveal">
+                    <span class="li-icon">&#127942;</span>
+                    <span class="li-text"><strong>実力:</strong> GAIAベンチマーク全AIエージェント中1位（2025年3月時点）</span>
+                </div>
+                <div class="icon-list-item reveal">
+                    <span class="li-icon">&#127760;</span>
+                    <span class="li-text"><strong>日本語対応:</strong> プロンプト・出力ともに日本語OK。UIも日本語化済み</span>
+                </div>
+            </div>
+            <div class="callout reveal">&#128161; Meta買収後もmanus.imで独立サービスとして継続運営中</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>4 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: 3エージェント構造 -->
+    <section class="slide slide-page tab-purple" data-section="architecture">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">ARCHITECTURE</span>
+            <h2 class="reveal">3つのエージェントが連携して動く</h2>
+            <div class="flow-row reveal">
+                <div class="flow-step">タスク入力</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">Planner</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step">Executor</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step green">Validator</div>
+                <div class="flow-arrow">&#10132;</div>
+                <div class="flow-step" style="background: #7C3AED;">完成品</div>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128203;</div>
+                    <h3>Planner</h3>
+                    <p>指示を分析し、作業手順を自動で分解する</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#9889;</div>
+                    <h3>Executor</h3>
+                    <p>Web検索・コード実行・ファイル作成を実行する</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#9989;</div>
+                    <h3>Validator</h3>
+                    <p>出力をチェックし、品質が低ければ修正を指示する</p>
+                </div>
+            </div>
+            <div class="callout reveal">&#129504; 人間のプロジェクト管理と同じ。計画→実行→検証のPDCAが自動で回る</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>5 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: サンドボックス -->
+    <section class="slide slide-page tab-purple" data-section="architecture">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-2); color: #1a1a1a;">SANDBOX</span>
+            <h2 class="reveal">Manusの作業場 — クラウド仮想マシン</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);">各タスクに専用のLinux仮想マシンが割り当てられる</p>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128421;</div>
+                    <h3>シェル</h3>
+                    <p>sudo権限付きLinuxターミナル</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#127760;</div>
+                    <h3>ブラウザ</h3>
+                    <p>Webサイトを自動操作・情報収集</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128193;</div>
+                    <h3>ファイル</h3>
+                    <p>Excel/PDF/画像など読み書き自在</p>
+                </div>
+            </div>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128013;</div>
+                    <h3>Python</h3>
+                    <p>データ分析・グラフ作成</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128279;</div>
+                    <h3>API接続</h3>
+                    <p>外部サービスと連携可能</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128640;</div>
+                    <h3>Webサーバー</h3>
+                    <p>作ったサイトをその場で公開</p>
+                </div>
+            </div>
+            <div class="callout reveal">&#128274; サンドボックスは完全に隔離。他のユーザーのデータには一切アクセスできない</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>6 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: ChatGPTとの比較 -->
+    <section class="slide slide-page tab-pink" data-section="comparison">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">VS ChatGPT</span>
+            <h2 class="reveal">ChatGPTとManusの決定的な違い</h2>
+            <div class="reveal" style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th style="color: #059669;">ChatGPT</th>
+                            <th style="color: var(--accent);">Manus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>コンセプト</td><td>会話アシスタント</td><td>自律型ワーカー</td></tr>
+                        <tr><td>操作</td><td>あなたが逐一指示</td><td>最初の指示だけでOK</td></tr>
+                        <tr><td>実行環境</td><td>サーバー内テキスト処理</td><td>専用仮想マシン(Linux)</td></tr>
+                        <tr><td>バックグラウンド</td><td>&#10060; 画面を閉じると止まる</td><td>&#9989; 閉じても動き続ける</td></tr>
+                        <tr><td>出力</td><td>テキスト回答</td><td>ファイル・サイト・レポート</td></tr>
+                        <tr><td>得意</td><td>文章生成・会話・創作</td><td>リサーチ・分析・制作物</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="slide-footer"><span>Manus-P1</span><span>7 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: Before/After -->
+    <section class="slide slide-page tab-pink" data-section="impact">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-3); color: #1a1a1a;">IMPACT</span>
+            <h2 class="reveal">Manusで業務がこう変わる</h2>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128202;</div>
+                    <h3>Web情報収集+比較表</h3>
+                    <p style="color: #DC2626; font-weight: 600;">Before: 半日</p>
+                    <p style="color: #059669; font-weight: 600;">After: 5分</p>
+                    <p>年間約100時間削減</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128200;</div>
+                    <h3>データ分析+グラフ</h3>
+                    <p style="color: #DC2626; font-weight: 600;">Before: 2時間</p>
+                    <p style="color: #059669; font-weight: 600;">After: 3分</p>
+                    <p>年間約40時間削減</p>
+                </div>
+                <div class="card-item" style="text-align: center;">
+                    <div class="card-icon">&#128221;</div>
+                    <h3>マルチステップ提案書</h3>
+                    <p style="color: #DC2626; font-weight: 600;">Before: 1〜2日</p>
+                    <p style="color: #059669; font-weight: 600;">After: 10分</p>
+                    <p>年間約120時間削減</p>
+                </div>
+            </div>
+            <div class="definition-box reveal">
+                <p style="text-align: center;">合計 年間約260時間削減 = 約33営業日分</p>
+            </div>
+            <div class="callout reveal">&#128161; 「AIに聞く」ではなく「AIに任せる」。これがエージェント時代の働き方</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>8 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: 得意な業務 -->
+    <section class="slide slide-page tab-blue" data-section="usecases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">USE CASES</span>
+            <h2 class="reveal">Manusに任せるべき3つの業務タイプ</h2>
+            <div class="card-row cols-3 reveal">
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128269;</div>
+                    <h3>リサーチ業務</h3>
+                    <p>競合調査、市場分析、価格比較。100以上のWebサイトを自動巡回して比較表を作成</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128202;</div>
+                    <h3>データ処理</h3>
+                    <p>CSV/Excel分析、グラフ付きレポート生成、インタラクティブダッシュボード構築</p>
+                </div>
+                <div class="card-item accent-border">
+                    <div class="card-icon">&#128736;</div>
+                    <h3>制作業務</h3>
+                    <p>Webサイト構築、提案資料作成、プレゼンスライド、業務ツール開発</p>
+                </div>
+            </div>
+            <div class="callout reveal">&#9888;&#65039; 逆に苦手: リアルタイム会話、創作系の壁打ち、社内システムへの直接操作</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>9 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: Wide Research -->
+    <section class="slide slide-page tab-blue" data-section="usecases">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-4); color: #1a1a1a;">WIDE RESEARCH</span>
+            <h2 class="reveal">Wide Research — 100エージェント同時投入</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);">2025年7月に追加された最強機能。100以上のサブエージェントを並列起動</p>
+            <div class="card-row cols-2 reveal">
+                <div class="card-item">
+                    <h3>&#128269; 従来のAI検索</h3>
+                    <p>1つずつ順番に調査 → 時間がかかる。1サイトずつ読んで情報を整理</p>
+                </div>
+                <div class="card-item" style="border: 2px solid var(--accent);">
+                    <h3>&#128640; Wide Research</h3>
+                    <p>100エージェントが同時に調査 → 圧倒的な網羅性とスピード</p>
+                </div>
+            </div>
+            <div class="icon-list reveal" style="margin-top: clamp(0.3rem, 0.8vh, 0.5rem);">
+                <div class="icon-list-item">
+                    <span class="li-icon">&#127970;</span>
+                    <span class="li-text">競合100社の製品を<strong>同時分析</strong></span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128094;</span>
+                    <span class="li-text">100種類の商品スペックを<strong>一括比較</strong></span>
+                </div>
+                <div class="icon-list-item">
+                    <span class="li-icon">&#128240;</span>
+                    <span class="li-text">過去1年分のニュースを<strong>並列収集</strong></span>
+                </div>
+            </div>
+            <div class="slide-footer"><span>Manus-P1</span><span>10 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: 料金プラン -->
+    <section class="slide slide-page tab-yellow" data-section="pricing">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">PRICING</span>
+            <h2 class="reveal">料金プラン — クレジット制</h2>
+            <div class="reveal" style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>プラン</th>
+                            <th>月額</th>
+                            <th>クレジット</th>
+                            <th>特徴</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Free</td><td>無料</td><td>初期1,000 + 日次300</td><td>お試し用</td></tr>
+                        <tr><td>Standard</td><td>$39/月</td><td>3,900/月</td><td>個人利用に最適</td></tr>
+                        <tr><td>Plus</td><td>$99/月</td><td>14,900/月</td><td>本格活用向け</td></tr>
+                        <tr><td>Team</td><td>$79/席/月</td><td>共有プール</td><td>チーム導入向け</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout reveal">&#9888;&#65039; 複雑なタスクは1回で1,000クレジット消費する場合も。まずはFreeプランで試そう</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>11 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: デモ動画 -->
+    <section class="slide slide-page tab-yellow" data-section="demo">
+        <div class="slide-content">
+            <span class="tag reveal" style="background: var(--tab-5); color: #1a1a1a;">DEMO</span>
+            <h2 class="reveal">では実際に見てみましょう</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-secondary); margin-bottom: clamp(0.4rem, 1vh, 0.8rem);">Manusにタスクを投げて、完成品が出るまでの一連の流れ</p>
+            <div class="activity-grid reveal">
+                <div class="activity-card" style="border-left: 3px solid var(--accent);">
+                    <h3>1&#65039;&#8419; プロンプト入力</h3>
+                    <p>自然言語でタスクを指示する</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #059669;">
+                    <h3>2&#65039;&#8419; 計画の自動生成</h3>
+                    <p>Manusがステップを分解する</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #D97706;">
+                    <h3>3&#65039;&#8419; リアルタイム実行</h3>
+                    <p>「Manus's Computer」で作業を観察</p>
+                </div>
+                <div class="activity-card" style="border-left: 3px solid #7C3AED;">
+                    <h3>4&#65039;&#8419; 完成品のダウンロード</h3>
+                    <p>Excel/PDF/Webサイトなど</p>
+                </div>
+            </div>
+            <div class="callout reveal">&#127916; ここからデモ動画に切り替わります（ブラウザを閉じても、Manusはバックグラウンドで動き続けます）</div>
+            <div class="slide-footer"><span>Manus-P1</span><span>12 / 14</span></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 13: まとめ -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <h2 class="reveal">Part 1 まとめ</h2>
+            <div class="summary-list" style="text-align: left; max-width: min(90vw, 600px); margin: 0 auto;">
+                <div class="summary-item reveal">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">1</div>
+                    <div class="summary-text" style="color: #e5e7eb;">AIエージェント = <strong style="color: #93C5FD;">指示を受けて自律的に仕事を完了するAI</strong></div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1);">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">2</div>
+                    <div class="summary-text" style="color: #e5e7eb;">Manusは「会話AI」ではなく<strong style="color: #93C5FD;">「実行AI」</strong>。完成品を納品する</div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1);">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">3</div>
+                    <div class="summary-text" style="color: #e5e7eb;">仕組み: <strong style="color: #93C5FD;">Planner → Executor → Validator</strong> の3段階</div>
+                </div>
+                <div class="summary-item reveal" style="border-color: rgba(255,255,255,0.1); border-bottom: none;">
+                    <div class="summary-num" style="background: #93C5FD; color: #1B2A4A;">4</div>
+                    <div class="summary-text" style="color: #e5e7eb;">得意分野: <strong style="color: #93C5FD;">リサーチ・データ処理・制作物</strong>の自動化</div>
+                </div>
+            </div>
+            <p class="reveal" style="margin-top: clamp(1rem, 2vh, 1.5rem);">確認テスト（5問） — 80%合格で修了</p>
+        </div>
+        <div class="slide-footer"><span>Manus-P1</span><span>13 / 14</span></div>
+    </section>
+
+    <!-- SLIDE 14: NEXT -->
+    <section class="slide slide-end" data-section="end">
+        <div class="slide-content">
+            <h2 class="reveal">Next &#10132;</h2>
+            <p class="reveal" style="font-size: clamp(1rem, 2vw, 1.5rem); margin-top: clamp(0.5rem, 1.5vh, 1rem);">Part 2: リサーチ業務を自動化する</p>
+            <p class="reveal" style="color: #9CA3AF; font-size: clamp(0.7rem, 1vw, 0.9rem); margin-top: clamp(0.5rem, 1vh, 0.8rem);">実際にManusでWeb情報収集をハンズオンで体験します</p>
+        </div>
+        <div class="slide-footer"><span>Manus-P1</span><span>14 / 14</span></div>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+                this.touchStartY = 0;
+                this.touchStartX = 0;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupMouseWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) { this.currentSlide = index; this.updateProgressBar(); this.updateNavDots(); }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown': case 'ArrowRight': case ' ': case 'PageDown': e.preventDefault(); this.goToSlide(this.currentSlide + 1); break;
+                        case 'ArrowUp': case 'ArrowLeft': case 'PageUp': e.preventDefault(); this.goToSlide(this.currentSlide - 1); break;
+                        case 'Home': e.preventDefault(); this.goToSlide(0); break;
+                        case 'End': e.preventDefault(); this.goToSlide(this.slides.length - 1); break;
+                    }
+                });
+            }
+            setupTouchNav() {
+                document.addEventListener('touchstart', (e) => { this.touchStartY = e.touches[0].clientY; this.touchStartX = e.touches[0].clientX; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+                    const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                        if (deltaY > 0) this.goToSlide(this.currentSlide + 1);
+                        else this.goToSlide(this.currentSlide - 1);
+                    }
+                }, { passive: true });
+            }
+            setupMouseWheelNav() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isAnimating) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) this.goToSlide(this.currentSlide + 1);
+                        else if (e.deltaY < -30) this.goToSlide(this.currentSlide - 1);
+                    }, 50);
+                }, { passive: true });
+            }
+            goToSlide(index) {
+                if (index < 0 || index >= this.slides.length || this.isAnimating) return;
+                this.isAnimating = true;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+                setTimeout(() => { this.isAnimating = false; }, 600);
+            }
+            setupProgressBar() { this.progressBar = document.getElementById('progressBar'); this.updateProgressBar(); }
+            updateProgressBar() { if (!this.progressBar) return; const progress = ((this.currentSlide + 1) / this.slides.length) * 100; this.progressBar.style.width = progress + '%'; }
+            setupNavDots() {
+                const container = document.getElementById('navDots');
+                if (!container) return;
+                container.innerHTML = '';
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    const isPage = slide.classList.contains('slide-page');
+                    dot.className = 'nav-dot' + (isPage ? ' page-dot' : '') + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    dot.setAttribute('aria-label', `スライド ${i + 1}`);
+                    container.appendChild(dot);
+                });
+            }
+            updateNavDots() { const dots = document.querySelectorAll('.nav-dot'); dots.forEach((dot, i) => { dot.classList.toggle('active', i === this.currentSlide); }); }
+        }
+        document.addEventListener('DOMContentLoaded', () => { new SlidePresentation(); });
+    </script>
+</body>
+</html>

@@ -77,6 +77,14 @@ export async function POST(request: NextRequest) {
     const progressPercent = body.progressPercent || 0;
 
     const completion = checkCompletion(course.durationSeconds, actualPlaySeconds, videoEnded);
+    console.log("[progress] completion check:", {
+      courseId: body.courseId,
+      dbDurationSeconds: course.durationSeconds,
+      clientDurationSeconds: body.videoDurationSeconds,
+      actualPlaySeconds: Math.round(actualPlaySeconds),
+      videoEnded,
+      result: completion,
+    });
 
     // 視聴履歴を保存
     const startDate = new Date(body.startTimestamp);

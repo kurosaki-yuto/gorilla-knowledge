@@ -8,6 +8,10 @@ import type {
   Course,
   User,
   ViewingHistory,
+  Quiz,
+  QuizResult,
+  Completion,
+  LoginLog,
 } from "@/types";
 import type { DatabaseAdapter } from "./index";
 import bcrypt from "bcryptjs";
@@ -115,4 +119,21 @@ export const MockAdapter: DatabaseAdapter = {
 
   // === 視聴履歴（全体） ===
   async getAllViewingHistory() { return viewingHistories; },
+
+  // === テスト ===
+  async getQuizzesByCourse() { return [] as Quiz[]; },
+  async getQuizResultsByCourse() { return [] as QuizResult[]; },
+  async saveQuizResult(r) { return `qr_${genId()}`; },
+
+  // === 修了管理 ===
+  async getCompletion() { return null; },
+  async getCompletionsByUser() { return [] as Completion[]; },
+  async saveCompletion(c) { return `comp_${genId()}`; },
+  async updateCompletion() {},
+
+  // === ログイン記録 ===
+  async saveLoginLog(l) { return `ll_${genId()}`; },
+  async updateLoginLog() {},
+  async getLoginLogsByUser() { return [] as LoginLog[]; },
+  async getAllLoginLogs() { return [] as LoginLog[]; },
 };

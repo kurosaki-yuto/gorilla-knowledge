@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Turbopackは日本語パスでクラッシュするため無効化（Next.js 16 bug）
+  bundlePagesRouterDependencies: false,
 };
 
 export default nextConfig;

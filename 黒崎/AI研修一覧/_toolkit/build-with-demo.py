@@ -66,7 +66,7 @@ def make_demo_part(recording: Path, audio: Path, out: Path) -> float:
     """実演録画 + ナレーション音声 → 動画パーツ"""
     rec_dur = get_duration(recording)
     audio_dur = get_duration(audio)
-    final_dur = max(rec_dur, audio_dur + 1.0)
+    final_dur = audio_dur + 2.0  # ナレーション長+2秒余白で録画をカット
 
     # 録画をMP4に変換+解像度統一
     normalized = out.parent / f"{out.stem}_norm.mp4"

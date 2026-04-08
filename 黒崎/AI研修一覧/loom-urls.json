@@ -1,0 +1,77 @@
+{
+  "Stage1_AIを知る": [
+    { "title": "01_AIとは何か", "url": "https://www.loom.com/share/5ff99fd454674ca3a3702b0eb9863b25" },
+    { "title": "02_生成AIの仕組み", "url": "https://www.loom.com/share/cffea79f80984f869dbebe2a255ad2a8" },
+    { "title": "03_AIにできること・できないこと", "url": "https://www.loom.com/share/44e10a6901fc4cc2be22f99b26a58241" },
+    { "title": "04_主要AIツール徹底比較", "url": "https://www.loom.com/share/c9a71734cbb246f89540920c9f8a87ff" }
+  ],
+  "Stage2_安全に使う": [
+    { "title": "01_AI時代の情報リテラシー", "url": "https://www.loom.com/share/f5422a782d9647bf88c9eb6a93642c0a" },
+    { "title": "02_AIと著作権・個人情報", "url": "https://www.loom.com/share/8d4a0e32a89e4223bd712f34b42564d6" },
+    { "title": "03_社内AI利用ガイドライン", "url": "https://www.loom.com/share/391c45a67f344692b5c9f81a89038f2b" }
+  ],
+  "Stage3_プロンプト": [
+    { "title": "01_プロンプトの基本", "url": "https://www.loom.com/share/7bf5111c781042e8bdc442de5afad710" },
+    { "title": "02_プロンプト実践テクニック", "url": "https://www.loom.com/share/a4aa968..." }
+  ],
+  "Stage4_ChatGPT": [
+    { "title": "01_ChatGPT_Part1", "url": "https://www.loom.com/share/2d8e6cb477ef47aa891373611003361e" },
+    { "title": "02_ChatGPT_Part2", "url": "https://www.loom.com/share/49af8f751d9a41979d0fd5de6bc77717" },
+    { "title": "03_ChatGPT_Part3", "url": "https://www.loom.com/share/7c867011330a476aab95d4a84138902a" },
+    { "title": "04_ChatGPT_Part4", "url": "https://www.loom.com/share/ebcc598fece34799af5fcd2806c7f4bc" },
+    { "title": "05_ChatGPT_Part5", "url": "https://www.loom.com/share/20a5b89d27794b92a7db4c175569e7a8" }
+  ],
+  "Stage4_Claude": [
+    { "title": "01_Claudeとは", "url": "https://www.loom.com/share/378688e1e3fa464399bef53f48e9c83b" },
+    { "title": "02_プロジェクト&アーティファクト", "url": "https://www.loom.com/share/e5dfae19b79e4e8f96e07b31de71018f" },
+    { "title": "03_長文処理&Web検索", "url": "https://www.loom.com/share/3b4c8b036cd948ccb2b1fb14812ece73" },
+    { "title": "04_Claude_Code&MCP", "url": "https://www.loom.com/share/81d0c37db912425cbececb5df4714a8b" },
+    { "title": "05_Co-work&実践", "url": "https://www.loom.com/share/f33ba06a99f6488bb9004b331326c658" }
+  ],
+  "Stage4_Gemini": [
+    { "title": "01_Gemini_Enterpriseとは", "url": "https://www.loom.com/share/0d6276a235e540f9a4f8edfbabe906da" },
+    { "title": "02_Workspace統合実演", "url": "https://www.loom.com/share/fb339efcce8e466d8edc8d58bf667314" },
+    { "title": "03_営業企画効率化", "url": "https://www.loom.com/share/1be9835f69ae464f89e402e77acffd07" },
+    { "title": "04_セキュリティ・対象者", "url": "https://www.loom.com/share/280243a94a8746aea57f15fcb985686c" },
+    { "title": "05_実装事例・未来へ", "url": "https://www.loom.com/share/8a029adb5c214f9eb74b5a0a56d58639" }
+  ],
+  "Stage4_Perplexity": [
+    { "title": "01_なぜ今Perplexityなのか", "url": "https://www.loom.com/share/693d4652b30e418f911dee97d111daf8" },
+    { "title": "02_基本的な検索の使い方", "url": "https://www.loom.com/share/7e01a93bfc2647a1972da8a96d9e3e61" },
+    { "title": "03_高度な検索テクニック", "url": "https://www.loom.com/share/651b7f4a85954bf0939ee4cc91b921bd" },
+    { "title": "04_Google検索との使い分け", "url": "https://www.loom.com/share/235ef1f07d0e4d119d6e6dab5f5962d9" },
+    { "title": "05_業務でPerplexityを活用する", "url": "https://www.loom.com/share/53dcba4b037a45aabd75c6d1aaea0fa4" }
+  ],
+  "Stage5_AI資料作成": [
+    { "title": "01_なぜAIで資料を作るべきなのか", "url": "https://www.loom.com/share/c56a9b7d93fe4fdf96644c1ad572bd2f" },
+    { "title": "02_Claudeで提案書を設計する", "url": "https://www.loom.com/share/9d3464e9e3e64332a3bc8e089cfcaf47" },
+    { "title": "03_Claudeでスライド化する", "url": "https://www.loom.com/share/12653941f9e1469ba49621e91f68b80d" },
+    { "title": "04_業務別テンプレート実践", "url": "https://www.loom.com/share/ff09c09250bf4c219ad34ee14ad05ba2" },
+    { "title": "05_最強ワークフローと総まとめ", "url": "https://www.loom.com/share/68e805cb10fd42aba7a3240532fb7c54" }
+  ],
+  "Stage5_AI画像生成": [
+    { "title": "01_なぜAI画像生成なのか", "url": "https://www.loom.com/share/0cf960d603f94764a4b6fae2ad8dc825" },
+    { "title": "02_まず1枚作る", "url": "https://www.loom.com/share/e738b3f646b14bedbfe2077b3309668e" },
+    { "title": "03_SNS素材テンプレート実践", "url": "https://www.loom.com/share/6cfbba1eb2934f0a97db51cacb821d51" },
+    { "title": "04_広告バナー制作", "url": "https://www.loom.com/share/c91e321913ca40f4a15a258c2cd2571b" },
+    { "title": "05_クオリティ改善と次のステップ", "url": "https://www.loom.com/share/22f541f75d374971bcf69a4c60a9e2d1" }
+  ],
+  ],
+  "Stage5_AI動画生成": [
+    { "title": "01_なぜVeo3一本でいいのか", "url": "https://www.loom.com/share/6d00d130dc6f447eabe5f194e90f5602" },
+    { "title": "02_Veo3基本操作", "url": "https://www.loom.com/share/ced996150eae4e4895790c81521b425a" },
+    { "title": "03_プロンプト設計マスター", "url": "https://www.loom.com/share/495a6a60abf6455a9a95a5f954aa485c" },
+    { "title": "04_SNS×PDCA戦略", "url": "https://www.loom.com/share/0432a53519704e30a77944716ed03a9d" },
+    { "title": "05_業界別テンプレートと実践", "url": "https://www.loom.com/share/83e9a643fc9140d6b4de8b5aabf7fed0" }
+  ],
+  "Stage6_戦略・導入": [
+    { "title": "01_AIで変わる仕事の未来", "url": "https://www.loom.com/share/d3c67dcbf0754cb39618f97ce2c26281" },
+    { "title": "02_業務別AI活用マップ", "url": "https://www.loom.com/share/558f70fe1da4452d87bccb0f58ef00e9" },
+    { "title": "03_AI導入の第一歩", "url": "https://www.loom.com/share/5d69767812734c3ebe617adb59be05e6" },
+    { "title": "04_全ツール総整理", "url": "https://www.loom.com/share/35b42c3f0729457190318158cc600f2d" },
+    { "title": "05_コストシミュレーション", "url": "https://www.loom.com/share/f7e40175d87749f6b5ebcb2212f9511b" },
+    { "title": "06_90日ロードマップ設計", "url": "https://www.loom.com/share/cef32f979d524cf8b0200fe2f266f088" },
+    { "title": "07_KPI設定と実践", "url": "https://www.loom.com/share/a9fe11beec914220bf04f438ff3200fd" },
+    { "title": "08_Pack6総まとめ", "url": "https://www.loom.com/share/3c2c03df75d74cd6bed35ebca89df56a" }
+  ]
+}
