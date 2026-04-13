@@ -99,6 +99,22 @@ def make_demo_part(recording: Path, audio: Path, out: Path) -> float:
     return final_dur
 
 
+def make_demo_part_keep_audio(recording: Path, out: Path) -> float:
+    """実演録画の元音声をそのまま使って動画パーツを生成（narrationなし）"""
+    rec_dur = get_duration(recording)
+
+    subprocess.run([
+        "ffmpeg", "-y",
+        "-i", str(recording),
+        "-c:v", "libx264",
+        "-pix_fmt", "yuv420p",
+        "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2",
+        "-c:a", "aac", "-b:a", "192k",
+        str(out)
+    ], check=True, capture_output=True)
+    return rec_dur
+
+
 def parse_demo_slides(demo_str: str) -> dict[int, Path]:
     """"5=path/to/file.webm,8=path/to/file2.webm" → {5: Path, 8: Path}"""
     if not demo_str:
@@ -110,11 +126,19 @@ def parse_demo_slides(demo_str: str) -> dict[int, Path]:
     return result
 
 
+def parse_keep_audio(keep_str: str) -> set[int]:
+    """'6,8' → {6, 8}  元音声を保持するスライド番号のセット"""
+    if not keep_str:
+        return set()
+    return {int(s.strip()) for s in keep_str.split(",")}
+
+
 async def main():
     parser = argparse.ArgumentParser(description="実演付き動画ビルド（汎用版）")
     parser.add_argument("--course-dir", required=True, help="講座ディレクトリ")
     parser.add_argument("--narrations", help="narrations.json パス")
     parser.add_argument("--demo-slides", default="", help="実演スライド指定 '5=file.webm,8=file2.webm'")
+    parser.add_argument("--demo-keep-audio", default="", help="元音声を保持するスライド番号（カンマ区切り）例: '6,8'")
     parser.add_argument("--output", help="出力ファイルパス")
     args = parser.parse_args()
 
@@ -123,6 +147,7 @@ async def main():
     narrations_path = Path(args.narrations) if args.narrations else course_dir / "narrations.json"
     output_path = Path(args.output) if args.output else course_dir / "動画.mp4"
     demo_config = parse_demo_slides(args.demo_slides)
+    keep_audio_set = parse_keep_audio(args.demo_keep_audio)
 
     temp = course_dir / "_build_temp"
     temp.mkdir(parents=True, exist_ok=True)
@@ -137,12 +162,19 @@ async def main():
     print(f"[設定] 講座: {course_dir.name}")
     print(f"[設定] スライド: {total_slides}枚")
     print(f"[設定] 実演: {list(demo_config.keys()) if demo_config else 'なし'}")
+    print(f"[設定] 元音声保持: {sorted(keep_audio_set) if keep_audio_set else 'なし'}")
 
-    # 1. 全スライドの音声を生成
+    # 1. 全スライドの音声を生成（元音声保持スライドと空ナレーションはスキップ）
     print(f"\n[音声生成] {total_slides}スライド分...")
     tasks = []
     for num_str, text in narrations.items():
         num = int(num_str)
+        if num in keep_audio_set:
+            print(f"  スライド{num}: 元音声保持のためスキップ")
+            continue
+        if not text or not text.strip():
+            print(f"  スライド{num}: ナレーションなし、スキップ")
+            continue
         audio_path = audio_dir / f"slide_{num:02d}.mp3"
         tasks.append(generate_audio(text, audio_path))
     await asyncio.gather(*tasks)
@@ -160,17 +192,24 @@ async def main():
         audio_path = audio_dir / f"slide_{slide_num:02d}.mp3"
         part_path = temp / f"part_{slide_num:02d}.mp4"
 
-        if not audio_path.exists():
+        # 元音声保持のデモスライドは音声ファイルなしでOK
+        if not audio_path.exists() and slide_num not in keep_audio_set:
             print(f"  WARNING: スライド{slide_num}の音声なし、スキップ")
             continue
 
         if slide_num in demo_config:
             recording = demo_config[slide_num]
+            if not recording.is_absolute():
+                recording = course_dir / recording
             if not recording.exists():
                 print(f"  ERROR: 録画ファイルが見つかりません: {recording}")
                 sys.exit(1)
-            print(f"[Part {slide_num}] ★ 実演録画 + ナレーション: {recording.name}")
-            dur = make_demo_part(recording, audio_path, part_path)
+            if slide_num in keep_audio_set:
+                print(f"[Part {slide_num}] ★ 実演録画（元音声そのまま）: {recording.name}")
+                dur = make_demo_part_keep_audio(recording, part_path)
+            else:
+                print(f"[Part {slide_num}] ★ 実演録画 + ナレーション: {recording.name}")
+                dur = make_demo_part(recording, audio_path, part_path)
         else:
             img = slide_images.get(slide_num)
             if not img:
